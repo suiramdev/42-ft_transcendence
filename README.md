@@ -10,6 +10,13 @@ See the [subject](subject.pdf) for more details.
 
 - Node.js 20 or later
 - pnpm 8 or later
+  ```bash
+  npm install -g pnpm
+  # or
+  brew install pnpm
+  # or
+  wget -qO- https://get.pnpm.io/install.sh | sh -
+  ```
 - MySQL 8.0
 
 ### Setup
