@@ -1,0 +1,32 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preinstall": "npx --yes only-allow pnpm",
+    "postinstall": "nuxt prepare",
+    "lint": "pnpm run lint:eslint && pnpm run lint:prettier",
+    "lint:eslint": "eslint --fix .",
+    "lint:prettier": "prettier --write .",
+    "preupdate": "npx --yes only-allow pnpm",
+    "preview": "nuxt preview"
+  },
+  "prettier": "@vercel/style-guide/prettier",
+  "dependencies": {
+    "nuxt": "^3.14.1592",
+    "vue": "latest",
+    "vue-router": "latest"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^0.7.1",
+    "@vercel/style-guide": "^6.0.0",
+    "eslint": "^9.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.7.2"
+  }
+}

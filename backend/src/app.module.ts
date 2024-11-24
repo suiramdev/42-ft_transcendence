@@ -1,17 +1,20 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
-import { AppConfigModule } from './config/app/config.module';
-import { MysqlConfigModule } from './config/database/mysql/config.module';
-import { UserModule } from './models/user/user.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    AppConfigModule,
-    MysqlConfigModule,
-    UserModule,
+    ConfigModule.forRoot({
+      // Make the config module available to all modules
+      isGlobal: true,
+    }),
+    DatabaseModule,
+    UsersModule,
   ],
   controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

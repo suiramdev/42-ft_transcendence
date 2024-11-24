@@ -1,6 +1,7 @@
 # compiled output
 /dist
 /node_modules
+/build
 
 # Logs
 logs
@@ -8,6 +9,7 @@ logs
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
+yarn-error.log*
 lerna-debug.log*
 
 # OS
@@ -25,18 +27,30 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
+
+# IDE - VSCode
 .vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-# Environment variables
+# dotenv environment variable files
 .env
-.env.*
-!.env.example
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
 
-# TypeORM
-/ormconfig.json
+# temp directory
+.temp
+.tmp
 
-# Build files
-/build
-/tmp
-/temp
-GVggy
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

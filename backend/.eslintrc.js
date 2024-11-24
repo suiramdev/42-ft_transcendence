@@ -1,31 +1,27 @@
-const { resolve } = require('node:path');
-
-const project = resolve(__dirname, 'tsconfig.json');
-
 module.exports = {
-  root: true,
-  extends: [
-    require.resolve('@vercel/style-guide/eslint/node'),
-    require.resolve('@vercel/style-guide/eslint/typescript'),
-  ],
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    project,
+    project: 'tsconfig.json',
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
   },
-  settings: {
-    'import/resolver': {
-      typescript: {
-        project,
-      },
-    },
+  plugins: ['@typescript-eslint/eslint-plugin'],
+  extends: [
+    '@vercel/style-guide/eslint/node',
+    '@vercel/style-guide/eslint/typescript',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+  ],
+  root: true,
+  env: {
+    node: true,
+    jest: true,
   },
+  ignorePatterns: ['.eslintrc.js'],
   rules: {
-    '@typescript-eslint/no-unused-vars': [
-      'error',
-      {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        caughtErrorsIgnorePattern: '^_',
-      },
-    ],
+    '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
   },
 };

@@ -1,5 +1,4 @@
 {
-  "extends": "@vercel/style-guide/typescript",
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
@@ -11,6 +10,12 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "strict": true
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
   }
 }
