@@ -1,11 +1,13 @@
+asgiref==3.8.1
 beautifulsoup4==4.12.3
 bs4==0.0.2
 certifi==2023.5.7
-cffi @ file:///private/tmp/cffi-20231211-40239-j25k6o/cffi-1.16.0
+cffi==1.17.1
 charset-normalizer==3.1.0
 colorama==0.4.6
 configparser==6.0.1
-cryptography==42.0.5
+Django==5.1.3
+django-db-connection-pool==1.2.5
 et-xmlfile==1.1.0
 exrex==0.11.0
 idna==3.4
@@ -14,6 +16,7 @@ numpy==1.26.4
 openpyxl==3.0.10
 pandas==2.2.1
 pi==0.1.2
+psycopg2==2.9.10
 psycopg2-binary==2.9.10
 pycparser==2.22
 pync==2.0.3
@@ -24,7 +27,11 @@ pytz==2024.1
 requests==2.31.0
 requests-futures==1.0.1
 soupsieve==2.5
+SQLAlchemy==2.0.36
+sqlparams==6.1.0
+sqlparse==0.5.2
 stem==1.8.2
 torrequest==0.1.0
+typing_extensions==4.12.2
 tzdata==2024.1
 urllib3==2.0.2
