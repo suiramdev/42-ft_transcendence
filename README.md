@@ -43,10 +43,16 @@ pip install -r requirements.txt
 
 3. Configure the environment variables:
 
-   - Create a `.env` file in the project root directory.
-   - Add the required variables as defined in `.env.example`.
+   - Copy the example environment file:
 
-   Example:
+   ```bash
+   cp .env.example .env
+   ```
+
+   - Edit the `.env` file with your specific configurations
+   - Required variables are pre-defined in `.env.example` with example values
+
+   Example `.env` contents:
 
    ```bash
    DEBUG=True
