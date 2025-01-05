@@ -2,146 +2,97 @@
 
 A real-time multiplayer Pong game web application featuring user authentication, live chat, and social features. Built with Django and vanilla HTML/CSS/JavaScript, this project delivers a modern take on the classic arcade game with seamless multiplayer functionality and real-time communication.
 
-See the [subject](subject.pdf) for more details.
+This project is part of the 42 School curriculum. See the [subject](docs/subject.pdf) for more details.
 
-## Installation
+## Prerequisites
 
-### Prerequisites
+- [Docker](https://www.docker.com/get-started/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- [Python 3.10+](https://www.python.org/downloads/)
+- [Git](https://git-scm.com/downloads)
 
-- Python 3.8 or later
-- pip (Python package manager)
-- PostgreSQL (Docker setup included)
-
-### Setup
+## Quick Setup (Using Makefile)
 
 1. Clone the repository:
 
-```bash
-git clone https://github.com/suiramdev/42-ft_transcendence.git
-```
-
-2. Navigate to the project directory:
-
-```bash
-cd 42-ft_transcendence
-```
-
-#### Backend
-
-1. Create and activate a virtual environment:
-
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-2. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Configure the environment variables:
-
-   - Copy the example environment file:
-
    ```bash
-   cp .env.example .env
+   git clone https://github.com/suiramdev/42-ft_transcendence.git
+   cd 42-ft_transcendence
    ```
 
-   - Edit the `.env` file with your specific configurations
-   - Required variables are pre-defined in `.env.example` with example values
-
-   Example `.env` contents:
+2. Run setup (creates venv, installs dependencies, sets up Docker):
 
    ```bash
-   DEBUG=True
-   SECRET_KEY=your-secret-key
-   POSTGRES_HOST=127.0.0.1
-   POSTGRES_PORT=5432
-   POSTGRES_USER=user
-   POSTGRES_PASSWORD=password
-   POSTGRES_DB=ft_transcendence
+   make setup
    ```
 
-4. Set up the PostgreSQL database using Docker:
-
-   - Ensure Docker and Docker Compose are installed on your machine.
-   - Start the PostgreSQL server using the following command:
+3. Run migrations:
 
    ```bash
-   docker compose up -d
+   make migrate
    ```
 
-   - This command will initialize and run the PostgreSQL server in the background.
-
-5. Apply database migrations:
-
-```bash
-python manage.py migrate
-```
-
----
-
-### Notes on Dockerized PostgreSQL Setup
-
-- The Docker Compose file (`docker-compose.yml`) is included in the repository. By default, it sets up a PostgreSQL database with the required configurations.
-- You can customize the PostgreSQL settings (e.g., `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`) in the `docker-compose.yml` file.
-
----
-
-After setting up the Dockerized PostgreSQL server and running the application, you can interact with the database and application as expected.
-
-### Running the Application
-
-To start the development server:
-
-```bash
-python manage.py runserver
-```
+4. Start the development server:
+   ```bash
+   make run
+   ```
 
 The application will be available at `http://localhost:8000`.
 
-## Development
+## Available Commands
 
-### Project Structure
+```bash
+# Setup and Installation
+make setup      # Runs full setup (venv, dependencies, .env, docker)
+make install    # Install Python dependencies
 
-- **Backend:** Built with [Django](https://www.djangoproject.com/), featuring a robust MVT architecture and RESTful APIs.
-- **Frontend:** Developed using vanilla HTML, CSS, and JavaScript for a lightweight and efficient UI.
-- **Database:** PostgreSQL with Django ORM for database management and migrations.
-- **WebSockets:** Real-time communication powered by Django Channels.
+# Development
+make run        # Start development server
+make migrate    # Run database migrations
+make static     # Collect static files
+make test       # Run tests
 
-### Commands
+# Docker Management
+make docker     # Start Docker containers
+make stop       # Stop Docker containers
 
-| Command                            | Description                           |
-| ---------------------------------- | ------------------------------------- |
-| `python manage.py runserver`       | Starts the development server.        |
-| `python manage.py makemigrations`  | Creates new database migrations.      |
-| `python manage.py migrate`         | Applies database migrations.          |
-| `python manage.py test`            | Runs all unit and integration tests.  |
-| `python manage.py createsuperuser` | Creates a superuser for admin access. |
+# Maintenance
+make clean      # Remove venv and temporary files
+```
 
-## Contribution Guidelines
+To see all available commands with descriptions:
 
-We welcome contributions! Please follow these steps:
+```bash
+make help
+```
 
-1. Fork the repository.
-2. Create a new branch following the format `<type>/<issue-number>-<name>`:
-   ```bash
-   git checkout -b feat/42-user-authentication
-   # or
-   git checkout -b fix/57-login-error
-   # or
-   git checkout -b docs/12-api-documentation
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "feat(auth): implement user authentication"
-   ```
-4. Push to your branch:
-   ```bash
-   git push origin feat/42-user-authentication
-   ```
-5. Create a pull request on GitHub.
+## Project Structure
 
-Please ensure your code follows our linting and testing standards.
+```
+ft_transcendence/
+├── api/                # Django project settings and main URLs
+├── apps/              # Django applications
+│   ├── users/         # User authentication and profiles
+│   └── ...
+├── docs/              # Documentation
+├── templates/         # HTML templates
+│   ├── css/          # Stylesheets
+│   └── js/           # JavaScript files
+└── docker/           # Docker configuration files
+```
+
+## Tech Stack
+
+- **Backend:** Django with Django REST Framework
+- **Frontend:** Vanilla HTML, CSS, and JavaScript
+- **Database:** PostgreSQL (via Docker)
+- **Real-time:** Django Channels for WebSocket support
+- **Authentication:** OAuth 2.0 integration
+
+## Contributing
+
+Please see our [Contributing Guide](docs/CONTRIBUTING.md) for details on:
+
+- Setting up your development environment
+- Coding standards
+- Pull request process
+- Commit message conventions
