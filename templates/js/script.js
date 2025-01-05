@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <section id="home">
                 <h2>Bienvenue au Pong Game</h2>
                 <div class="gif-border">
-                    <img src="Utils/Windows.jpg" alt="Pong Game GIF">
+                    <img src="static/Windows.jpg" alt="Pong Game GIF">
                 </div>
             </section>
         `,
