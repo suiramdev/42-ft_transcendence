@@ -18,6 +18,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+static/
 
 # Django
 *.log
@@ -63,3 +64,9 @@ coverage.xml
 docs/_build/
 
 .vscode
+
+# Add if not already present
+docker/*
+!docker/docker-compose.yml
+!docker/Dockerfile
+!docker/nginx/nginx.conf
