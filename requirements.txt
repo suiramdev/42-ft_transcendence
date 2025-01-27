@@ -16,7 +16,6 @@ numpy==1.26.4
 openpyxl==3.0.10
 pandas==2.2.1
 pi==0.1.2
-psycopg2==2.9.10
 psycopg2-binary==2.9.10
 pycparser==2.22
 pync==2.0.3
