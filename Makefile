@@ -3,7 +3,7 @@ PYTHON = python3
 VENV = venv
 PIP = $(VENV)/bin/pip
 PYTHON_VENV = $(VENV)/bin/python
-DOCKER_COMPOSE = docker compose -f docker/docker-compose.yml
+DOCKER_COMPOSE = docker compose -f docker/docker-compose.yml --env-file .env
 
 # Colors for terminal output
 GREEN = \033[0;32m
