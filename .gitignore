@@ -69,4 +69,4 @@ docs/_build/
 docker/*
 !docker/docker-compose.yml
 !docker/Dockerfile
-!docker/nginx/nginx.conf
+!docker/nginx/
