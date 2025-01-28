@@ -1,0 +1,41 @@
+# Project Context
+
+- This is ft_transcendence, a 42 School curriculum project
+- All code must comply with docs/subject.pdf requirements
+- Reference docs folder for project specifications
+
+# Technical Stack
+
+- Django + Django REST Framework backend
+- Vanilla HTML/CSS/JavaScript frontend (no frameworks)
+- PostgreSQL database via Docker
+- Django Channels for WebSocket features
+- OAuth 2.0 authentication
+
+# Project Structure
+
+- Django apps go in apps/
+- Frontend assets in templates/
+- Docker configs in docker/
+- Documentation in docs/
+
+# Code Standards
+
+- Follow docs/CONTRIBUTING.md
+- Document all changes
+- Prefer BEM CSS naming
+- Maintain existing architecture
+
+# Development
+
+- Use Makefile commands
+- Run in Docker containers
+- Migrate database changes
+- Collect static files with make static
+
+# Security
+
+- No sensitive data in code
+- Secure API keys and secrets
+- Follow Django security practices
+- Validate and sanitize inputs
