@@ -85,9 +85,6 @@ create:
 		echo "  make create app <app_name>        - Create new Django app"; \
 	fi
 
-migrations app:
-	@:
-
 migrate:
 	@echo "Running migrations..."
 	@$(PYTHON_VENV) manage.py migrate
@@ -108,4 +105,4 @@ test:
 %:
 	@:
 
-.PHONY: help setup install docker stop clean migrate static run test migrations app
+.PHONY: help setup install docker stop clean migrate static run test
