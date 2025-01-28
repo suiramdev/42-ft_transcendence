@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from apps.users.views import UserViewSet
+from apps.user.views import UserViewSet
 from templates.views import index
 
 router = routers.DefaultRouter()
