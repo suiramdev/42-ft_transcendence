@@ -8,6 +8,7 @@ DOCKER_COMPOSE = docker compose -f docker/docker-compose.yml --env-file .env
 # Colors for terminal output
 GREEN = \033[0;32m
 NC = \033[0m # No Color
+RED = \033[0;31m
 
 # Default target
 .DEFAULT_GOAL := help
@@ -20,6 +21,7 @@ help:
 	@echo "  make docker    - Start Docker containers"
 	@echo "  make stop      - Stop Docker containers"
 	@echo "  make clean     - Remove virtual environment and cached files"
+	@echo "  make create    - Create migrations or new Django app"
 	@echo "  make migrate   - Run database migrations"
 	@echo "  make static    - Collect static files"
 	@echo "  make test      - Run tests"
@@ -58,6 +60,34 @@ clean:
 	@find . -type d -name "__pycache__" -exec rm -r {} +
 	@find . -type f -name "*.pyc" -delete
 
+create-migrations:
+	@echo "Creating migrations..."
+	@$(PYTHON_VENV) manage.py makemigrations
+
+create:
+	@if [ "$(filter migrations,$(MAKECMDGOALS))" = "migrations" ]; then \
+		echo "Creating migrations..."; \
+		$(PYTHON_VENV) manage.py makemigrations $(filter-out migrations,$(ARGS)) 2>/dev/null; \
+		echo "${GREEN}Migrations created successfully!${NC}"; \
+	elif [ "$(filter app,$(MAKECMDGOALS))" = "app" ]; then \
+		echo "Creating new Django app..."; \
+		cd apps && ../$(PYTHON_VENV) ../manage.py startapp $(word 3,$(MAKECMDGOALS)) 2>/dev/null && { \
+			echo "Registering app in INSTALLED_APPS..."; \
+			cd .. && $(PYTHON_VENV) scripts/register_app.py $(word 3,$(MAKECMDGOALS)) 2>/dev/null; \
+			echo "${GREEN}App created and registered successfully!${NC}"; \
+		} || { \
+			echo "${RED}Failed to create app '$(word 3,$(MAKECMDGOALS))'. Make sure the app name is valid and doesn't already exist${NC}"; \
+			exit 1; \
+		} \
+	else \
+		echo "Usage:"; \
+		echo "  make create migrations [app_name]  - Create migrations for all or specific app"; \
+		echo "  make create app <app_name>        - Create new Django app"; \
+	fi
+
+migrations app:
+	@:
+
 migrate:
 	@echo "Running migrations..."
 	@$(PYTHON_VENV) manage.py migrate
@@ -74,4 +104,8 @@ test:
 	@echo "Running tests..."
 	@$(PYTHON_VENV) manage.py test
 
-.PHONY: help setup install docker stop clean migrate static run test
+# Ignore all targets that don't match any of the above
+%:
+	@:
+
+.PHONY: help setup install docker stop clean migrate static run test migrations app
