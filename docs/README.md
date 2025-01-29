@@ -42,21 +42,26 @@ The application will be available at `http://localhost:8000`.
 
 ```bash
 # Setup and Installation
-make setup      # Runs full setup (venv, dependencies, .env, docker)
-make install    # Install Python dependencies
+make setup              # Runs full setup (venv, dependencies, .env, docker)
+make install            # pip install -r requirements.txt
 
 # Development
-make run        # Start development server
-make migrate    # Run database migrations
-make static     # Collect static files
-make test       # Run tests
+make run                # python manage.py runserver
+make migrate            # python manage.py migrate
+make static             # python manage.py collectstatic --noinput
+make test               # python manage.py test
+make create app <name>  # Creates a new Django app in apps/ directory
+make create migrations  # Creates new migrations for model changes
 
 # Docker Management
-make docker     # Start Docker containers
-make stop       # Stop Docker containers
+make docker             # docker compose up -d
+make stop               # docker compose down
+
+# Database Management
+make create-db          # Ensures database exists in PostgreSQL
 
 # Maintenance
-make clean      # Remove venv and temporary files
+make clean              # Removes venv, __pycache__, and temporary files
 ```
 
 To see all available commands with descriptions:
@@ -69,15 +74,15 @@ make help
 
 ```
 ft_transcendence/
-├── api/                # Django project settings and main URLs
+├── api/               # Django project settings and main URLs
 ├── apps/              # Django applications
 │   ├── users/         # User authentication and profiles
 │   └── ...
 ├── docs/              # Documentation
 ├── templates/         # HTML templates
-│   ├── css/          # Stylesheets
-│   └── js/           # JavaScript files
-└── docker/           # Docker configuration files
+│   ├── css/           # Stylesheets
+│   └── js/            # JavaScript files
+└── docker/            # Docker configuration files
 ```
 
 ## Tech Stack
