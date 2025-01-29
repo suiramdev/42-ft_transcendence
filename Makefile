@@ -4,6 +4,9 @@ VENV = venv
 PIP = $(VENV)/bin/pip
 PYTHON_VENV = $(VENV)/bin/python
 DOCKER_COMPOSE = docker compose -f docker/docker-compose.yml --env-file .env
+DB_NAME = $(shell grep DB_NAME .env | cut -d '=' -f2)
+DB_USER = $(shell grep DB_USER .env | cut -d '=' -f2)
+DB_PASSWORD = $(shell grep DB_PASSWORD .env | cut -d '=' -f2)
 
 # Colors for terminal output
 GREEN = \033[0;32m
@@ -26,7 +29,7 @@ help:
 	@echo "  make static    - Collect static files"
 	@echo "  make test      - Run tests"
 
-setup: $(VENV) .env docker
+setup: $(VENV) .env docker 
 	@echo "${GREEN}Setup completed!${NC}"
 
 $(VENV):
@@ -60,10 +63,6 @@ clean:
 	@find . -type d -name "__pycache__" -exec rm -r {} +
 	@find . -type f -name "*.pyc" -delete
 
-create-migrations:
-	@echo "Creating migrations..."
-	@$(PYTHON_VENV) manage.py makemigrations
-
 create:
 	@if [ "$(filter migrations,$(MAKECMDGOALS))" = "migrations" ]; then \
 		echo "Creating migrations..."; \
@@ -85,7 +84,7 @@ create:
 		echo "  make create app <app_name>        - Create new Django app"; \
 	fi
 
-migrate:
+migrate: create-db
 	@echo "Running migrations..."
 	@$(PYTHON_VENV) manage.py migrate
 
@@ -101,8 +100,13 @@ test:
 	@echo "Running tests..."
 	@$(PYTHON_VENV) manage.py test
 
+create-db:
+	@echo "Ensuring database exists..."
+	@$(DOCKER_COMPOSE) exec -T postgres psql -U $(DB_USER) -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$(DB_NAME)'" | grep -q 1 || \
+	$(DOCKER_COMPOSE) exec -T postgres psql -U $(DB_USER) -d postgres -c "CREATE DATABASE $(DB_NAME)"
+
 # Ignore all targets that don't match any of the above
 %:
 	@:
 
-.PHONY: help setup install docker stop clean migrate static run test
+.PHONY: help setup install docker stop clean migrate static run test create-db
