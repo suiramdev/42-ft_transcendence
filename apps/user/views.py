@@ -14,6 +14,24 @@ class UserViewSet(viewsets.ModelViewSet):
             return UserUpdateSerializer
         return UserReadSerializer
 
+    def update(self, request, *args, **kwargs):
+        """Handle PUT requests"""
+        if str(request.user.id) != kwargs.get('pk'):
+            return Response(
+                {"detail": "You can only modify your own profile"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        """Handle PATCH requests"""
+        if str(request.user.id) != kwargs.get('pk'):
+            return Response(
+                {"detail": "You can only modify your own profile"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        return super().partial_update(request, *args, **kwargs)
+
     @action(detail=False, methods=['get', 'patch', 'put'], url_path='me')
     def me(self, request):
         """Get or update the currently authenticated user"""
