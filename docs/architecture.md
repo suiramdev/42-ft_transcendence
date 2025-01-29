@@ -39,8 +39,23 @@ The `apps/` directory follows Django's modular architecture pattern. Each app re
 
 Current apps:
 
-- `users/`: User authentication and profile management
+- `user/`: User authentication and profile management
+
   - `models.py`: Database models for user data
+  - `views.py`: View logic and API endpoints
+  - `serializers.py`: Data serialization for API responses
+  - `urls.py`: App-specific URL routing
+
+- `game/`: Game logic and multiplayer functionality
+
+  - `models.py`: Database models for game data
+  - `views.py`: View logic and API endpoints
+  - `serializers.py`: Data serialization for API responses
+  - `urls.py`: App-specific URL routing
+
+- `authentication/`: Authentication and authorization
+
+  - `models.py`: Database models for authentication data
   - `views.py`: View logic and API endpoints
   - `serializers.py`: Data serialization for API responses
   - `urls.py`: App-specific URL routing
