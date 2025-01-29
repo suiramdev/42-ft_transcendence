@@ -77,21 +77,26 @@ Here's the full list of available Makefile commands and their equivalents:
 
 ```bash
 # Setup and Installation
-make setup      # Runs full setup (venv, dependencies, .env, docker)
-make install    # pip install -r requirements.txt
+make setup              # Runs full setup (venv, dependencies, .env, docker)
+make install            # pip install -r requirements.txt
 
 # Development
-make run        # python manage.py runserver
-make migrate    # python manage.py migrate
-make static     # python manage.py collectstatic --noinput
-make test       # python manage.py test
+make run                # python manage.py runserver
+make migrate            # python manage.py migrate
+make static             # python manage.py collectstatic --noinput
+make test               # python manage.py test
+make create app <name>  # Creates a new Django app in apps/ directory
+make create migrations  # Creates new migrations for model changes
 
 # Docker Management
-make docker     # docker compose up -d
-make stop       # docker compose down
+make docker             # docker compose up -d
+make stop               # docker compose down
+
+# Database Management
+make create-db          # Ensures database exists in PostgreSQL
 
 # Maintenance
-make clean      # Removes venv, __pycache__, and temporary files
+make clean              # Removes venv, __pycache__, and temporary files
 ```
 
 To see all available commands with descriptions:
@@ -99,6 +104,31 @@ To see all available commands with descriptions:
 ```bash
 make help
 ```
+
+### Creating New Apps and Migrations
+
+The `make create` command provides two main functionalities:
+
+1. Creating new Django apps:
+
+   ```bash
+   make create app myapp
+   ```
+
+   This will:
+
+   - Create a new app in the `apps/` directory
+   - Register it automatically in `INSTALLED_APPS`
+   - Set up the basic app structure
+
+2. Creating migrations:
+
+   ```bash
+   make create migrations        # Create migrations for all apps
+   make create migrations myapp  # Create migrations for specific app
+   ```
+
+   Use this after making changes to your models to generate new database migrations.
 
 ## Development Workflow
 
