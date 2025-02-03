@@ -126,8 +126,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pongCanvas = document.getElementById('pongCanvas');
     if (pongCanvas) {
-      const ctx = pongCanvas.getContext('2d');
-      // Code pour dessiner le jeu Pong ici
+      // Add import map script
+      const importMap = document.createElement('script');
+      importMap.type = 'importmap';
+      importMap.textContent = JSON.stringify({
+        imports: {
+          three: 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js',
+          'three/addons/': 'https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/',
+        },
+      });
+      document.head.appendChild(importMap);
+
+      // Add game script
+      const gameScript = document.createElement('script');
+      gameScript.type = 'module';
+      gameScript.src = 'static/game.js';
+      document.body.appendChild(gameScript);
     }
 
     const editNameButton = document.getElementById('edit-name-button');
