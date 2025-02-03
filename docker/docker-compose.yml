@@ -14,6 +14,15 @@ services:
     networks:
       - ft_transcendence_network
 
+  redis:
+    image: redis:latest
+    container_name: ft_transcendence_redis
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - ft_transcendence_network
+
   web:
     build:
       context: ..
@@ -26,6 +35,7 @@ services:
       - media_volume:/app/media
     depends_on:
       - postgres
+      - redis
     networks:
       - ft_transcendence_network
     command: gunicorn api.wsgi:application --bind 0.0.0.0:8000

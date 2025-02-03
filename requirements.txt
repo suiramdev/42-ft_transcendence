@@ -79,3 +79,10 @@ tzdata==2024.1
 uritemplate==4.1.1
 urllib3==2.0.2
 watchdog==6.0.0
+gunicorn==23.0.0
+djangorestframework==3.15.2
+pillow==11.1.0
+django-browser-reload
+channels==4.2.0
+channels-redis==4.2.1
+daphne==4.1.2
