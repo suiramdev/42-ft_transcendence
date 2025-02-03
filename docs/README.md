@@ -74,15 +74,17 @@ make help
 
 ```
 ft_transcendence/
-├── api/               # Django project settings and main URLs
-├── apps/              # Django applications
-│   ├── users/         # User authentication and profiles
+├── transcendence/      # Django project settings and main URLs
+├── apps/               # Django applications
+│   ├── user/           # User management
+│   ├── authentication/ # User authentication
+│   ├── game/           # Game functionality
 │   └── ...
-├── docs/              # Documentation
-├── templates/         # HTML templates
-│   ├── css/           # Stylesheets
-│   └── js/            # JavaScript files
-└── docker/            # Docker configuration files
+├── docs/               # Documentation
+├── templates/          # HTML templates
+│   ├── css/            # Stylesheets
+│   └── js/             # JavaScript files
+└── docker/             # Docker configuration files
 ```
 
 ## Tech Stack

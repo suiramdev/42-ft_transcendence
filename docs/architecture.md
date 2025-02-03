@@ -6,7 +6,7 @@ This document explains the architecture and organization of the ft_transcendence
 
 ```
 ft_transcendence/
-├── api/               # Core Django project configuration
+├── transcendence/     # Core Django project configuration
 ├── apps/              # Django applications
 ├── docs/              # Project documentation
 ├── templates/         # Frontend templates and assets
@@ -15,9 +15,9 @@ ft_transcendence/
 
 ## Core Components
 
-### API Directory (`api/`)
+### Project Configuration Directory (`transcendence/`)
 
-The `api/` directory contains the core Django project configuration:
+The `transcendence/` directory contains the core Django project configuration:
 
 - `settings.py`: Project-wide settings, including:
 
@@ -68,7 +68,7 @@ Current apps:
    python manage.py startapp your_app_name apps/your_app_name
    ```
 
-2. Register the app in `api/settings.py`:
+2. Register the app in `transcendence/settings.py`:
 
    ```python
    INSTALLED_APPS = [
@@ -89,11 +89,11 @@ Current apps:
    ]
    ```
 
-4. Include app URLs in `api/urls.py`:
+4. Include app URLs in `transcendence/urls.py`:
    ```python
    urlpatterns = [
        ...
-       path('api/your-app/', include('apps.your_app_name.urls')),
+       path('transcendence/your-app/', include('apps.your_app_name.urls')),
    ]
    ```
 
