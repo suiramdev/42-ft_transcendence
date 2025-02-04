@@ -35,6 +35,8 @@ setup: $(VENV) .env docker
 $(VENV):
 	@echo "Creating virtual environment..."
 	@$(PYTHON) -m venv $(VENV)
+	@echo "Activating virtual environment..."
+	@. $(VENV)/bin/activate
 	@$(PIP) install --upgrade pip
 	@make install
 
@@ -93,6 +95,8 @@ static:
 	@$(PYTHON_VENV) manage.py collectstatic --noinput
 
 run: docker
+	@echo "Activating virtual environment..."
+	@. $(VENV)/bin/activate
 	@echo "Starting development server..."
 	@$(PYTHON_VENV) manage.py runserver
 
