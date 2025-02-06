@@ -194,3 +194,56 @@ main {
   border: 2px solid #0984e3;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
+
+
+.score-container {
+  position: absolute;
+  width: 100%;
+  top: 20px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1;
+}
+
+.score-display {
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#pregame-menu {
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.slider-container {
+  margin: 20px 0;
+  text-align: left;
+}
+
+.slider-container label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.slider-container input[type="range"] {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.slider-container span {
+  display: inline-block;
+  min-width: 30px;
+  text-align: right;
+}
+
+#game-container {
+  position: relative;
+  margin-top: 20px;
+}
