@@ -1,8 +1,9 @@
 import { Page } from '../core/Page.js';
+import { PROFILE_IMAGES } from '../config/constants.js';
 
-export class HomePage extends Page {
+export class TournamentPage extends Page {
   constructor() {
-    super('home.html');
+    super('tournament.html');
   }
 
   // Override mount to add custom behavior

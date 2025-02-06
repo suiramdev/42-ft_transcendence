@@ -1,4 +1,13 @@
+/**
+ * Base class for all pages
+ * @class
+ * @classdesc Manages the template and rendering of pages
+ */
 export class Page {
+  /**
+   * Constructor for the Page class
+   * @param {string} templatePath - The path to the template file
+   */
   constructor(templatePath) {
     this.templatePath = templatePath;
     this.template = null;
@@ -7,6 +16,7 @@ export class Page {
   /**
    * Fetches the template HTML from the server
    * @returns {Promise<string>} The template HTML content
+   * @private
    */
   async fetchTemplate() {
     try {
@@ -26,6 +36,7 @@ export class Page {
   /**
    * Renders the template into the specified container
    * @param {HTMLElement} container - The container element to render the template into
+   * @private
    */
   render(container) {
     if (!container) {
@@ -50,13 +61,5 @@ export class Page {
       console.error('Error mounting page:', error);
       return false;
     }
-  }
-
-  /**
-   * Cleanup method to be called when unmounting the page
-   * Can be overridden by child classes to perform cleanup
-   */
-  unmount() {
-    // Base implementation - can be overridden by child classes
   }
 }

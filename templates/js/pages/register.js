@@ -1,8 +1,8 @@
 import { Page } from '../core/Page.js';
 
-export class HomePage extends Page {
+export class RegisterPage extends Page {
   constructor() {
-    super('home.html');
+    super('register.html');
   }
 
   // Override mount to add custom behavior
