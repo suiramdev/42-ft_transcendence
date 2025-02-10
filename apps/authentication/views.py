@@ -1,66 +1,56 @@
-from django.shortcuts import render
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.contrib.auth import authenticate, login
-from .serializers import SignUpSerializer, SignInSerializer
-from apps.user.serializers import UserReadSerializer
+from .serializers import FortyTwoOAuthSerializer
+import os
+from django.http import HttpResponseRedirect
+import requests
 
-class AuthViewSet(viewsets.GenericViewSet):
+class FortyTwoOAuthView(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
+    serializer_class = FortyTwoOAuthSerializer
 
-    def get_serializer_class(self):
-        if self.action == 'signup':
-            return SignUpSerializer
-        return SignInSerializer
-
-    @action(detail=False, methods=['post'])
-    def signup(self, request):
-        """Handle user registration"""
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            # Authenticate the user right after signup
-            authenticated_user = authenticate(
-                username=serializer.validated_data['username'],
-                password=serializer.validated_data['password']
-            )
-            if authenticated_user:
-                login(request, authenticated_user)
+    @action(detail=False, methods=['get'], url_path='')
+    def get(self, request):
+        oauth_url = f"{os.getenv('AUTH_FORTY_TWO_OAUTH_URI')}?client_id={os.getenv('AUTH_FORTY_TWO_UID')}&redirect_uri={os.getenv('AUTH_FORTY_TWO_REDIRECT_URI')}&response_type=code"
+        return HttpResponseRedirect(oauth_url)
+    
+    @action(detail=False, methods=['get'], url_path='callback')
+    def callback(self, request):
+        code = request.query_params.get('code')
+        if not code:
             return Response(
-                UserReadSerializer(user).data,
-                status=status.HTTP_201_CREATED
+                {'error': 'No code provided'},
+                status=status.HTTP_400_BAD_REQUEST
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
 
-    @action(detail=False, methods=['post'])
-    def signin(self, request):
-        """Handle user authentication"""
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            user = authenticate(
-                username=serializer.validated_data['username'],
-                password=serializer.validated_data['password']
-            )
-            if user:
-                login(request, user)
-                return Response(UserReadSerializer(user).data)
+        data = {
+            'grant_type': 'authorization_code',
+            'client_id': os.getenv('AUTH_FORTY_TWO_UID'),
+            'client_secret': os.getenv('AUTH_FORTY_TWO_SECRET'),
+            'code': code,
+        }
+
+        response = requests.post(os.getenv('AUTH_FORTY_TWO_TOKEN_URI'), data=data)
+        if response.status_code != 200:
             return Response(
-                {'error': 'Invalid credentials'},
-                status=status.HTTP_401_UNAUTHORIZED
+                {'error': 'Failed to exchange code for token'},
+                status=status.HTTP_400_BAD_REQUEST
             )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
 
+        token_data = response.json()
+        access_token = token_data.get('access_token')
+        refresh_token = token_data.get('refresh_token')
+
+        return Response({
+            'access_token': access_token,
+            'refresh_token': refresh_token
+        })
+    
     def list(self, request):
         return Response({
             "endpoints": {
-                "signup": "/api/auth/signup/",
-                "signin": "/api/auth/signin/"
+                "42": "/api/oauth/42/",
+                "callback": "/api/oauth/42/callback/"
             }
         })

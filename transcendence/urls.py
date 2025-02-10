@@ -18,12 +18,12 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 from apps.user.views import UserViewSet 
-from apps.authentication.views import AuthViewSet
+from apps.authentication.views import FortyTwoOAuthView
 from templates.views import index
 
 router = routers.DefaultRouter()
 router.register(r'user', UserViewSet, basename='user')
-router.register(r'auth', AuthViewSet, basename='auth')
+router.register(r'oauth/42', FortyTwoOAuthView, basename='oauth')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
