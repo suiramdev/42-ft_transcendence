@@ -1,5 +1,12 @@
 import { Page } from '../core/Page.js';
-import { PROFILE_IMAGES } from '../config/constants.js';
+import { updateUser, logout } from '../services/user.js';
+
+const PROFILE_IMAGES = [
+  'static/profiles/profile1.png',
+  'static/profiles/profile2.png',
+  'static/profiles/profile3.png',
+  'static/profiles/profile4.png',
+];
 
 export class ProfilePage extends Page {
   constructor() {
@@ -7,52 +14,95 @@ export class ProfilePage extends Page {
   }
 
   /**
-   * Populate the profile image select with the available profile images
+   * Render the current profile picture
+   * @private
    */
-  populateProfileImageSelect() {
-    const select = document.getElementById('new-profile-img');
-    PROFILE_IMAGES.forEach((img, idx) => {
-      const option = document.createElement('option');
-      option.value = img;
-      option.textContent = `Image ${idx + 1}`;
-      select.appendChild(option);
+  renderProfilePicture() {
+    const profileImgPreview = document.getElementById('profile-picture-preview');
+
+    profileImgPreview.src = currentUser.profilePicture;
+  }
+
+  /**
+   * Render the current alias
+   * @private
+   */
+  renderAlias() {
+    const currentAlias = document.getElementById('current-alias');
+
+    currentAlias.textContent = `Pseudo : ${currentUser.alias}`;
+  }
+
+  /**
+   * Handle the edit name form submit event
+   * @private
+   */
+  handleEditNameFormSubmit() {
+    const editNameForm = document.getElementById('edit-name-form');
+
+    editNameForm.addEventListener('submit', event => {
+      event.preventDefault();
+
+      const newAlias = event.target['new-alias'].value;
+      if (newAlias.trim() !== '') {
+        updateUser({
+          ...currentUser,
+          alias: newAlias,
+        });
+
+        this.renderAlias();
+      }
     });
   }
 
-  eventListeners() {
-    const editNameButton = document.getElementById('edit-name-button');
-    if (editNameButton) {
-      editNameButton.addEventListener('click', () => {
-        this.editNameSection.style.display =
-          this.editNameSection.style.display === 'none' ? 'block' : 'none';
-      });
-    }
+  /**
+   * Handle the edit profile picture form submit event
+   * @private
+   */
+  handleEditProfilePictureSubmit() {
+    const editProfilePictureForm = document.getElementById('edit-profile-picture-form');
 
-    const editNameSection = document.getElementById('edit-name-section');
-    if (editNameSection) {
-      editNameSection.style.display = editNameSection.style.display === 'none' ? 'block' : 'none';
-    }
+    editProfilePictureForm.addEventListener('submit', event => {
+      event.preventDefault();
 
-    const editNameForm = document.getElementById('edit-name-form');
-    if (editNameForm) {
-      editNameForm.addEventListener('submit', event => {
-        event.preventDefault();
-        const newAlias = document.getElementById('new-alias').value;
-        if (newAlias) {
-          currentUser.alias = newAlias;
-          alert('Pseudo mis à jour avec succès !');
-          updateUserInfo();
-          setupProfilePage();
-        }
+      const newProfilePicture = event.target['new-profile-picture'].value;
+      updateUser({
+        ...currentUser,
+        profilePicture: newProfilePicture,
       });
-    }
+
+      this.renderProfilePicture();
+    });
   }
 
-  // Override mount to add custom behavior
+  /**
+   * Handle the logout button click event
+   * @private
+   */
+  handleLogoutButtonClick() {
+    const logoutButton = document.getElementById('logout-button');
+    logoutButton.addEventListener('click', () => {
+      logout();
+      router.navigate('/');
+    });
+  }
+
   async mount(container) {
+    // If the user is not logged in, redirect to the register page
+    if (!currentUser) {
+      router.navigate('/register');
+      return false;
+    }
+
     await super.mount(container);
+
     // Add any page-specific initialization here
-    this.populateProfileImageSelect();
+    this.renderProfilePicture();
+    this.renderAlias();
+
+    this.handleEditNameFormSubmit();
+    this.handleEditProfilePictureSubmit();
+    this.handleLogoutButtonClick();
     return true;
   }
 }

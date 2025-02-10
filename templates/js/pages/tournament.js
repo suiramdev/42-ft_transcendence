@@ -1,5 +1,4 @@
 import { Page } from '../core/Page.js';
-import { PROFILE_IMAGES } from '../config/constants.js';
 
 export class TournamentPage extends Page {
   constructor() {
