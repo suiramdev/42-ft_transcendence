@@ -1,5 +1,7 @@
 # Routing
 
+This section describes the routing system used in this project.
+
 ## Quick Start
 
 ### Register a New Route
