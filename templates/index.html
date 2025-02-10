@@ -1,30 +1,46 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pong Game</title>
-    <link rel="stylesheet" href="static/styles.css" />
-    <script type="module" src="static/app.js"></script>
-    <script type="module" src="static/components/header.js"></script>
-    <script type="module" src="static/services/user.js"></script>
-  </head>
-  <body>
-    <header>
-      <h1>Pong Game</h1>
-      <nav>
-        <ul>
-          <li><a href="/">Accueil</a></li>
-          <li><a href="/tournament">Tournoi</a></li>
-          <li><a href="/game">Jeu Pong</a></li>
-          <li><a href="/profile">Profil</a></li>
-          <li><a href="/register">Inscription</a></li>
-        </ul>
-      </nav>
-    </header>
-    <main id="root"></main>
-    <footer>
-      <p>&copy; Ord' 2024 Pong Game</p>
-    </footer>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pong Game - Windows XP Style</title>
+  <link rel="stylesheet" href="static/styles.css">
+  <script type="module" src="static/app.js"></script>
+  <script type="module" src="static/components/header.js"></script>
+  <script type="module" src="static/services/user.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <h1>Pong Game</h1>
+    <button class="home-button">Accueil</button>
+  </header>
+
+  <!-- Contenu principal -->
+  <main id="main-content">
+  </main>
+
+  <!-- Barre des tâches -->
+  <footer>
+    <button class="start-button">Démarrer</button>
+    <div class="dropdown-menu" id="dropdown-menu">
+      <div class="profile-header">
+        <img src="img/profiles/profile1.png" alt="Photo de profil" class="profile-pic">
+        <p class="username">PseudoUtilisateur</p>
+      </div>
+      <div class="blue-band"></div>
+      <ul>
+        <li><a href="/" class="home-button">Accueil</a></li>
+        <li><a href="/game">Jeu Pong</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/tournament">Tournoi</a></li>
+      </ul>
+      <div class="blue-band"></div>
+      <button class="logout-button">Déconnexion</button>
+    </div>
+    <p>&copy; 2025 Pong Game</p>
+  </footer>
+
+  <script src="static/script.js"></script>
+</body>
 </html>
