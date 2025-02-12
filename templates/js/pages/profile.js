@@ -1,5 +1,6 @@
 import { Page } from '../core/Page.js';
 import { updateUser, logout } from '../services/user.js';
+import { windowManager } from '../components/windowManager.js';
 
 const PROFILE_IMAGES = [
   'static/profiles/profile1.png',
@@ -13,6 +14,42 @@ export class ProfilePage extends Page {
     super('profile.html');
   }
 
+  async mount(container) {
+    // if no user -> register page
+    if (!currentUser) {
+      router.navigate('/register');
+      return false;
+    }
+
+    try {
+      const response = await fetch(`/static/templates/profile.html`);
+      if (!response.ok) {
+        throw new Error(`Erreur lors du chargement de profile.html : ${response.statusText}`);
+      }
+
+      const htmlText = await response.text();
+      console.log("Contenu HTML chargé :", htmlText);
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      const formContent = doc.querySelector('#profile');
+
+      windowManager.openWindow('Profil', formContent.outerHTML);
+
+    } catch (error) {
+      console.error("Erreur :", error);
+    }
+
+    await super.mount(container);
+
+    // Gestion des événements
+    this.handleEditNameFormSubmit();
+    this.handleEditProfilePictureSubmit();
+    this.handleLogoutButtonClick();
+
+    return true;
+  }
+
   /**
    * Render the current profile picture
    * @private
@@ -20,7 +57,10 @@ export class ProfilePage extends Page {
   renderProfilePicture() {
     const profileImgPreview = document.getElementById('profile-picture-preview');
 
-    profileImgPreview.src = currentUser.profilePicture;
+    if (profileImgPreview && currentUser) {
+      profileImgPreview.src = currentUser.profilePicture || PROFILE_IMAGES[0]; // Met une image par défaut si aucune image n'est définie
+      console.log(`Rendering profile picture: ${currentUser.profilePicture || PROFILE_IMAGES[0]}`);
+    }
   }
 
   /**
@@ -30,7 +70,10 @@ export class ProfilePage extends Page {
   renderAlias() {
     const currentAlias = document.getElementById('current-alias');
 
-    currentAlias.textContent = `Pseudo : ${currentUser.alias}`;
+    if (currentAlias && currentUser) {
+      currentAlias.textContent = `Pseudo : ${currentUser.alias}`;
+      console.log(`Rendering alias: ${currentUser.alias}`);
+    }
   }
 
   /**
@@ -40,19 +83,21 @@ export class ProfilePage extends Page {
   handleEditNameFormSubmit() {
     const editNameForm = document.getElementById('edit-name-form');
 
-    editNameForm.addEventListener('submit', event => {
-      event.preventDefault();
+    if (editNameForm) {
+      editNameForm.addEventListener('submit', event => {
+        event.preventDefault();
 
-      const newAlias = event.target['new-alias'].value;
-      if (newAlias.trim() !== '') {
-        updateUser({
-          ...currentUser,
-          alias: newAlias,
-        });
+        const newAlias = event.target['new-alias'].value;
+        if (newAlias.trim() !== '') {
+          updateUser({
+            ...currentUser,
+            alias: newAlias,
+          });
 
-        this.renderAlias();
-      }
-    });
+          this.renderAlias();
+        }
+      });
+    }
   }
 
   /**
@@ -62,17 +107,19 @@ export class ProfilePage extends Page {
   handleEditProfilePictureSubmit() {
     const editProfilePictureForm = document.getElementById('edit-profile-picture-form');
 
-    editProfilePictureForm.addEventListener('submit', event => {
-      event.preventDefault();
+    if (editProfilePictureForm) {
+      editProfilePictureForm.addEventListener('submit', event => {
+        event.preventDefault();
 
-      const newProfilePicture = event.target['new-profile-picture'].value;
-      updateUser({
-        ...currentUser,
-        profilePicture: newProfilePicture,
+        const newProfilePicture = event.target['new-profile-picture'].value;
+        updateUser({
+          ...currentUser,
+          profilePicture: newProfilePicture,
+        });
+
+        this.renderProfilePicture();
       });
-
-      this.renderProfilePicture();
-    });
+    }
   }
 
   /**
@@ -81,28 +128,18 @@ export class ProfilePage extends Page {
    */
   handleLogoutButtonClick() {
     const logoutButton = document.getElementById('logout-button');
-    logoutButton.addEventListener('click', () => {
-      logout();
-      router.navigate('/');
-    });
+    if (logoutButton) {
+      logoutButton.addEventListener('click', () => {
+        logout();
+        router.navigate('/');
+      });
+    }
   }
 
-  async mount(container) {
-    // If the user is not logged in, redirect to the register page
-    if (!currentUser) {
-      router.navigate('/register');
-      return false;
-    }
-
-    await super.mount(container);
-
-    // Add any page-specific initialization here
-    this.renderProfilePicture();
-    this.renderAlias();
-
-    this.handleEditNameFormSubmit();
-    this.handleEditProfilePictureSubmit();
-    this.handleLogoutButtonClick();
-    return true;
+  /**
+   * Attach event listeners to the form
+   */
+  attachFormEvent() {
+    // Logique supplémentaire si nécessaire pour attacher des événements
   }
 }

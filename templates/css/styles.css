@@ -2,13 +2,13 @@
 
 body {
   font-family: "Trebuchet MS", Arial, sans-serif;
-  background: url('static/Windows.jpg') no-repeat center center fixed;
+  background: url('../img/Windows.jpg') no-repeat center center fixed;
+  cursor: url("../img/Cursor.png") 16 16, auto;
   background-size: cover;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  cursor: url("static/Cursor.png") 16 16, auto;
   overflow: hidden; /* Empêcher le défilement de l'image principale */
 }
 
@@ -45,11 +45,8 @@ header h1 {
   display: block;
 }
 
-/*pour voir lemplacement seulement*/
+/*pour voir lemplacement seulement */
 #pongCanvas {
-  max-width: 100%;
-  height: auto;
-  border: 2px solid #000;
   display: block;
   margin: auto;
 }
@@ -74,16 +71,13 @@ footer {
 footer .start-button {
   background: #60a917;
   color: white;
-  padding: 15px;
+  padding: 20px;
   font-weight: bold;
   border-radius: 0 20px 20px 0;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
   cursor: pointer;
 }
 
-footer p {
-  margin: 0;
-}
 /* Menu déroulant */
 .dropdown-menu {
   display: none;
@@ -191,4 +185,87 @@ footer p {
 
 .home-button:hover {
   background-color: #45a017;
+}
+
+.window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  background: #f1f1f1;
+  border: 3px solid #000;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.window-header {
+  background: linear-gradient(to bottom, #c3c3c3, #a0a0a0);
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+}
+
+.window-header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.window-content {
+  padding: 10px;
+  height: calc(100% - 30px);
+  overflow: auto;
+}
+
+.close-button {
+  background: red;
+  color: white;
+  border: none;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Fenêtre d'inscription */
+.window-content #register {
+  text-align: center;
+  padding: 20px;
+}
+
+.window-content h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #333;
+}
+
+.window-content form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.window-content input[type="text"] {
+  width: 80%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 2px solid #0078D7;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.window-content .button-54 {
+  background-color: #0078D7;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.window-content .button-54:hover {
+  background-color: #005bb5;
 }
