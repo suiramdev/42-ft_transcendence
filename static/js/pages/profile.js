@@ -10,6 +10,7 @@ export class ProfilePage extends Page {
     if (!isLoggedIn()) {
       // If the user is not logged in, navigate to the home page
       router.navigate('/');
+      return;
     }
 
     await super.mount(container);
