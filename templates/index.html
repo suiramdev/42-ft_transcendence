@@ -1,30 +1,80 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pong Game</title>
-    <link rel="stylesheet" href="static/styles.css" />
-    <script type="module" src="static/app.js"></script>
-    <script type="module" src="static/components/header.js"></script>
-    <script type="module" src="static/services/user.js"></script>
+    <link rel="stylesheet" href="/static/css/index.css" />
+    <script type="module" src="/static/js/app.js"></script>
+
+    <link rel="stylesheet" href="/static/css/components/sidebar.css" />
+    <script type="module" src="/static/js/components/sidebar.js"></script>
+
+    <link rel="stylesheet" href="/static/css/components/userlist.css" />
+
+    <link rel="stylesheet" href="/static/css/components/navbar.css" />
+    <script type="module" src="/static/js/components/navbar.js"></script>
   </head>
   <body>
-    <header>
-      <h1>Pong Game</h1>
-      <nav>
-        <ul>
-          <li><a href="/">Accueil</a></li>
-          <li><a href="/tournament">Tournoi</a></li>
-          <li><a href="/game">Jeu Pong</a></li>
-          <li><a href="/profile">Profil</a></li>
-          <li><a href="/register">Inscription</a></li>
-        </ul>
-      </nav>
-    </header>
-    <main id="root"></main>
-    <footer>
-      <p>&copy; Ord' 2024 Pong Game</p>
-    </footer>
+    <div class="desktop">
+      <div class="window">
+        <div class="window__titlebar">
+          <div class="window__title">ft_transcendence</div>
+          <div class="window__controls">
+            <button class="window__button" aria-label="Minimize"></button>
+            <button class="window__button" aria-label="Maximize"></button>
+            <button class="window__button" aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="window__content">
+          <nav class="navbar">
+            <div class="navbar__group">
+              <a class="navbar__item" href="/">
+                <img src="/static/images/icons/pifmgr.dll_14_26.png" alt="Game" class="navbar__item-icon" />
+                <span class="navbar__text">Game</span>
+              </a>
+            </div>
+            <div class="navbar__group">
+              <a class="navbar__item" href="/profile" id="profile-link" style="display: none">
+                <img src="/static/images/icons/msmsgs.exe_14_1-6.png" alt="Profile" class="navbar__item-icon" />
+                <span class="navbar__text">My Profile</span>
+              </a>
+              <button class="navbar__item" id="sign-out" style="display: none">
+                <span class="navbar__text">Sign Out</span>
+              </button>
+              <button class="navbar__item" id="sign-in">
+                <span class="navbar__text">Sign In</span>
+              </button>
+            </div>
+          </nav>
+          <div class="layout">
+            <aside class="sidebar">
+              <div class="userlist">
+                <div class="userlist__header">
+                  <span class="userlist__title">Users</span>
+                </div>
+                <div class="userlist__content">
+                  <a href="/users/1" class="userlist__item">
+                    <img src="/static/images/icons/user-online.png" alt="Profile" class="userlist__item-icon" />
+                    <span class="userlist__name">John Doe</span>
+                  </a>
+                  <a href="/users/2" class="userlist__item">
+                    <img src="/static/images/icons/user-online.png" alt="Profile" class="userlist__item-icon" />
+                    <span class="userlist__name">Harry Doe</span>
+                  </a>
+                  <a href="/users/3" class="userlist__item userlist__item--offline">
+                    <img src="/static/images/icons/user-offline.png" alt="Profile" class="userlist__item-icon" />
+                    <span class="userlist__name">Mary Doe</span>
+                  </a>
+                </div>
+              </div>
+            </aside>
+            <main class="main" id="page"></main>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="desktop-footer"></footer>
   </body>
 </html>
