@@ -1,15 +1,41 @@
 html,
 body {
+  display: flex;
+  flex-direction: column;
   margin: 0;
   height: 100%;
   width: 100%;
   font-family: Trebuchet MS, Arial;
   font-size: 12px;
   color: #222;
-  padding: 16px;
-  box-sizing: border-box;
   background: url("/static/images/background.jpg") no-repeat center center fixed;
   background-size: cover;
+}
+
+.desktop {
+  margin: 16px;
+  height: 100%;
+}
+
+.desktop-footer {
+  background: linear-gradient(
+    180deg,
+    rgba(9, 151, 255, 1) 0%,
+    rgba(0, 83, 238, 1) 8%,
+    rgba(0, 80, 238, 1) 40%,
+    rgba(0, 102, 255, 1) 88%,
+    rgba(0, 102, 255, 1) 93%,
+    rgba(0, 91, 255, 1) 95%,
+    rgba(0, 61, 215, 1) 96%,
+    rgba(0, 61, 215, 1) 100%
+  );
+  padding: 3px 5px 3px 3px;
+  border-top: 1px solid #0831d9;
+  border-left: 1px solid #0831d9;
+  border-right: 1px solid #001ea0;
+  font-size: 13px;
+  text-shadow: 1px 1px #0f1089;
+  height: 21px;
 }
 
 .window {

@@ -17,61 +17,64 @@
     <script type="module" src="/static/js/components/navbar.js"></script>
   </head>
   <body>
-    <div class="window">
-      <div class="window__titlebar">
-        <div class="window__title">ft_transcendence</div>
-        <div class="window__controls">
-          <button class="window__button" aria-label="Minimize"></button>
-          <button class="window__button" aria-label="Maximize"></button>
-          <button class="window__button" aria-label="Close"></button>
+    <div class="desktop">
+      <div class="window">
+        <div class="window__titlebar">
+          <div class="window__title">ft_transcendence</div>
+          <div class="window__controls">
+            <button class="window__button" aria-label="Minimize"></button>
+            <button class="window__button" aria-label="Maximize"></button>
+            <button class="window__button" aria-label="Close"></button>
+          </div>
         </div>
-      </div>
-      <div class="window__content">
-        <nav class="navbar">
-          <div class="navbar__group">
-            <a class="navbar__item" href="/">
-              <img src="/static/images/icons/pifmgr.dll_14_26.png" alt="Game" class="navbar__item-icon" />
-              <span class="navbar__text">Game</span>
-            </a>
-          </div>
-          <div class="navbar__group">
-            <a class="navbar__item" href="/profile" id="profile-link" style="display: none">
-              <img src="/static/images/icons/msmsgs.exe_14_1-6.png" alt="Profile" class="navbar__item-icon" />
-              <span class="navbar__text">My Profile</span>
-            </a>
-            <button class="navbar__item" id="sign-out" style="display: none">
-              <span class="navbar__text">Sign Out</span>
-            </button>
-            <button class="navbar__item" id="sign-in">
-              <span class="navbar__text">Sign In</span>
-            </button>
-          </div>
-        </nav>
-        <div class="layout">
-          <aside class="sidebar">
-            <div class="userlist">
-              <div class="userlist__header">
-                <span class="userlist__title">Users</span>
-              </div>
-              <div class="userlist__content">
-                <a href="/users/1" class="userlist__item">
-                  <img src="/static/images/icons/user-online.png" alt="Profile" class="userlist__item-icon" />
-                  <span class="userlist__name">John Doe</span>
-                </a>
-                <a href="/users/1" class="userlist__item">
-                  <img src="/static/images/icons/user-online.png" alt="Profile" class="userlist__item-icon" />
-                  <span class="userlist__name">Harry Doe</span>
-                </a>
-                <a href="/users/1" class="userlist__item userlist__item--offline">
-                  <img src="/static/images/icons/user-offline.png" alt="Profile" class="userlist__item-icon" />
-                  <span class="userlist__name">Mary Doe</span>
-                </a>
-              </div>
+        <div class="window__content">
+          <nav class="navbar">
+            <div class="navbar__group">
+              <a class="navbar__item" href="/">
+                <img src="/static/images/icons/pifmgr.dll_14_26.png" alt="Game" class="navbar__item-icon" />
+                <span class="navbar__text">Game</span>
+              </a>
             </div>
-          </aside>
-          <main class="main" id="page"></main>
+            <div class="navbar__group">
+              <a class="navbar__item" href="/profile" id="profile-link" style="display: none">
+                <img src="/static/images/icons/msmsgs.exe_14_1-6.png" alt="Profile" class="navbar__item-icon" />
+                <span class="navbar__text">My Profile</span>
+              </a>
+              <button class="navbar__item" id="sign-out" style="display: none">
+                <span class="navbar__text">Sign Out</span>
+              </button>
+              <button class="navbar__item" id="sign-in">
+                <span class="navbar__text">Sign In</span>
+              </button>
+            </div>
+          </nav>
+          <div class="layout">
+            <aside class="sidebar">
+              <div class="userlist">
+                <div class="userlist__header">
+                  <span class="userlist__title">Users</span>
+                </div>
+                <div class="userlist__content">
+                  <a href="/users/1" class="userlist__item">
+                    <img src="/static/images/icons/user-online.png" alt="Profile" class="userlist__item-icon" />
+                    <span class="userlist__name">John Doe</span>
+                  </a>
+                  <a href="/users/2" class="userlist__item">
+                    <img src="/static/images/icons/user-online.png" alt="Profile" class="userlist__item-icon" />
+                    <span class="userlist__name">Harry Doe</span>
+                  </a>
+                  <a href="/users/3" class="userlist__item userlist__item--offline">
+                    <img src="/static/images/icons/user-offline.png" alt="Profile" class="userlist__item-icon" />
+                    <span class="userlist__name">Mary Doe</span>
+                  </a>
+                </div>
+              </div>
+            </aside>
+            <main class="main" id="page"></main>
+          </div>
         </div>
       </div>
     </div>
+    <footer class="desktop-footer"></footer>
   </body>
 </html>
