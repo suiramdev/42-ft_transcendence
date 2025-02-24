@@ -5,52 +5,71 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pong Game</title>
-    <link rel="stylesheet" href="static/index.css" />
-    <link rel="stylesheet" href="https://unpkg.com/xp.css" />
+    <link rel="stylesheet" href="/static/css/index.css" />
+    <script type="module" src="/static/js/app.js"></script>
+
+    <link rel="stylesheet" href="/static/css/components/sidebar.css" />
+    <script type="module" src="/static/js/components/sidebar.js"></script>
+
+    <link rel="stylesheet" href="/static/css/components/userlist.css" />
+
+    <link rel="stylesheet" href="/static/css/components/navbar.css" />
+    <script type="module" src="/static/js/components/navbar.js"></script>
   </head>
   <body>
-    <div class="window app">
-      <div class="title-bar">
-        <div class="title-bar-text">ft_transcendence</div>
-        <div class="title-bar-controls">
-          <button aria-label="Minimize"></button>
-          <button aria-label="Maximize"></button>
-          <button aria-label="Close"></button>
+    <div class="window">
+      <div class="window__titlebar">
+        <div class="window__title">ft_transcendence</div>
+        <div class="window__controls">
+          <button class="window__button" aria-label="Minimize"></button>
+          <button class="window__button" aria-label="Maximize"></button>
+          <button class="window__button" aria-label="Close"></button>
         </div>
       </div>
-      <div class="window-body app__body">
-        <div class="function-bar">
-          <div class="function-bar__button-container">
-            <a class="function-bar__button" href="/">
-              <img src="static/icons/pifmgr.dll_14_26.png" alt="Game" class="function-bar__button-icon" />
-              <span>Game</span>
-            </a>
-            <a class="function-bar__button" href="/profile">
-              <img src="static/icons/msmsgs.exe_14_1-6.png" alt="Profile" class="function-bar__button-icon" />
-              <span>My Profile</span>
+      <div class="window__content">
+        <nav class="navbar">
+          <div class="navbar__group">
+            <a class="navbar__item" href="/">
+              <img src="/static/images/icons/pifmgr.dll_14_26.png" alt="Game" class="navbar__item-icon" />
+              <span class="navbar__text">Game</span>
             </a>
           </div>
-          <div class="function-bar__button-container">
-            <button class="function-bar__button">
-              <img src="static/icons/gnome-logout.png" alt="Sign Out" class="function-bar__button-icon" />
-              <span>Sign Out</span>
+          <div class="navbar__group">
+            <a class="navbar__item" href="/profile" id="profile-link" style="display: none">
+              <img src="/static/images/icons/msmsgs.exe_14_1-6.png" alt="Profile" class="navbar__item-icon" />
+              <span class="navbar__text">My Profile</span>
+            </a>
+            <button class="navbar__item" id="sign-out" style="display: none">
+              <span class="navbar__text">Sign Out</span>
+            </button>
+            <button class="navbar__item" id="sign-in">
+              <span class="navbar__text">Sign In</span>
             </button>
           </div>
-        </div>
-        <div class="app__content">
-          <div class="app__sidebar">
-            <div class="users-list">
-              <div class="users-list__header">
-                <span>Users</span>
+        </nav>
+        <div class="layout">
+          <aside class="sidebar">
+            <div class="userlist">
+              <div class="userlist__header">
+                <span class="userlist__title">Users</span>
               </div>
-              <div class="users-list__content">
-                <a href="/users/1" class="users-list__item">
-                  <img src="static/icons/user-busy.png" alt="Profile" class="users-list__item-icon" />
-                  <span>John Doe</span>
+              <div class="userlist__content">
+                <a href="/users/1" class="userlist__item">
+                  <img src="/static/images/icons/user-online.png" alt="Profile" class="userlist__item-icon" />
+                  <span class="userlist__name">John Doe</span>
+                </a>
+                <a href="/users/1" class="userlist__item">
+                  <img src="/static/images/icons/user-online.png" alt="Profile" class="userlist__item-icon" />
+                  <span class="userlist__name">Harry Doe</span>
+                </a>
+                <a href="/users/1" class="userlist__item userlist__item--offline">
+                  <img src="/static/images/icons/user-offline.png" alt="Profile" class="userlist__item-icon" />
+                  <span class="userlist__name">Mary Doe</span>
                 </a>
               </div>
             </div>
-          </div>
+          </aside>
+          <main class="main" id="page"></main>
         </div>
       </div>
     </div>
