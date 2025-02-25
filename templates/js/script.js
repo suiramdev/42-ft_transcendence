@@ -44,28 +44,30 @@ document.addEventListener('DOMContentLoaded', () => {
             <section id="game">
       <div id="pregame-menu">
         <h3>Game Settings</h3>
-        <div class="slider-container">
-          <label for="ball-speed">Ball Speed</label>
-          <input type="range" id="ball-speed" min="0.05" max="0.3" step="0.05" value="0.1">
-          <span id="ball-speed-value">0.1</span>
+        <div class="slider-item">
+          <div class="slider-container">
+            <label for="ball-speed">Ball Speed</label>
+            <input type="range" id="ball-speed" min="0.05" max="0.3" step="0.05" value="0.1">
+            <span id="ball-speed-value">0.1</span>
+          </div>
+          <div class="slider-container">
+            <label for="paddle-size">Paddle Size</label>
+            <input type="range" id="paddle-size" min="0.5" max="5" step="0.25" value="2.5">
+            <span id="paddle-size-value">2.5</span>
+          </div>
+          <div class="slider-container">
+            <label for="paddle-speed">Paddle Speed</label>
+            <input type="range" id="paddle-speed" min="0.1" max="0.4" step="0.05" value="0.2">
+            <span id="paddle-speed-value">0.2</span>
+          </div>
+          <div class="slider-container">
+            <label for="win-score">Win Score</label>
+            <input type="range" id="win-score" min="3" max="11" step="2" value="5">
+            <span id="win-score-value">5</span>
+          </div>
+          <button id="start-game" class="button-54">Start Game</button>
+          </div>
         </div>
-        <div class="slider-container">
-          <label for="paddle-size">Paddle Size</label>
-          <input type="range" id="paddle-size" min="0.5" max="5" step="0.25" value="2.5">
-          <span id="paddle-size-value">2.5</span>
-        </div>
-        <div class="slider-container">
-          <label for="paddle-speed">Paddle Speed</label>
-          <input type="range" id="paddle-speed" min="0.1" max="0.4" step="0.05" value="0.2">
-          <span id="paddle-speed-value">0.2</span>
-        </div>
-        <div class="slider-container">
-          <label for="win-score">Win Score</label>
-          <input type="range" id="win-score" min="3" max="11" step="2" value="5">
-          <span id="win-score-value">5</span>
-        </div>
-        <button id="start-game" class="button-54">Start Game</button>
-      </div>
       <div id="game-container" style="display: none;">
         <div class="score-container">
           <div id="score" class="score-display">0 | 0</div>

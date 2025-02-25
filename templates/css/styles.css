@@ -221,26 +221,53 @@ main {
   margin: 0 auto;
 }
 
+/* Conteneur pour les sliders */
 .slider-container {
+  display: flex;
+  justify-content: space-between;
   margin: 20px 0;
-  text-align: left;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.slider-container label {
-  display: block;
-  margin-bottom: 5px;
+/* Groupement des sliders en haut et en bas */
+.top {
+  flex-direction: row;
+  justify-content: center;
 }
 
-.slider-container input[type="range"] {
+.bottom {
+  flex-direction: row;
+  justify-content: center;
+}
+
+/* Chaque slider avec son label et valeur en temps réel */
+.slider-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
+  padding: 10px;
+  border: 2px solid #0984e3;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.slider-item input[type="range"] {
+  /* appearance: slider-vertical; */
   width: 100%;
-  margin: 10px 0;
+  margin-bottom: 10px;
 }
 
-.slider-container span {
-  display: inline-block;
-  min-width: 30px;
-  text-align: right;
+/* Affichage des valeurs en temps réel à côté des sliders */
+.slider-item span {
+  font-size: 16px;
+  font-weight: bold;
+  color: #2d3436;
 }
+
 
 #game-container {
   position: relative;
