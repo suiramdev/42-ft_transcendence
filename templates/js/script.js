@@ -68,8 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div id="game-container" style="display: none;">
         <div class="score-container">
-          <div id="PLscore" class="score-display">Score: 0</div>
-          <div id="PRscore" class="score-display">Score: 0</div>
+          <div id="score" class="score-display">0 | 0</div>
         </div>
         <canvas id="pongCanvas" width="800" height="600"></canvas>
       </div>

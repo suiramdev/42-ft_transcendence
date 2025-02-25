@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 console.log('game is loaded!');
 
+let canvas = document.getElementById('pongCanvas');
 let player_left;
 let player_right;
 let balll;
@@ -16,7 +17,7 @@ class Player {
     this.restY = y;
     this.y = y;
     this.z = z;
-    this.size = 1;
+    this.size = 0.5;
     this.height = height;
     this.hitbox = 1.4;
     this.speed = speed;
@@ -29,8 +30,6 @@ class Player {
     const geometry = new THREE.BoxGeometry(this.size, this.height, this.size);
     const material = new THREE.MeshPhongMaterial({ color: this.color });
     const cube = new THREE.Mesh(geometry, material);
-    const loader = new THREE.CubeTextureLoader();
-    loader.setPath('textures/cube/pisa/');
     this.pCube = cube;
     cube.position.x = this.x;
     cube.position.y = this.y;
@@ -64,10 +63,10 @@ class Player {
   }
 
   moveUp() {
-    if (this.y + this.size < 8) this.dy = this.speed;
+    if (this.y + this.size < 9) this.dy = this.speed;
   }
   moveDown() {
-    if (this.y > -8) this.dy = -this.speed;
+    if (this.y > -9) this.dy = -this.speed;
   }
 
   incrementScore() {
@@ -161,7 +160,7 @@ class ball {
   }
 
   isBallinYWall() {
-    if (this.y + this.radius >= 8 || this.y - this.radius <= -8) {
+    if (this.y + this.radius >= 9 || this.y - this.radius <= -9) {
       return true;
     }
     return false;
@@ -176,46 +175,39 @@ class ball {
 
   // Move the ball
   moveBall() {
-    // Move the ball based on direction
-    if (this.direction_x === -1) {
-      // Check collision with the left paddle
-      if (
-        this.isBallinPlayer(
-          player_left.getx(),
-          player_left.gety(),
-          player_left.getwidth(),
-          player_left.getheight()
-        )
-      ) {
-        this.direction_x = 1; // Reverse horizontal direction
-        this.x = player_left.getx() + player_left.getwidth() + this.radius; // Move ball just outside the paddle
-      } else {
-        if (this.isBallinYWall()) {
-          this.direction_y *= -1; // Reverse vertical direction when hitting top/bottom walls
-        }
-        this.x -= this.speed; // Continue moving left
-        this.y += this.speed * this.direction_y; // Adjust vertical position
-      }
-    } else if (this.direction_x === 1) {
-      // Check collision with the right paddle
-      if (
-        this.isBallinPlayer(
-          player_right.getx(),
-          player_right.gety(),
-          player_right.getwidth(),
-          player_right.getheight()
-        )
-      ) {
-        this.direction_x = -1; // Reverse horizontal direction
-        this.x = player_right.getx() - this.radius; // Move ball just outside the paddle
-      } else {
-        if (this.isBallinYWall()) {
-          this.direction_y *= -1; // Reverse vertical direction when hitting top/bottom walls
-        }
-        this.x += this.speed; // Continue moving right
-        this.y += this.speed * this.direction_y; // Adjust vertical position
-      }
+    // Lorsque la balle touche le paddle, ajuster sa position légèrement au-delà du paddle
+    if (this.isBallinPlayer(
+      player_left.getx(),
+      player_left.gety(),
+      player_left.getwidth(),
+      player_left.getheight()
+    )) {
+      // Si la balle touche le paddle gauche
+      this.direction_x = 1; // Inverser la direction horizontale
+      this.x = player_left.getx() + player_left.getwidth() / 2 + this.radius; // Déplacer légèrement la balle après la collision
+      // En fonction de la position verticale du paddle et de la balle, ajuster la direction verticale
+      const paddleCenter = player_left.gety();
+      const ballRelativePosition = this.y - paddleCenter; // Calculer la distance entre la balle et le centre du paddle
+      this.direction_y = ballRelativePosition / player_left.getheight(); // Utiliser cette distance pour ajuster la direction verticale
+    } else if (this.isBallinPlayer(
+      player_right.getx(),
+      player_right.gety(),
+      player_right.getwidth(),
+      player_right.getheight()
+    )) {
+      // Si la balle touche le paddle droit
+      this.direction_x = -1; // Inverser la direction horizontale
+      this.x = player_right.getx() - this.radius - player_right.getwidth() / 2; // Déplacer légèrement la balle après la collision
+      // Ajuster la direction verticale de la même manière
+      const paddleCenter = player_right.gety();
+      const ballRelativePosition = this.y - paddleCenter;
+      this.direction_y = ballRelativePosition / player_right.getheight();
     }
+    else if (this.isBallinYWall()){
+      this.direction_y *= -1;
+    }
+    this.x += this.speed * this.direction_x; // Continue moving right
+    this.y += this.speed * this.direction_y; // Adjust vertical position
   }
 
   resetBall(xdir) {
@@ -233,17 +225,18 @@ function updatePos() {
   player_right.y += player_right.dy;
   player_left.y += player_left.dy;
 
-  if (player_right.y + player_right.size > 20) {
-    player_right.y = 8 - player_right.size;
-  } else if (player_right.y < -8 + player_right.size) {
-    player_right.y = -8 + player_right.size;
+  if (player_right.y + player_right.getheight() / 2 > 9) {
+    player_right.y = 9 - player_right.getheight() / 2;
+  } else if (player_right.y - player_right.getheight() / 2 < -9) {
+      player_right.y = -9 + player_right.getheight() / 2;
   }
 
-  if (player_left.y + player_left.getheight() > 20) {
-    player_left.y = 8 - player_left.getheight();
-  } else if (player_left.y < -8) {
-    player_left.y = -8;
+  if (player_left.y + player_left.getheight() / 2 > 9) {
+      player_left.y = 9 - player_left.getheight() / 2;
+  } else if (player_left.y - player_left.getheight() / 2 < -9) {
+      player_left.y = -9 + player_left.getheight() / 2;
   }
+
 
   player_right.pCube.position.y = player_right.y;
   player_left.pCube.position.y = player_left.y;
@@ -268,7 +261,6 @@ function checkXCollision(winScore) {
             balll.resetBall(1);
             player_right.resetPlayer();
             player_left.resetPlayer();
-            console.log("point pour gauche");
         }
         else return false; // Game over
     }
@@ -281,14 +273,10 @@ function checkXCollision(winScore) {
 // ----------------- ath function -----------------
 
 const updateScore = function () {
-  const playerLeftScore = document.getElementById('PLscore');
-  const playerRightScore = document.getElementById('PRscore');
 
   // Only update if the score elements exist
-  if (playerLeftScore && playerRightScore) {
-    playerLeftScore.innerText = `Score: ${player_left.getScore()}`;
-    playerRightScore.innerText = `Score: ${player_right.getScore()}`;
-  }
+  const scoreDisplay = document.getElementById("score");
+  scoreDisplay.textContent = `${player_left.getScore()} | ${player_right.getScore()}`;
 };
 
 
@@ -344,15 +332,26 @@ function pregame() {
 
     // ----------------- 3D setup -----------------
 
-    setup3D(ballSpeed, paddleSize, paddleSpeed) {
+    setup3D(ballSpeed, paddleSize, paddleSpeed, backgroundTextur) {
         const canvas = document.getElementById('pongCanvas');
         renderer = new THREE.WebGLRenderer({ canvas });
         renderer.setSize(canvas.width, canvas.height);
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(100, canvas.width / canvas.height, 5, 100);
-        camera.position.z = 10;
+        camera.position.z = 8;
         camera.position.y = 0;
 
+        const geometry = new THREE.BoxGeometry( 50, 25, 0 );
+         
+        // Charger la texture
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load('/static/Windows.jpg');
+        
+        // Appliquer la texture au matériau
+        const material = new THREE.MeshPhongMaterial({ map: texture });
+        const cube = new THREE.Mesh( geometry, material );
+        cube.position.z = -2;
+        scene.add(cube);
         // Initialize game objects
         player_left = new Player(-10, 0, 0, paddleSize, paddleSpeed, 'green');
         player_left.sceneADD(scene);
@@ -363,9 +362,35 @@ function pregame() {
         balll = new ball(0, 0, 0, 1, 1, ballSpeed, 0.5, 'red');
         balll.sceneADD(scene);
 
-        const light = new THREE.AmbientLight(0xffffff, 1);
-        scene.add(light);
-        light.position.set(0, 0, 20);
+        // Lumière ambiante (plus faible, pour adoucir les ombres)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+
+        // Lumière directionnelle (simule une lumière venant du dessus)
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 10, 10); // Position au-dessus et sur le côté
+        directionalLight.castShadow = true; // Active les ombres
+        scene.add(directionalLight);
+
+        // Lumière ponctuelle (simule une source lumineuse comme une lampe)
+        const pointLight = new THREE.PointLight(0xffaa33, 1.5, 20);
+        pointLight.position.set(0, 5, 5);
+        scene.add(pointLight);
+
+        // Optionnel : une lumière spot pour un effet dramatique
+        const spotLight = new THREE.SpotLight(0xff0000, 1);
+        spotLight.position.set(-5, 10, 5);
+        spotLight.angle = Math.PI / 6;
+        spotLight.penumbra = 0.5;
+        scene.add(spotLight);
+
+
+        // Lumière dédiée au background (douce et large)
+        const backgroundLight = new THREE.DirectionalLight(0xffffff, 5);
+        backgroundLight.position.set(0, 5, -5); // Positionnée derrière la scène
+        backgroundLight.target = cube; // Dirige la lumière vers le cube (background)
+        scene.add(backgroundLight);
+
 
         return true;
     }
@@ -421,17 +446,16 @@ function pregame() {
         const gameContainer = document.getElementById('game-container');
         gameContainer.style.display = 'none';
         
-        const pregameMenu = document.getElementById('pregame-menu');
-        pregameMenu.style.display = 'block';
+        
 
         // Message du gagnant
         const winner = player_left.getScore() > player_right.getScore() ? "Left Player" : "Right Player";
         const winnerMessage = document.createElement('div');
         winnerMessage.textContent = `${winner} Wins!`;
-        winnerMessage.style.color = 'white';
+        winnerMessage.style.color = 'black';
         winnerMessage.style.fontSize = '24px';
         winnerMessage.style.marginBottom = '20px';
-        pregameMenu.insertBefore(winnerMessage, pregameMenu.firstChild);
+        canvas.insertBefore(winnerMessage, canvas.firstChild);
 
         // Nettoyage final
         renderer.dispose();
@@ -457,7 +481,6 @@ function animate(game, winScore) {
 };
 
 function initGame(ballSpeed, paddleSize, paddleSpeed, winScore) {
-    const canvas = document.getElementById('pongCanvas');
     
     // Initialize game controls
     const game = new Game(ballSpeed, paddleSize, paddleSpeed);
