@@ -100,6 +100,10 @@ run: docker
 	@echo "Starting development server..."
 	@$(PYTHON_VENV) manage.py runserver
 
+docs:
+	@echo "Starting documentation server..."
+	@$(PYTHON_VENV) -m mkdocs serve -f docs-site/mkdocs.yml -a localhost:9000
+
 test:
 	@echo "Running tests..."
 	@$(PYTHON_VENV) manage.py test
