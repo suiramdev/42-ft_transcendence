@@ -18,15 +18,16 @@ RED = \033[0;31m
 
 help:
 	@echo "Available commands:"
-	@echo "  make setup      - Initial project setup (venv, dependencies, env file)"
-	@echo "  make install    - Install Python dependencies"
+	@echo "  make setup     - Initial project setup (venv, dependencies, env file)"
+	@echo "  make install   - Install Python dependencies"
 	@echo "  make run       - Run the development server"
+	@echo "  make docs      - Start documentation server"
 	@echo "  make docker    - Start Docker containers"
 	@echo "  make stop      - Stop Docker containers"
 	@echo "  make clean     - Remove virtual environment and cached files"
 	@echo "  make create    - Create migrations or new Django app"
 	@echo "  make migrate   - Run database migrations"
-	@echo "  make static    - Collect static files"
+	@echo "  make static    - Collect static files (for production)"
 	@echo "  make test      - Run tests"
 
 setup: $(VENV) .env docker 
