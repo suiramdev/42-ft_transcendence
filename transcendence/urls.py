@@ -21,6 +21,11 @@ from apps.user.views import UserViewSet
 from apps.authentication.views import AuthView, FortyTwoAuthView
 from templates.views import index
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from django.views.static import serve
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 router = routers.DefaultRouter()
 router.register(r'user', UserViewSet, basename='user')
@@ -35,6 +40,13 @@ urlpatterns = [
     # Optional UI endpoints
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('docs/', serve, {
+        'document_root': os.path.join(BASE_DIR, 'docs-site/site'),
+        'path': 'index.html'
+    }),
+    path('docs/<path:path>', serve, {
+        'document_root': os.path.join(BASE_DIR, 'docs-site/site'),
+    }),
     # Catch all routes to the index view
     # This is used to handle the SPA routing in the frontend
     re_path(r'^.*$', index, name='index'),

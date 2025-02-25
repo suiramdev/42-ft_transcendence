@@ -40,35 +40,7 @@ The application will be available at `http://localhost:8000`.
 
 ## Available Commands
 
-```bash
-# Setup and Installation
-make setup              # Runs full setup (venv, dependencies, .env, docker)
-make install            # pip install -r requirements.txt
-
-# Development
-make run                # python manage.py runserver
-make migrate            # python manage.py migrate
-make static             # python manage.py collectstatic --noinput
-make test               # python manage.py test
-make create app <name>  # Creates a new Django app in apps/ directory
-make create migrations  # Creates new migrations for model changes
-
-# Docker Management
-make docker             # docker compose up -d
-make stop               # docker compose down
-
-# Database Management
-make create-db          # Ensures database exists in PostgreSQL
-
-# Maintenance
-make clean              # Removes venv, __pycache__, and temporary files
-```
-
-To see all available commands with descriptions:
-
-```bash
-make help
-```
+Type `make help` to see all available commands with descriptions.
 
 ## Project Structure
 
@@ -80,10 +52,9 @@ ft_transcendence/
 │   ├── authentication/ # User authentication
 │   ├── game/           # Game functionality
 │   └── ...
-├── docs/               # Documentation
-├── templates/          # HTML templates
-│   ├── css/            # Stylesheets
-│   └── js/             # JavaScript files
+├── docs-site/          # Documentation site
+├── static/             # Static files
+├── templates/          # Django templates
 └── docker/             # Docker configuration files
 ```
 
@@ -94,12 +65,3 @@ ft_transcendence/
 - **Database:** PostgreSQL (via Docker)
 - **Real-time:** Django Channels for WebSocket support
 - **Authentication:** OAuth 2.0 integration
-
-## Contributing
-
-Please see our [Contributing Guide](docs/CONTRIBUTING.md) for details on:
-
-- Setting up your development environment
-- Coding standards
-- Pull request process
-- Commit message conventions
