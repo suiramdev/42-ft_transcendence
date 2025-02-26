@@ -17,6 +17,12 @@ class Game(models.Model):
         ]
     )
 
+    def getP1Score(self):
+        return self.player1_score
+    
+    def getP2Score(self):
+        return self.player2_score
+
     def save(self, *args, **kwargs):
         if not self.pk:
             self.winner.wins = self.winner.wins + 1
