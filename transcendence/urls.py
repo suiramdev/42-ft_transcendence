@@ -24,6 +24,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from django.views.static import serve
 import os
 from pathlib import Path
+from apps.game.views import gameViewset
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,6 +32,7 @@ router = routers.DefaultRouter()
 router.register(r'user', UserViewSet, basename='user')
 router.register(r'auth', AuthView, basename='auth')
 router.register(r'auth/42', FortyTwoAuthView, basename='auth_42')
+router.register(r'game', gameViewset, basename='game')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
