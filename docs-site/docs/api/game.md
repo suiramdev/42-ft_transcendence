@@ -2,6 +2,8 @@
 
 ## Game Flow
 
+### Standard Flow
+
 This diagram shows the standard flow for creating and joining a game. The game record is stored in the games table with status "waiting" initially, then "active" when Player2 joins.
 
 ```mermaid
@@ -33,7 +35,7 @@ sequenceDiagram
     WS->>Player2: Notify connected to game
 ```
 
-### Cases
+### Edge Cases
 
 #### Case 1: The game is full
 
