@@ -59,20 +59,17 @@ class FortyTwoAuthView(viewsets.ViewSet):
             forty_two_access_token = self.get_forty_two_access_token(code)
             forty_two_user = self.get_forty_two_user(forty_two_access_token)
 
-            # Get or create user
-            user, created = User.objects.get_or_create(
-                username=forty_two_user['login'],
-                defaults={
-                    'email': forty_two_user['email'],
-                    'first_name': forty_two_user['first_name'],
-                    'last_name': forty_two_user['last_name'],
-                    'nickname': forty_two_user['login'],  # Default nickname to 42 login
-                    'password': None,  # No password for OAuth users
-                }
-            )
-
-            if not created:
-                # Update existing user info
+            user = User.objects.filter(username=forty_two_user['login']).first()
+            if not user:
+                # Get or create user
+                user = User.objects.create_user(
+                    username=forty_two_user['login'],
+                    email=forty_two_user['email'],
+                    first_name=forty_two_user['first_name'],
+                    last_name=forty_two_user['last_name'],
+                    nickname=forty_two_user['login'],  # Default nickname to 42 login
+                )
+            else:
                 user.email = forty_two_user['email']
                 user.first_name = forty_two_user['first_name'] 
                 user.last_name = forty_two_user['last_name']
