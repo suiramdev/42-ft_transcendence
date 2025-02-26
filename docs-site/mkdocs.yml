@@ -63,7 +63,7 @@ plugins:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/suiramdev/ft_transcendence
+      link: https://github.com/suiramdev/42-ft_transcendence
 
-repo_url: https://github.com/suiramdev/ft_transcendence
+repo_url: https://github.com/suiramdev/42-ft_transcendence
 edit_uri: edit/main/docs-site/docs/
