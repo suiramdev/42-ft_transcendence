@@ -32,6 +32,7 @@ nav:
   - API Reference:
       - Authentication: api/authentication.md
       - Users: api/users.md
+      - Game: api/game.md
 
 markdown_extensions:
   - admonition
