@@ -31,11 +31,22 @@ function refreshNavbar() {
 }
 
 function handleSignInClick() {
-  // TODO: Implement sign in
-  const alias = prompt('Enter your alias:');
-  if (alias) {
-    signUp(alias);
-  }
+  fetch("/api/auth/42/authorize", {
+    method: "GET",
+    credentials: "include",
+  })
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error("Failed to redirect to 42 authentication");
+    }
+    return response.url;
+  })
+  .then((authUrl) => {
+    window.location.href = authUrl; // Redirige vers l'URL d'authentification 42
+  })
+  .catch((error) => {
+    console.error("Authentication error:", error);
+  });
 }
 
 function handleSignOutClick() {
