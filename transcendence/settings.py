@@ -191,6 +191,7 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
 # This setting specifies the ASGI application entry point for Django Channels
 # It points to the ASGI application defined in transcendence/asgi.py
