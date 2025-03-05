@@ -17,6 +17,7 @@ class Game(models.Model):
         ]
     )
 
+
     def getP1Score(self):
         return self.player1_score
     
