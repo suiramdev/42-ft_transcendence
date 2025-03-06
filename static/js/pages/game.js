@@ -5,6 +5,33 @@ export class GamePage extends Page {
     super('game.html', 'game.css');
   }
 
+  async joinGame(gameID){
+    try {
+      const response = await fetch('/api/game/join/', {
+        method: 'POST',
+        headers: {
+          'game-id': gameID,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to join game');
+      }
+
+      const gameData = await response.json();
+      console.log('Joined game:', gameData);
+
+      this.initializeGameSocket(gameData.game_id);
+
+      return gameData;
+    } catch (error) {
+      console.error('Error joining game:', error);
+      throw error;
+    }
+  }
+
   async createGame() {
     try {
       const response = await fetch('/api/game/', {
@@ -22,7 +49,7 @@ export class GamePage extends Page {
       const gameData = await response.json();
       console.log('Game created:', gameData);
 
-      this.initializeGameSocket(gameData.game_id);
+      const ws = this.initializeGameSocket(gameData.game_id);
 
       return gameData;
     } catch (error) {
@@ -31,6 +58,8 @@ export class GamePage extends Page {
     }
   }
 
+
+  
   initializeGameSocket(gameId) {
     // Initialize WebSocket connection for the game
     const ws = new WebSocket(`ws://localhost:8000/ws/game/${gameId}`);
@@ -51,10 +80,31 @@ export class GamePage extends Page {
   onMount() {
     console.log('Game page mounted');
     const startGame = document.getElementById('start-game');
-    const joinGame = document.getElementById('join-game');
+    const joinGameButton = document.getElementById('join-game');
     
-    joinGame.addEventListener('click', async e =>{
+    joinGameButton.addEventListener('click', async e =>{
+      const gameIDInput = document.getElementById('game-id-input');
+      if (!gameIDInput) {
+        console.error('Game ID input not found in the DOM');
+        return;
+      }
       
+      const gameID = gameIDInput.value.trim();
+      
+      if (!gameID) {
+        alert('Please enter a game ID');
+        return;
+      }
+      
+      try {
+        await this.joinGame(gameID);
+        // Update UI to show game joined
+        // document.getElementById('pregame-menu').style.display = 'none';
+        // document.getElementById('game-container').style.display = 'block';
+      } catch (error) {
+        console.error('Failed to join game:', error);
+        alert('Failed to join game: ' + error.message);
+      }
     })
     
     startGame.addEventListener('click', async e => {
