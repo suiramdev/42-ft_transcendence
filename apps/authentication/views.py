@@ -40,9 +40,9 @@ class FortyTwoAuthView(viewsets.ViewSet):
 
     @action(detail=False, methods=['get'], url_path='authorize')
     def authorize(self, request):
-        """Redirect to 42 OAuth authorization page"""
+        """Retourne l'URL d'autorisation 42"""
         oauth_uri = f"{os.getenv('AUTH_FORTY_TWO_OAUTH_URI')}?client_id={os.getenv('AUTH_FORTY_TWO_UID')}&redirect_uri={os.getenv('AUTH_FORTY_TWO_REDIRECT_URI')}&response_type=code"
-        return HttpResponseRedirect(oauth_uri)
+        return Response({'redirect_url': oauth_uri})  # On envoie l'URL au frontend
 
     @action(detail=False, methods=['get'], url_path='callback')
     def callback(self, request):
@@ -71,7 +71,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
                 )
             else:
                 user.email = forty_two_user['email']
-                user.first_name = forty_two_user['first_name'] 
+                user.first_name = forty_two_user['first_name']
                 user.last_name = forty_two_user['last_name']
                 user.save()
 
@@ -79,7 +79,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
             refresh = RefreshToken.for_user(user)
 
             # Redirect to frontend with access and refresh tokens
-            response = HttpResponseRedirect('/')
+            response = HttpResponseRedirect('/') # Redirect to profile maybe?
 
             response.set_cookie(
                 'access_token',
@@ -118,12 +118,12 @@ class AuthView(viewsets.ViewSet):
         refresh_token = request.data.get('refresh')
         if not refresh_token:
             return Response({'error': 'No refresh token provided'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             refresh = RefreshToken(refresh_token)
             if refresh.is_expired():
                 return Response({'error': 'Refresh token expired'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             user = refresh.user
             refresh = RefreshToken.for_user(user)
             return Response({
