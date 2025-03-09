@@ -31,22 +31,12 @@ function refreshNavbar() {
 }
 
 function handleSignInClick() {
-  fetch("/api/auth/42/authorize", {
-    method: "GET",
-    credentials: "include",
+  fetch('/api/auth/42/authorize/')
+    .then(response => response.json())
+    .then(data => {
+      window.location.href = data.redirect_url; // Redirige l'utilisateur
   })
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error("Failed to redirect to 42 authentication");
-    }
-    return response.url;
-  })
-  .then((authUrl) => {
-    window.location.href = authUrl; // Redirige vers l'URL d'authentification 42
-  })
-  .catch((error) => {
-    console.error("Authentication error:", error);
-  });
+    .catch(error => console.error("Erreur d'authentification :", error));
 }
 
 function handleSignOutClick() {
