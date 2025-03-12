@@ -69,7 +69,6 @@ class FortyTwoAuthView(viewsets.ViewSet):
             forty_two_user = self.get_forty_two_user(forty_two_access_token)
             logger.info(f"🟢 Utilisateur 42 reçu: {forty_two_user}")
 
-            user = User.objects.filter(username=forty_two_user['login']).first()
             if not user:
                 # Get or create user
                 user = User.objects.create_user(
