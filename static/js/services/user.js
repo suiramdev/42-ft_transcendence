@@ -16,7 +16,7 @@ export function getUser() {
 
       // Si l'utilisateur est connecté et est sur la page d'accueil, le rediriger
       if (window.location.pathname === '/' && isLoggedIn()) {
-        window.location.href = '/profile'; //?jsp si c'est le bon
+        router.navigate('/profile')
       }
     })
     .catch(() => {
