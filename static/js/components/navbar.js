@@ -1,4 +1,4 @@
-import { isLoggedIn, signOut, signUp } from '../services/user.js';
+import { isLoggedIn, signOut} from '../services/user.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const signInButton = document.querySelector('.navbar #sign-in');

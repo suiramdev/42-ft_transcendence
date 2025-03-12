@@ -1,5 +1,6 @@
 import { Page } from '../core/Page.js';
 import { isLoggedIn } from '../services/user.js';
+import { getUser } from '../services/user.js';
 
 export class ProfilePage extends Page {
   constructor() {
@@ -13,6 +14,7 @@ export class ProfilePage extends Page {
       return;
     }
 
+    await getUser();
     await super.mount(container);
 
     return true;
