@@ -36,19 +36,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     # OpenAPI schema endpoints
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema', SpectacularAPIView.as_view(), name='schema'),
     # Optional UI endpoints
-    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    path('docs/', serve, {
-        'document_root': os.path.join(BASE_DIR, 'docs-site/site'),
-        'path': 'index.html'
-    }),
-    path('docs/<path:path>', serve, {
-        'document_root': os.path.join(BASE_DIR, 'docs-site/site'),
-    }),
+    path('api/docs', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('__reload__/', include('django_browser_reload.urls')),
     # Catch all routes to the index view
     # This is used to handle the SPA routing in the frontend
-    re_path(r'^.*$', index, name='index'),
-    path('__reload__/', include('django_browser_reload.urls')),
+    re_path(r'^(?!api|admin|__reload__).*$', index, name='index'),
+
 ]
