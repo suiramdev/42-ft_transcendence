@@ -1,40 +1,42 @@
-globalThis.currentUser = JSON.parse(localStorage.getItem('currentUser')) ?? null;
+// Global variable to store the user data
+// so that it can be accessed from anywhere
+globalThis.user = null;
 
-/**
- * Returns true if the user is logged in
- * @returns {boolean}
- */
+// function that gets the user data from the api
+// and stores it in the global variable
+export function getUser() {
+  fetch('/api/user/me', { credentials: 'include' })
+    .then(response => {
+      if (!response.ok) throw new Error("Utilisateur non connecté");
+      return response.json();
+    })
+    .then(data => {
+      globalThis.user = data;
+      document.dispatchEvent(new Event('userStateChange'));
+
+      // Si l'utilisateur est connecté et est sur la page d'accueil, le rediriger
+      if (window.location.pathname === '/' && isLoggedIn()) {
+        router.navigate('/profile')
+      }
+    })
+    .catch(() => {
+      globalThis.user = null; // Réinitialise en cas d'erreur
+      document.dispatchEvent(new Event('userStateChange'));
+    });
+}
+
+// function that checks if the user is logged in
 export function isLoggedIn() {
-  return Boolean(currentUser);
+  return globalThis.user !== null;
 }
 
-/**
- * Updates the current user
- * @param {Object} user - The user data
- */
-export function updateCurrentUser(user) {
-  currentUser = user;
-  console.log('Updating current user:', user);
-  localStorage.setItem('currentUser', JSON.stringify(user));
-  // Dispatch a custom event when user state changes
-  document.dispatchEvent(new CustomEvent('userStateChange', { detail: user }));
-}
-
-/**
- * Registers a new user with an alias and a profile picture
- * @param {string} alias - The alias of the user
- * @param {string} [profilePicture] - The profile picture of the user
- */
-export function signUp(alias, profilePicture = '/static/images/avatars/duck.webp') {
-  updateCurrentUser({ alias, profilePicture });
-}
-
-/**
- * Signs out the current user
- */
+// Function to sign out the user
 export function signOut() {
-  localStorage.removeItem('currentUser');
-  currentUser = null;
-  // Dispatch event when user signs out
-  document.dispatchEvent(new CustomEvent('userStateChange', { detail: null }));
+  fetch('/api/auth/logout/', { method: 'POST' }) // jsp si c'est le bon url
+    .then(() => {
+      globalThis.user = null;
+      document.dispatchEvent(new Event('userStateChange'));
+      globalThis.router.navigate('/'); // Redirige vers la page d'accueil
+    })
+    .catch(error => console.error("Erreur de déconnexion :", error));
 }

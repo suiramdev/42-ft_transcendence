@@ -1,4 +1,4 @@
-import { isLoggedIn, signOut, signUp } from '../services/user.js';
+import { isLoggedIn, signOut} from '../services/user.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const signInButton = document.querySelector('.navbar #sign-in');
@@ -31,11 +31,12 @@ function refreshNavbar() {
 }
 
 function handleSignInClick() {
-  // TODO: Implement sign in
-  const alias = prompt('Enter your alias:');
-  if (alias) {
-    signUp(alias);
-  }
+  fetch('/api/auth/42/authorize/')
+    .then(response => response.json())
+    .then(data => {
+      window.location.href = data.redirect_url; // Redirige l'utilisateur
+  })
+    .catch(error => console.error("Erreur d'authentification :", error));
 }
 
 function handleSignOutClick() {
