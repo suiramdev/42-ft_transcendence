@@ -2,41 +2,69 @@
 // so that it can be accessed from anywhere
 globalThis.user = null;
 
-// function that gets the user data from the api
-// and stores it in the global variable
-export function getUser() {
-  fetch('/api/user/me', { credentials: 'include' })
-    .then(response => {
-      if (!response.ok) throw new Error("Utilisateur non connecté");
-      return response.json();
-    })
-    .then(data => {
-      globalThis.user = data;
-      document.dispatchEvent(new Event('userStateChange'));
+async function fetchToken() {
+  const response = await fetch('/api/auth/get-token/', {
+    method: 'GET',
+    credentials: 'include',  // Permet d'envoyer les cookies
+  });
+  if (!response.ok) {
+    console.error('Impossible de récupérer le token');
+    return null;
+  }
+  const data = await response.json();
+  return data.access_token;
+}
 
-      // Si l'utilisateur est connecté et est sur la page d'accueil, le rediriger
-      if (window.location.pathname === '/' && isLoggedIn()) {
-        router.navigate('/profile')
-      }
-    })
-    .catch(() => {
-      globalThis.user = null; // Réinitialise en cas d'erreur
-      document.dispatchEvent(new Event('userStateChange'));
-    });
+export async function getUser() {
+  const accessToken = await fetchToken();
+  console.log('Access Token:', accessToken);
+  if (!accessToken) {
+    globalThis.user = null;
+    document.dispatchEvent(new Event('userStateChange'));
+    return;
+  }
+  fetch('/api/user/me/', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(response => {
+    if (!response.ok) throw new Error("Utilisateur non connecté");
+    return response.json();
+  })
+  .then(data => {
+    globalThis.user = data;
+    document.dispatchEvent(new Event('userStateChange'));
+
+    if (window.location.pathname === '/' && isLoggedIn()) {
+      router.navigate('/profile');
+    }
+  })
+  .catch(() => {
+    globalThis.user = null;
+    document.dispatchEvent(new Event('userStateChange'));
+  });
 }
 
 // function that checks if the user is logged in
 export function isLoggedIn() {
+  //debug
+  console.log('isLoggedIn Check:', globalThis.user);
   return globalThis.user !== null;
 }
 
 // Function to sign out the user
 export function signOut() {
-  fetch('/api/auth/logout/', { method: 'POST' }) // jsp si c'est le bon url
-    .then(() => {
-      globalThis.user = null;
-      document.dispatchEvent(new Event('userStateChange'));
-      globalThis.router.navigate('/'); // Redirige vers la page d'accueil
-    })
-    .catch(error => console.error("Erreur de déconnexion :", error));
+  // Supprimer les cookies en les expirant
+  document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Lax";
+  document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Lax";
+
+  // Reset user state
+  globalThis.user = null;
+  document.dispatchEvent(new Event('userStateChange'));
+
+  // Redirection vers la page d'accueil
+  globalThis.router.navigate('/');
 }

@@ -79,7 +79,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
             refresh = RefreshToken.for_user(user)
 
             # Redirect to frontend with access and refresh tokens
-            response = HttpResponseRedirect('/') # Redirect to profile maybe?
+            response = HttpResponseRedirect('/profile')
 
             response.set_cookie(
                 'access_token',
@@ -132,3 +132,13 @@ class AuthView(viewsets.ViewSet):
             })
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=False, methods=['get'], url_path='get-token')
+    def get_token(self, request):
+        """Renvoie le token stocké dans les cookies"""
+        access_token = request.COOKIES.get('access_token')
+
+        if not access_token:
+            return Response({'error': 'Token non trouvé'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response({'access_token': access_token})
+

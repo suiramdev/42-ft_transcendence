@@ -8,13 +8,14 @@ export class ProfilePage extends Page {
   }
 
   async mount(container) {
+
+    await getUser();
+
     if (!isLoggedIn()) {
       // If the user is not logged in, navigate to the home page
       router.navigate('/');
       return;
     }
-
-    await getUser();
     await super.mount(container);
 
     return true;
@@ -38,15 +39,15 @@ export class ProfilePage extends Page {
 
   renderProfilePicture() {
     const profilePicture = document.querySelector('.profile__avatar-image');
-    if (profilePicture) {
-      profilePicture.src = currentUser.profilePicture;
+    if (profilePicture && globalThis.user) {
+      profilePicture.src = globalThis.user.avatar || 'static/images/avatars/duck.webp';
     }
   }
 
   renderAlias() {
     const alias = document.querySelector('.profile__alias');
-    if (alias) {
-      alias.textContent = currentUser.alias;
+    if (alias && globalThis.user) {
+      alias.textContent = globalThis.user.nickname || 'Utilisateur inconnu';
     }
   }
 }
