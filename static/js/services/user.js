@@ -1,40 +1,60 @@
-globalThis.currentUser = JSON.parse(localStorage.getItem('currentUser')) ?? null;
+import { getCookie } from '../utils/cookies.js';
 
-/**
- * Returns true if the user is logged in
- * @returns {boolean}
- */
+// Global variable to store the user data
+// so that it can be accessed from anywhere
+globalThis.user = null;
+
+export async function getUser() {
+  const accessToken = getCookie('access_token');
+
+  if (!accessToken) {
+    globalThis.user = null;
+    document.dispatchEvent(new Event('userStateChange'));
+    return;
+  }
+
+  fetch('/api/user/me/', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      if (!response.ok) throw new Error('Utilisateur non connecté');
+      return response.json();
+    })
+    .then(data => {
+      globalThis.user = data;
+      document.dispatchEvent(new Event('userStateChange'));
+
+      if (window.location.pathname === '/' && isLoggedIn()) {
+        router.navigate('/profile');
+      }
+    })
+    .catch(() => {
+      globalThis.user = null;
+      document.dispatchEvent(new Event('userStateChange'));
+    });
+}
+
+// function that checks if the user is logged in
 export function isLoggedIn() {
-  return Boolean(currentUser);
+  return globalThis.user !== null;
 }
 
-/**
- * Updates the current user
- * @param {Object} user - The user data
- */
-export function updateCurrentUser(user) {
-  currentUser = user;
-  console.log('Updating current user:', user);
-  localStorage.setItem('currentUser', JSON.stringify(user));
-  // Dispatch a custom event when user state changes
-  document.dispatchEvent(new CustomEvent('userStateChange', { detail: user }));
-}
-
-/**
- * Registers a new user with an alias and a profile picture
- * @param {string} alias - The alias of the user
- * @param {string} [profilePicture] - The profile picture of the user
- */
-export function signUp(alias, profilePicture = '/static/images/avatars/duck.webp') {
-  updateCurrentUser({ alias, profilePicture });
-}
-
-/**
- * Signs out the current user
- */
+// Function to sign out the user
 export function signOut() {
-  localStorage.removeItem('currentUser');
-  currentUser = null;
-  // Dispatch event when user signs out
-  document.dispatchEvent(new CustomEvent('userStateChange', { detail: null }));
+  // Supprimer les cookies en les expirant
+  document.cookie =
+    'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Lax';
+  document.cookie =
+    'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Lax';
+
+  // Reset user state
+  globalThis.user = null;
+  document.dispatchEvent(new Event('userStateChange'));
+
+  // Redirection vers la page d'accueil
+  globalThis.router.navigate('/');
 }
