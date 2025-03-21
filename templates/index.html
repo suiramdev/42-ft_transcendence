@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pong Game</title>
+
     <link rel="stylesheet" href="/static/css/index.css" />
     <script type="module" src="/static/js/app.js"></script>
 
@@ -59,6 +60,14 @@
                 <div class="userlist__content"></div>
               </div>
             </aside>
+            <script type="importmap">
+              {
+                "imports": {
+                  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+                  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+                }
+              }
+            </script>
             <main class="layout__content" id="page"></main>
           </div>
         </div>
