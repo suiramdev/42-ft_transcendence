@@ -23,7 +23,9 @@ class FortyTwoAuthView(viewsets.ViewSet):
         }
 
         token_uri = f"{os.getenv('AUTH_FORTY_TWO_TOKEN_URI')}?client_id={os.getenv('AUTH_FORTY_TWO_UID')}&client_secret={os.getenv('AUTH_FORTY_TWO_SECRET')}&code={code}&redirect_uri={os.getenv('AUTH_FORTY_TWO_REDIRECT_URI')}"
+        print(token_uri)
         response = requests.post(token_uri, data=data)
+        print(response.json())
         if response.status_code != 200:
             raise Exception('Failed to exchange code for token')
 
@@ -84,7 +86,6 @@ class FortyTwoAuthView(viewsets.ViewSet):
             response.set_cookie(
                 'access_token',
                 str(refresh.access_token),
-                httponly=True,
                 secure=True,
                 samesite='Lax',
                 max_age=3600  # 1 hour
@@ -132,13 +133,4 @@ class AuthView(viewsets.ViewSet):
             })
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    @action(detail=False, methods=['get'], url_path='get-token')
-    def get_token(self, request):
-        """Renvoie le token stocké dans les cookies"""
-        access_token = request.COOKIES.get('access_token')
-
-        if not access_token:
-            return Response({'error': 'Token non trouvé'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        return Response({'access_token': access_token})
 
