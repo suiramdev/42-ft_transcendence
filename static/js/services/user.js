@@ -58,3 +58,38 @@ export function signOut() {
   // Redirection vers la page d'accueil
   globalThis.router.navigate('/');
 }
+
+/** ============================
+ *  AJOUT : Mise à jour du profil
+ *  ============================ */
+export async function updateUser(updatedUser) {
+  const accessToken = await fetchToken();
+  if (!accessToken) {
+    console.error("Impossible de mettre à jour l'utilisateur : Pas de token");
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append("nickname", updatedUser.nickname);
+    formData.append("bio", updatedUser.bio);
+    if (updatedUser.avatar instanceof File) {
+      formData.append("avatar", updatedUser.avatar);
+    }
+
+    const response = await fetch('/api/user/me/', {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error('Erreur lors de la mise à jour du profil');
+
+    globalThis.user = await response.json();
+    document.dispatchEvent(new Event('userStateChange'));
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du profil:', error);
+  }
+}
