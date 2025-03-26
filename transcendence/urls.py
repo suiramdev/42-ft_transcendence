@@ -17,13 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
-from apps.user.views import UserViewSet 
+from apps.user.views import UserViewSet
 from apps.authentication.views import AuthView, FortyTwoAuthView
 from templates.views import index
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from django.views.static import serve
 import os
 from pathlib import Path
+from django.conf import settings
+from django.conf.urls.static import static
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,6 +45,9 @@ urlpatterns = [
     path('__reload__/', include('django_browser_reload.urls')),
     # Catch all routes to the index view
     # This is used to handle the SPA routing in the frontend
-    re_path(r'^(?!api|admin|__reload__).*$', index, name='index'),
+    re_path(r'^(?!media|api|admin|__reload__).*$', index, name='index'),
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

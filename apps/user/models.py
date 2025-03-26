@@ -5,7 +5,7 @@ class User(AbstractUser):
     """Custom user model extending Django's built-in User"""
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     nickname = models.CharField(max_length=50, unique=True)
-    bio = models.CharField(max_length=255, null=True, blank=True)
+    bio = models.CharField(max_length=255)
     two_factor_enabled = models.BooleanField(default=False)
     coalition = models.CharField(max_length=50, null=True, blank=True)
     wins = models.IntegerField(default=0)
