@@ -1,5 +1,5 @@
 import { Page } from '../core/Page.js';
-import { isLoggedIn, getUser, updateUser } from '../services/user.js';
+import { isLoggedIn, getUser, updateUser, uploadAvatar } from '../services/user.js';
 
 export class ProfilePage extends Page {
   constructor() {
@@ -87,13 +87,16 @@ export class ProfilePage extends Page {
     });
 
     saveBtn.addEventListener('click', async () => {
-      const updatedUser = {
-        nickname: aliasInput.value,
-        bio: bioInput.value,
-        avatar: avatarSelect.files[0] || globalThis.user.avatar,
-      };
+  const updatedUser = {
+    nickname: aliasInput.value,
+    bio: bioInput.value,
+  };
 
       try {
+        if (avatarSelect.files[0]) {
+          await uploadAvatar(avatarSelect.files[0]);
+        }
+
         await updateUser(updatedUser);
         document.dispatchEvent(new Event('userStateChange'));
         editForm.classList.add('hidden');

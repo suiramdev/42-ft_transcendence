@@ -105,3 +105,32 @@ export async function updateUser(updatedUser) {
     console.error('Erreur lors de la mise à jour du profil:', error);
   }
 }
+
+export async function uploadAvatar(avatarFile) {
+  const accessToken = await fetchToken();
+  if (!accessToken) {
+    console.error("Impossible de télécharger l'avatar : Pas de token");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('avatar', avatarFile);
+
+  try {
+    const response = await fetch('/api/user/me/', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error("Erreur lors du téléchargement de l'avatar");
+
+    const data = await response.json();
+    globalThis.user.avatar = data.avatar;
+    document.dispatchEvent(new Event('userStateChange'));
+  } catch (error) {
+    console.error("Erreur lors du téléchargement de l'avatar:", error);
+  }
+}
