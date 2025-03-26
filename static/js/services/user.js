@@ -4,6 +4,19 @@ import { getCookie } from '../utils/cookies.js';
 // so that it can be accessed from anywhere
 globalThis.user = null;
 
+async function fetchToken() {
+  const response = await fetch('/api/auth/get-token/', {
+    method: 'GET',
+    credentials: 'include',  // Permet d'envoyer les cookies
+  });
+  if (!response.ok) {
+    console.error('Impossible de récupérer le token');
+    return null;
+  }
+  const data = await response.json();
+  return data.access_token;
+}
+
 export async function getUser() {
   const accessToken = getCookie('access_token');
 
@@ -71,16 +84,13 @@ export async function updateUser(updatedUser) {
 
   try {
     const formData = new FormData();
-    formData.append("nickname", updatedUser.nickname);
-    formData.append("bio", updatedUser.bio);
-    if (updatedUser.avatar instanceof File) {
-      formData.append("avatar", updatedUser.avatar);
-    }
+    formData.append('nickname', updatedUser.nickname);
+    formData.append('bio', updatedUser.bio);
 
     const response = await fetch('/api/user/me/', {
       method: 'PATCH',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: formData,
     });
@@ -91,5 +101,34 @@ export async function updateUser(updatedUser) {
     document.dispatchEvent(new Event('userStateChange'));
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil:', error);
+  }
+}
+
+export async function uploadAvatar(avatarFile) {
+  const accessToken = await fetchToken();
+  if (!accessToken) {
+    console.error("Impossible de télécharger l'avatar : Pas de token");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('avatar', avatarFile);
+
+  try {
+    const response = await fetch('/api/user/me/', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error("Erreur lors du téléchargement de l'avatar");
+
+    const data = await response.json();
+    globalThis.user.avatar = data.avatar;
+    document.dispatchEvent(new Event('userStateChange'));
+  } catch (error) {
+    console.error("Erreur lors du téléchargement de l'avatar:", error);
   }
 }
