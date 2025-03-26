@@ -13,6 +13,14 @@
 
     <link rel="stylesheet" href="/static/css/components/navbar.css" />
     <script type="module" src="/static/js/components/navbar.js"></script>
+    <script type="importmap">
+      {
+          "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+          }
+      }
+  </script>
   </head>
   <body>
     <div class="desktop">
@@ -68,14 +76,6 @@
                 </div>
               </div>
             </aside>
-            <script type="importmap">
-              {
-                  "imports": {
-                    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-                    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
-                  }
-              }
-            </script>
             <main class="main" id="page"></main>
           </div>
         </div>
