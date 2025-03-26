@@ -18,6 +18,14 @@
     <script type="module" src="/static/js/components/navbar.js"></script>
 
     <link rel="stylesheet" href="/static/css/components/sidebar.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+        }
+      }
+    </script>
   </head>
   <body>
     <div class="desktop">
@@ -60,14 +68,6 @@
                 <div class="userlist__content"></div>
               </div>
             </aside>
-            <script type="importmap">
-              {
-                "imports": {
-                  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-                  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
-                }
-              }
-            </script>
             <main class="layout__content" id="page"></main>
           </div>
         </div>

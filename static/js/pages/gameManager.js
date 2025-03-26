@@ -5,14 +5,14 @@ export class GameManager {
     this.localPlayer = null; // 'left' ou 'right'
   }
 
-  async joinGame(gameID) {
+  async joinGame(gameId) {
     try {
       const response = await fetch('/api/game/join/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ gameId: gameID }),
+        body: JSON.stringify({ gameId: gameId }),
       });
 
       if (!response.ok) {
@@ -24,7 +24,7 @@ export class GameManager {
       console.log('Joined game:', gameData);
 
       this.gameId = gameData.game_id;
-      this.localPlayer = gameData.player_side; // 'left' ou 'right'
+      this.localPlayer = 'right'; // Player 2 is always on the right
       this.initializeGameSocket(gameData.game_id);
 
       return gameData;
@@ -36,7 +36,7 @@ export class GameManager {
 
   async createGame() {
     try {
-      const response = await fetch('/api/game/create/', {
+      const response = await fetch('/api/game/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,12 +61,11 @@ export class GameManager {
       throw error;
     }
   }
-  
+
   initializeGameSocket(gameId) {
-    
     const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
     const wsUrl = `${wsProtocol}${window.location.host}/ws/game/${gameId}`;
-    
+
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -76,10 +75,10 @@ export class GameManager {
     ws.onmessage = event => {
       const data = JSON.parse(event.data);
       console.log('Received game update:', data);
-      
+
       // Dispatch événement personnalisé
-      const gameEvent = new CustomEvent('game-update', { 
-        detail: data 
+      const gameEvent = new CustomEvent('game-update', {
+        detail: data,
       });
       document.dispatchEvent(gameEvent);
     };
@@ -90,9 +89,10 @@ export class GameManager {
 
     ws.onclose = event => {
       console.log('WebSocket connection closed:', event.code, event.reason);
-      
+
       // Reconnexion ou notification de déconnexion
-      if (event.code !== 1000) { // Si ce n'est pas une fermeture normale
+      if (event.code !== 1000) {
+        // Si ce n'est pas une fermeture normale
         console.log('Attempting to reconnect...');
         setTimeout(() => this.initializeGameSocket(gameId), 3000);
       }
@@ -101,31 +101,35 @@ export class GameManager {
     this.gameSocket = ws;
     return ws;
   }
-  
+
   // Méthode pour envoyer les mouvements de joueur au serveur
   sendPlayerMove(direction) {
     if (!this.gameSocket || this.gameSocket.readyState !== WebSocket.OPEN) {
       console.error('WebSocket connection not open');
       return;
     }
-    
-    this.gameSocket.send(JSON.stringify({
-      type: 'player_move',
-      player: this.localPlayer,
-      direction: direction // 'up', 'down' ou 'stop'
-    }));
+
+    this.gameSocket.send(
+      JSON.stringify({
+        type: 'player_move',
+        player: this.localPlayer,
+        direction: direction, // 'up', 'down' ou 'stop'
+      })
+    );
   }
-  
+
   // Méthode pour transmettre tout autre événement
   sendGameEvent(eventType, data) {
     if (!this.gameSocket || this.gameSocket.readyState !== WebSocket.OPEN) {
       console.error('WebSocket connection not open');
       return;
     }
-    
-    this.gameSocket.send(JSON.stringify({
-      type: eventType,
-      ...data
-    }));
+
+    this.gameSocket.send(
+      JSON.stringify({
+        type: eventType,
+        ...data,
+      })
+    );
   }
 }
