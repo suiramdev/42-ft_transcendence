@@ -1,6 +1,5 @@
 import { Page } from '../core/Page.js';
-import { isLoggedIn, getUser, updateUser, uploadAvatar } from '../services/user.js';
-
+import { isLoggedIn, getUser, updateUser } from '../services/user.js';
 
 export class ProfilePage extends Page {
   constructor() {
@@ -8,7 +7,6 @@ export class ProfilePage extends Page {
   }
 
   async mount(container) {
-
     await getUser();
 
     if (!isLoggedIn()) {
@@ -59,7 +57,9 @@ export class ProfilePage extends Page {
   renderBio() {
     const bio = document.querySelector('.profile__bio');
     if (bio && globalThis.user) {
-      bio.textContent = globalThis.user.bio || "Slt tt le monde! Mwa g 2 koi vs rakonT... Jss 1 gro fan 2 pong é g kiff tro joué! Jfé ossi d la prog mé c pa tjs fassil mdr ^^ Vné mfèr 1 pti coucou si vs voulé! Bizzzoux <3";
+      bio.textContent =
+        globalThis.user.bio ||
+        'Slt tt le monde! Mwa g 2 koi vs rakonT... Jss 1 gro fan 2 pong é g kiff tro joué! Jfé ossi d la prog mé c pa tjs fassil mdr ^^ Vné mfèr 1 pti coucou si vs voulé! Bizzzoux <3';
     }
   }
 
@@ -87,21 +87,18 @@ export class ProfilePage extends Page {
     });
 
     saveBtn.addEventListener('click', async () => {
-  const updatedUser = {
-    nickname: aliasInput.value,
-    bio: bioInput.value,
-  };
+      const updatedUser = {
+        nickname: aliasInput.value,
+        bio: bioInput.value,
+        avatar: avatarSelect.files[0] || globalThis.user.avatar,
+      };
 
       try {
-        if (avatarSelect.files[0]) {
-          await uploadAvatar(avatarSelect.files[0]);
-        }
-
         await updateUser(updatedUser);
         document.dispatchEvent(new Event('userStateChange'));
         editForm.classList.add('hidden');
       } catch (error) {
-        console.error("Erreur lors de la mise à jour du profil :", error);
+        console.error('Erreur lors de la mise à jour du profil :', error);
       }
     });
   }
