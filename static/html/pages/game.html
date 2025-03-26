@@ -29,7 +29,27 @@
       </div>
     </div>
   </div>
-
+  <div id="waiting-screen" style="display: none;">
+    <div class="window waiting-window">
+      <div class="window__titlebar">
+        <div class="window__title">Waiting for Player 2</div>
+        <div class="window__controls">
+          <button class="window__button" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window__content waiting-content">
+        <div class="waiting-message">
+          <p>Game created successfully!</p>
+          <p>Share this Game ID with your opponent:</p>
+          <div class="game-id-display" id="waiting-game-id"></div>
+          <div class="waiting-animation">
+            <div class="loading-bar"></div>
+          </div>
+          <p class="waiting-status">Waiting for player to join...</p>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="game-container" style="display: none">
     <div class="score-container">
       <div id="score" class="score-display">0 | 0</div>

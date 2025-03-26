@@ -1,34 +1,30 @@
+from rest_framework import viewsets
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status 
+from rest_framework import status 
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from apps.game.models import Game
 from rest_framework.permissions import IsAuthenticated
-from apps.user.models import User  # Import your custom User model
+from apps.user.models import User
 
-# Create your views here.
+
 class gameViewset(viewsets.ViewSet):
-    # We'll add authentication later
-    # permission_classes = [IsAuthenticated]
-
     def create(self, request):
-        """Handle POST /api/game"""
+        """Handle POST /api/game/"""
         try:
-            # currentUser = request.user
-            # print(f"user : {request.user}")
-            # print(f"user : {request.user.id}")
+            # Create temporary user for testing
             temp_user, created = User.objects.get_or_create(
                 username='temp_player',
                 defaults={
-                    'nickname': 'player 1',
+                    'nickname': 'Temporary Player'
                 }
             )
             
             game = Game.objects.create(
                 player1=temp_user,
-                player2=temp_user,
-                winner=temp_user,
+                player2=temp_user,  # Temporarily set to same user
+                winner=temp_user,   # Temporarily set
                 player1_score=0,
                 player2_score=0,
                 game_type='classic'
@@ -37,41 +33,44 @@ class gameViewset(viewsets.ViewSet):
             return Response({
                 'game_id': game.id,
                 'status': 'created',
-                'player1': temp_user.nickname
+                'player1': temp_user.id
             }, status=status.HTTP_201_CREATED)
-
+            
         except Exception as e:
             return Response({
                 'error': str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
-        
-    @action(detail=False, methods=['post'], url_path='join')
-    def joinGame(self, request):
-        """Handle POST /api/game/join"""
+    
+    @action(detail=False, methods=['post'])
+    def join(self, request):
+        """Handle POST /api/game/join/"""
         try:
-            gameID = request.headers.get('game-id')
-            # userID = request.user.id
-            print(f"gameID : {gameID}")
-            temp_user, created = User.objects.get_or_create(
-                username='temp_player',
+            # Get the game ID from the request data
+            game_id = request.data.get('gameId')
+            
+            if not game_id:
+                return Response({
+                    'error': 'Game ID is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Create temporary user for player 2
+            player2, created = User.objects.get_or_create(
+                username='player2',
                 defaults={
-                    'nickname': 'player 2',
+                    'nickname': 'Player 2'
                 }
             )
             
-            if not gameID: # or not userID
+            # Find the game
+            try:
+                game = Game.objects.get(id=game_id)
+            except Game.DoesNotExist:
                 return Response({
-                    'error': 'Game ID and User ID are required'
-                }, status=status.HTTP_400_BAD_REQUEST)
+                    'error': 'Game not found'
+                }, status=status.HTTP_404_NOT_FOUND)
             
-            game = get_object_or_404(Game, id=gameID)
-            print(f"game id if its found : {game.id}")
-            # if game.player2 is not None:
-            #     return Response({
-            #         'error': 'Game is already full'
-            #     }, status=status.HTTP_400_BAD_REQUEST)
-            
-            game.player2 = temp_user
+            # Update the game with player 2
+            game.player2 = player2
             game.save()
             
             return Response({
