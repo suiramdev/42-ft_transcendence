@@ -13,9 +13,10 @@ class UserReadSerializer(serializers.ModelSerializer):
             'losses',
             'ladder_level',
             'status',
+            'bio',
         )
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('nickname', 'avatar')
+        fields = ('nickname', 'avatar', 'bio')
