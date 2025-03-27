@@ -33,8 +33,7 @@ export class GamePage extends Page {
     pregame();
     // Écouter les mises à jour du jeu
     document.addEventListener('game-update', event => {
-      const gameData = event.detail;
-      this.handleGameUpdate(gameData);
+      this.handleGameUpdate(event.detail);
     });
 
     joinGameButton.addEventListener('click', async e => {
@@ -84,7 +83,7 @@ export class GamePage extends Page {
         this.waitingForPlayer = true;
     
         // Send game settings to server
-        this.gameManager.sendGameEvent('game_settings', this.gameSettings);
+        // this.gameManager.sendGameEvent('game_settings', this.gameSettings);
         
       } catch (error) {
         console.error('Failed to start game:', error);
@@ -93,89 +92,89 @@ export class GamePage extends Page {
     });
   }
     
-  handleGameUpdate(event) {
-    const data = event.detail;
+  handleGameUpdate(data) {
     console.log('Game update received:', data);
-
+  
+    if (!data) {
+      console.error('No data received in game update');
+      return;
+    }
+  
     switch (data.type) {
       case 'player_joined':
-        // Player 2 has joined
-        if (this.waitingForPlayer) {
-          this.waitingForPlayer = false;
-          // Hide waiting screen and show game
-          document.getElementById('waiting-screen').style.display = 'none';
-          document.getElementById('game-container').style.display = 'block';
+        console.log('Player joined the game:', data.player);
+        
+        // If player 2 joined and we're player 1 (waiting)
+        if (this.waitingForPlayer && data.player === 'right') {
+          // Show that player 2 has joined
+          const waitingMessage = document.getElementById('waiting-message');
+          if (waitingMessage) {
+            waitingMessage.textContent = 'Player 2 joined! Preparing game...';
+          }
           
-          // Initialize game with settings and store the instance
-          this.gameInstance = initGame(
-            this.gameSettings.ballSpeed, 
-            this.gameSettings.paddleSize, 
-            this.gameSettings.paddleSpeed, 
-            this.gameSettings.winScore
-          );
-          
-          // Connect game to gameManager for WebSocket communication
-          this.gameInstance.gameManager = this.gameManager;
-          
-          // Now start the animation loop separately
-          startGameLoop(this.gameInstance, this.gameSettings.winScore);
+          // Send ready status to backend
+          this.gameManager.sendReadyStatus();
+        }
+        
+        // If we're player 2, send ready status immediately
+        if (this.gameManager.localPlayer === 'right') {
+          this.gameManager.sendReadyStatus();
         }
         break;
-
-      case 'player_move':
-        // Mouvement du joueur distant
-        if (data.player === 'left') {
-          if (data.direction === 'up') {
-            player_left.moveUp();
-          } else if (data.direction === 'down') {
-            player_left.moveDown();
-          } else if (data.direction === 'stop') {
-            player_left.dy = 0;
-          }
-        } else if (data.player === 'right') {
-          if (data.direction === 'up') {
-            player_right.moveUp();
-          } else if (data.direction === 'down') {
-            player_right.moveDown();
-          } else if (data.direction === 'stop') {
-            player_right.dy = 0;
-          }
-        }
-        break;
-
-      case 'ball_update':
-        // Mise à jour de la position de la balle
-        // Cette mise à jour devrait provenir du serveur qui fait autorité
-        this.gameInstance.ball.x = data.x;
-        this.gameInstance.ball.y = data.y;
-        this.gameInstance.ball.direction_x = data.direction_x;
-        this.gameInstance.ball.direction_y = data.direction_y;
-        break;
-
-      case 'score_update':
-        // Mise à jour du score
-        player_left.scoreCount = data.left_score;
-        player_right.scoreCount = data.right_score;
-        updateScore();
-        break;
-
+  
       case 'game_start':
-        // Démarrage de la partie
-        document.getElementById('pregame-menu').style.display = 'none';
+        // Both players are ready, we can start the game
+        console.log('Both players ready, starting game!');
+        
+        // Hide waiting screen (if it's visible)
+        const waitingScreen = document.getElementById('waiting-screen');
+        if (waitingScreen) {
+          waitingScreen.style.display = 'none';
+        }
+        
+        // Show game container
         document.getElementById('game-container').style.display = 'block';
-
-        // Initialiser le jeu avec les paramètres reçus
-        initGame(data.ballSpeed, data.paddleSize, data.paddleSpeed, data.winScore);
+        
+        // Initialize game with settings
+        this.gameInstance = initGame(
+          this.gameSettings.ballSpeed, 
+          this.gameSettings.paddleSize, 
+          this.gameSettings.paddleSpeed, 
+          this.gameSettings.winScore
+        );
+        
+        // Connect game to gameManager for WebSocket communication
+        this.gameInstance.gameManager = this.gameManager;
+        
+        // Start the animation loop
+        startGameLoop(this.gameInstance, this.gameSettings.winScore);
         break;
-
-      case 'game_over':
-        // Fin de la partie
-        console.log('Game over. Winner:', data.winner);
-        // Afficher l'écran de fin avec le gagnant
+        
+      case 'player_move':
+        // Only process moves if we have a game instance
+        if (!this.gameInstance) return;
+        
+        // Mouvement du joueur distant (opposé au joueur local)
+        if (data.player === 'left' && this.gameManager.localPlayer === 'right') {
+          if (data.direction === 'up') {
+            this.gameInstance.playerLeft.moveUp();
+          } else if (data.direction === 'down') {
+            this.gameInstance.playerLeft.moveDown();
+          } else if (data.direction === 'stop') {
+            this.gameInstance.playerLeft.dy = 0;
+          }
+        } else if (data.player === 'right' && this.gameManager.localPlayer === 'left') {
+          if (data.direction === 'up') {
+            this.gameInstance.playerRight.moveUp();
+          } else if (data.direction === 'down') {
+            this.gameInstance.playerRight.moveDown();
+          } else if (data.direction === 'stop') {
+            this.gameInstance.playerRight.dy = 0;
+          }
+        }
         break;
-
-      default:
-        console.log('Unknown update type:', data.type);
+  
+      // ... rest of your cases ...
     }
   }
 }
