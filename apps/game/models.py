@@ -16,6 +16,7 @@ class Game(models.Model):
             ('custom', 'Custom')
         ]
     )
+    player_rdy = models.IntegerField(default=0)
 
 
     def getP1Score(self):
@@ -34,3 +35,8 @@ class Game(models.Model):
             loser.save()
             
         super().save(*args, **kwargs)
+
+    def addPlayerRdy(self):
+        self.player_rdy +=1
+        self.save()
+        return self.player_rdy == 2
