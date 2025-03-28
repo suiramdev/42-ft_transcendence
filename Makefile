@@ -114,6 +114,10 @@ create-db:
 	@$(DOCKER_COMPOSE) exec -T postgres psql -U $(DB_USER) -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$(DB_NAME)'" | grep -q 1 || \
 	$(DOCKER_COMPOSE) exec -T postgres psql -U $(DB_USER) -d postgres -c "CREATE DATABASE $(DB_NAME)"
 
+create-fake-users:
+	@echo "Creating fake users..."
+	@$(PYTHON_VENV) manage.py create_fake_users $(word 2,$(MAKECMDGOALS))
+
 # Ignore all targets that don't match any of the above
 %:
 	@:
