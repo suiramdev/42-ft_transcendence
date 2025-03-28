@@ -24,6 +24,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from django.views.static import serve
 import os
 from pathlib import Path
+from apps.chat.consumers import DirectMessageConsumer
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

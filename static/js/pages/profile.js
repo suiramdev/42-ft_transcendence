@@ -1,6 +1,5 @@
 import { Page } from '../core/Page.js';
-import { isLoggedIn } from '../services/user.js';
-import { getUser } from '../services/user.js';
+import { fetchUser, isLoggedIn } from '../services/user.js';
 
 export class ProfilePage extends Page {
   constructor() {
@@ -8,12 +7,11 @@ export class ProfilePage extends Page {
   }
 
   async mount(container) {
-
-    await getUser();
+    await fetchUser();
 
     if (!isLoggedIn()) {
       // If the user is not logged in, navigate to the home page
-      router.navigate('/');
+      globalThis.router.navigate('/');
       return;
     }
     await super.mount(container);
@@ -28,7 +26,7 @@ export class ProfilePage extends Page {
     document.addEventListener('userStateChange', () => {
       if (!isLoggedIn()) {
         // If the user is not logged in, navigate to the home page
-        router.navigate('/');
+        globalThis.router.navigate('/');
         return;
       }
 

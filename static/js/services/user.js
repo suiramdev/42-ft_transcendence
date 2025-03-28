@@ -1,15 +1,20 @@
-import { getCookie } from '../utils/cookies.js';
+import { getCookie, deleteCookie } from '../utils/cookies.js';
 
 // Global variable to store the user data
 // so that it can be accessed from anywhere
 globalThis.user = null;
 
-export async function getUser() {
+/**
+ * Fetch the user data from the server and store it in the global user variable
+ *
+ * @returns {Promise<void>}
+ */
+export async function fetchUser() {
   const accessToken = getCookie('access_token');
 
   if (!accessToken) {
     globalThis.user = null;
-    document.dispatchEvent(new Event('userStateChange'));
+    document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
     return;
   }
 
@@ -25,36 +30,41 @@ export async function getUser() {
       return response.json();
     })
     .then(data => {
-      globalThis.user = data;
-      document.dispatchEvent(new Event('userStateChange'));
-
-      if (window.location.pathname === '/' && isLoggedIn()) {
-        router.navigate('/profile');
+      if (!globalThis.user) {
+        // If the user was not logged in, dispatch a signIn event
+        document.dispatchEvent(new CustomEvent('signIn'));
       }
+
+      globalThis.user = data;
+      document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
     })
     .catch(() => {
       globalThis.user = null;
-      document.dispatchEvent(new Event('userStateChange'));
+      document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
     });
 }
 
-// function that checks if the user is logged in
+/**
+ * Check if the user is logged in
+ *
+ * @returns {boolean}
+ */
 export function isLoggedIn() {
   return globalThis.user !== null;
 }
 
-// Function to sign out the user
+/**
+ * Sign out the user
+ *
+ * @returns {Promise<void>}
+ */
 export function signOut() {
-  // Supprimer les cookies en les expirant
-  document.cookie =
-    'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Lax';
-  document.cookie =
-    'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Lax';
+  deleteCookie('access_token');
+  deleteCookie('refresh_token');
 
-  // Reset user state
   globalThis.user = null;
-  document.dispatchEvent(new Event('userStateChange'));
+  document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
+  document.dispatchEvent(new CustomEvent('signOut'));
 
-  // Redirection vers la page d'accueil
   globalThis.router.navigate('/');
 }
