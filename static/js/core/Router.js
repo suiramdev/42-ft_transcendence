@@ -7,6 +7,7 @@ import { NotFoundPage } from '../pages/not-found.js';
  */
 export class Router {
   pages = {};
+  dynamicRoutes = []; // Ajout pour stocker les routes dynamiques
 
   /**
    * Constructor for the Router class
@@ -53,15 +54,39 @@ export class Router {
    * @private
    */
   async handleRoute() {
-    const page = this.pages[location.pathname];
-    console.log('Handling route:', location.pathname);
+    const path = location.pathname;
+    console.log('Handling route:', path);
 
-    if (page) {
-      await page.mount(this.rootElement);
-    } else {
-      const notFoundPage = new NotFoundPage();
-      await notFoundPage.mount(this.rootElement);
+    // Vérifie si c'est une route statique
+    if (this.pages[path]) {
+      await this.pages[path].mount(this.rootElement);
+      return;
     }
+
+    // Vérifie les routes dynamiques
+    for (const route of this.dynamicRoutes) {
+      const match = path.match(route.pattern);
+      if (match) {
+        const params = match.slice(1); // Récupère les paramètres de l'URL
+        const pageInstance = route.createPageInstance(...params);
+        await pageInstance.mount(this.rootElement);
+        return;
+      }
+    }
+
+    // Si aucune route ne correspond, affiche la page 404
+    const notFoundPage = new NotFoundPage();
+    await notFoundPage.mount(this.rootElement);
+  }
+
+  /**
+   * Enregistre une route dynamique (ex: /profile/:id)
+   * @param {string} pattern - Le chemin de la route avec ":param"
+   * @param {function} createPageInstance - Fonction qui crée l'instance de la page avec l'ID en paramètre
+   */
+  registerDynamicRoute(pattern, createPageInstance) {
+    const regexPattern = new RegExp("^" + pattern.replace(/:\w+/g, "(\\w+)") + "$");
+    this.dynamicRoutes.push({ pattern: regexPattern, createPageInstance });
   }
 
   /**
@@ -76,7 +101,7 @@ export class Router {
   }
 
   /**
-   * Registers a new route with its corresponding page instance
+   * Registers a new static route with its corresponding page instance
    * @param {string} route - The route path to register
    * @param {object} pageInstance - The page instance to associate with the route
    * @throws {Error} If the route is already registered
