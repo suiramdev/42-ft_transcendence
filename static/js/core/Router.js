@@ -7,6 +7,7 @@ import { NotFoundPage } from '../pages/not-found.js';
  */
 export class Router {
   pages = {};
+  dynamicRoutes = []; // Ajout pour stocker les routes dynamiques
 
   /**
    * Constructor for the Router class
@@ -119,7 +120,7 @@ export class Router {
   }
 
   /**
-   * Registers a new route with its corresponding page instance
+   * Registers a new static route with its corresponding page instance
    * @param {string} route - The route path to register
    * @param {object} pageInstance - The page instance to associate with the route
    * @throws {Error} If the route is already registered
