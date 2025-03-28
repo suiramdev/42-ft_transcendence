@@ -24,6 +24,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from django.views.static import serve
 import os
 from pathlib import Path
+from apps.chat.consumers import DirectMessageConsumer
 from django.conf import settings
 from django.conf.urls.static import static
 

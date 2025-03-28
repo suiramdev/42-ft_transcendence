@@ -2,6 +2,7 @@ import { Router } from './core/Router.js';
 import { GamePage } from './pages/game.js';
 import { ProfilePage } from './pages/profile/index.js';
 import { UserProfilePage } from './pages/profile/id.js';
+import { ChatPage } from './pages/chat.js';
 import { getUser } from './services/user.js';
 
 // Initialize the router in globalThis
@@ -15,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Register the routes
   router.registerRoute('/', new GamePage());
   router.registerRoute('/profile', new ProfilePage());
+  router.registerRoute('/chat', new ChatPage());
   router.registerRoute('/profile/:id', new UserProfilePage());
 
   globalThis.router = router;

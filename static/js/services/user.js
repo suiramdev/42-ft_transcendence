@@ -1,4 +1,4 @@
-import { getCookie } from '../utils/cookies.js';
+import { getCookie, deleteCookie } from '../utils/cookies.js';
 
 /**
  * Global variable to store the user data
@@ -17,7 +17,7 @@ export async function getUser() {
   const accessToken = getCookie('access_token');
   if (!accessToken) {
     globalThis.user = null;
-    document.dispatchEvent(new Event('userStateChange'));
+    document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
     return;
   }
 
@@ -64,7 +64,8 @@ export function signOut() {
 
   // Reset user state
   globalThis.user = null;
-  document.dispatchEvent(new Event('userStateChange'));
+  document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
+  document.dispatchEvent(new CustomEvent('signOut'));
 
   // Redirect to the home page
   globalThis.router.navigate('/');
