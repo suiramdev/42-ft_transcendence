@@ -49,15 +49,58 @@ export class Router {
   }
 
   /**
+   * Converts a route pattern with params (e.g. '/users/:id') to a regex pattern
+   * @private
+   * @param {string} route - The route pattern
+   * @returns {object} Object containing regex pattern and param names
+   */
+  _createRoutePattern(route) {
+    const paramNames = [];
+    const pattern = route.replace(/:[a-zA-Z]+/g, match => {
+      paramNames.push(match.slice(1));
+      return '([^/]+)';
+    });
+    return {
+      regex: new RegExp(`^${pattern}$`),
+      paramNames,
+    };
+  }
+
+  /**
    * Handles the route change by updating the main content and mounting the appropriate page
    * @private
    */
   async handleRoute() {
-    const page = this.pages[location.pathname];
-    console.log('Handling route:', location.pathname);
+    const currentPath = location.pathname;
+    let matchedPage = null;
+    let params = {};
 
-    if (page) {
-      await page.mount(this.rootElement);
+    // Check for exact matches first
+    if (this.pages[currentPath]) {
+      matchedPage = this.pages[currentPath];
+    } else {
+      // Check for parameterized routes
+      for (const [route, page] of Object.entries(this.pages)) {
+        if (route.includes(':')) {
+          const { regex, paramNames } = this._createRoutePattern(route);
+          const match = currentPath.match(regex);
+
+          if (match) {
+            matchedPage = page;
+            // Extract params from the URL
+            paramNames.forEach((name, index) => {
+              params[name] = match[index + 1];
+            });
+            break;
+          }
+        }
+      }
+    }
+
+    console.log('Handling route:', currentPath, 'with params:', params);
+
+    if (matchedPage) {
+      await matchedPage.mount(this.rootElement, params);
     } else {
       const notFoundPage = new NotFoundPage();
       await notFoundPage.mount(this.rootElement);

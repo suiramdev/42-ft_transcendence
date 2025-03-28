@@ -71,14 +71,14 @@ export class Page {
    * @param {HTMLElement} container - The container element to mount the page into
    * @returns {Promise<boolean>} Whether the mount was successful
    */
-  async mount(container) {
+  async mount(container, params) {
     try {
       await this.fetchTemplate();
 
       await this.fetchStyle();
 
       this.render(container);
-      this.onMount();
+      this.onMount(params);
       return true;
     } catch (error) {
       console.error('Error mounting page:', error);
