@@ -142,7 +142,8 @@ export class GamePage extends Page {
           this.gameSettings.paddleSpeed, 
           this.gameSettings.winScore
         );
-        
+        if (!this.gameInstance)
+            break;//TODO : throw err
         // Connect game to gameManager for WebSocket communication
         this.gameInstance.gameManager = this.gameManager;
         

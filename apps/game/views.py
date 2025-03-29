@@ -12,9 +12,15 @@ from apps.user.models import User
 class gameViewset(viewsets.ViewSet):
     def create(self, request):
         """Handle POST /api/game/"""
+        if not request.user.is_authenticated:
+            return Response({
+                'error': 'You must be logged in to create a game',
+                'code': 'not_authenticated'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         try:
             # Create temporary user for testing
-            temp_user, created = User.objects.get_or_create(
+            temp_user = User.objects.get_or_create(
                 username='temp_player',
                 defaults={
                     'nickname': 'Temporary Player'
@@ -22,7 +28,7 @@ class gameViewset(viewsets.ViewSet):
             )
             
             game = Game.objects.create(
-                player1=temp_user,
+                player1= request.user,
                 player2=temp_user,  # Temporarily set to same user
                 winner=temp_user,   # Temporarily set
                 player1_score=0,
@@ -33,7 +39,7 @@ class gameViewset(viewsets.ViewSet):
             return Response({
                 'game_id': game.id,
                 'status': 'created',
-                'player1': temp_user.id
+                'player1': request.user.nickname
             }, status=status.HTTP_201_CREATED)
             
         except Exception as e:
@@ -44,6 +50,12 @@ class gameViewset(viewsets.ViewSet):
     @action(detail=False, methods=['post'])
     def join(self, request):
         """Handle POST /api/game/join/"""
+        if not request.user.is_authenticated:
+            return Response({
+                'error': 'You must be logged in to create a game',
+                'code': 'not_authenticated'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
         try:
             # Get the game ID from the request data
             game_id = request.data.get('gameId')
@@ -53,13 +65,6 @@ class gameViewset(viewsets.ViewSet):
                     'error': 'Game ID is required'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Create temporary user for player 2
-            player2, created = User.objects.get_or_create(
-                username='player2',
-                defaults={
-                    'nickname': 'Player 2'
-                }
-            )
             
             # Find the game
             try:
@@ -70,7 +75,7 @@ class gameViewset(viewsets.ViewSet):
                 }, status=status.HTTP_404_NOT_FOUND)
             
             # Update the game with player 2
-            game.player2 = player2
+            game.player2 = request.user
             game.save()
             
             return Response({
