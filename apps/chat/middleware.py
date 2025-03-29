@@ -6,7 +6,6 @@ from django.conf import settings
 from urllib.parse import parse_qs
 from django.contrib.auth import get_user_model
 
-
 class ChatAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
         token = parse_qs(scope["query_string"].decode("utf8"))["token"][0]
