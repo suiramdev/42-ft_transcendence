@@ -26,6 +26,6 @@ class DirectMessageConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         user = self.scope['user']
-        print(f"User {user.id} sent message: {text_data}")
+        await self.send(text_data=text_data)
         # TODO: Handle received message
         pass

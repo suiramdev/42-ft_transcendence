@@ -38,6 +38,13 @@
   object-fit: cover;
 }
 
+.chat-content__messages {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+}
+
 .chat-input {
   display: flex;
   flex-direction: column;
