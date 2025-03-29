@@ -28,7 +28,7 @@ export class UserProfilePage extends Page {
 
     // Masquer le bouton "Modifier le profil" si ce n'est pas l'utilisateur connecté
     const editButton = document.querySelector(".profile__edit-btn");
-    if (this.userData.is_me) {
+    if (globalThis.user && globalThis.user.id === this.userData.id) {
       editButton.style.display = "block";
     } else {
       editButton.style.display = "none";
