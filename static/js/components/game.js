@@ -351,67 +351,45 @@ import { GameManager } from '../pages/gameManager.js';
           return true;
         }
   
-        handleKeyDown(e) {
-          // Identifier quelle raquette contrôler en fonction du joueur local
-          const isLocalPlayerLeft = this.gameManager.localPlayer === 'left';
-  
+        handleKeyDown(e, localPlayer) {
           if (e.code === 'ArrowUp' || e.code === 'KeyW') {
-            if (
-              (isLocalPlayerLeft && e.code === 'KeyW') ||
-              (!isLocalPlayerLeft && e.code === 'ArrowUp')
-            ) {
               // C'est une commande du joueur local
               this.gameManager.sendPlayerMove('up');
   
               // Mettre à jour localement pour une réactivité immédiate
-              if (isLocalPlayerLeft) {
+              if (localPlayer === 'left') {
                 this.playerLeft.moveUp();
               } else {
                 this.playerRight.moveUp();
               }
-            }
           } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-            if (
-              (isLocalPlayerLeft && e.code === 'KeyS') ||
-              (!isLocalPlayerLeft && e.code === 'ArrowDown')
-            ) {
               // C'est une commande du joueur local
               this.gameManager.sendPlayerMove('down');
   
               // Mettre à jour localement pour une réactivité immédiate
-              if (isLocalPlayerLeft) {
+              if (localPlayer === 'left') {
                 this.playerLeft.moveDown();
               } else {
                 this.playerRight.moveDown();
               }
-            }
           }
         }
   
-        handleKeyUp(e) {
-          // Identifier quelle raquette contrôler en fonction du joueur local
-          const isLocalPlayerLeft = this.gameManager.localPlayer === 'left';
-  
+        handleKeyUp(e, localPlayer) {
           if (
             e.code === 'ArrowUp' ||
             e.code === 'ArrowDown' ||
             e.code === 'KeyW' ||
             e.code === 'KeyS'
           ) {
-            if (
-              (isLocalPlayerLeft && (e.code === 'KeyW' || e.code === 'KeyS')) ||
-              (!isLocalPlayerLeft && (e.code === 'ArrowUp' || e.code === 'ArrowDown'))
-            ) {
-              // C'est une commande du joueur local
               this.gameManager.sendPlayerMove('stop');
   
               // Mettre à jour localement pour une réactivité immédiate
-              if (isLocalPlayerLeft) {
+              if (localPlayer === 'left') {
                 this.playerLeft.dy = 0;
               } else {
                 this.playerRight.dy = 0;
               }
-            }
           }
         }
   

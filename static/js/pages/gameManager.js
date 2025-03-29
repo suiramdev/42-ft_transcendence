@@ -5,7 +5,7 @@ export class GameManager {
     this.localPlayer = null; // 'left' ou 'right'
     this.readyState = false;
   }
-
+ 
   async joinGame(gameId) {
     try {
       const response = await fetch('/api/game/join/', {
@@ -18,6 +18,7 @@ export class GameManager {
   
       if (!response.ok) {
         const errorData = await response.json();
+        
         throw new Error(errorData.error || 'Failed to join game');
       }
   
