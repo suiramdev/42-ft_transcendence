@@ -9,6 +9,7 @@ class Game(models.Model):
     played_at = models.DateTimeField(auto_now_add=True)
     player1_score = models.IntegerField()
     player2_score = models.IntegerField()
+    player_rdy = models.IntegerField(default=0)
     game_type = models.CharField(
         max_length=20,
         choices=[
@@ -16,7 +17,6 @@ class Game(models.Model):
             ('custom', 'Custom')
         ]
     )
-    player_rdy = models.IntegerField(default=0)
 
 
     def getP1Score(self):
@@ -37,6 +37,6 @@ class Game(models.Model):
         super().save(*args, **kwargs)
 
     def addPlayerRdy(self):
-        self.player_rdy +=1
+        self.player_rdy += 1
         self.save()
         return self.player_rdy == 2
