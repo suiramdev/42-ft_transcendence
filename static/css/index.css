@@ -97,6 +97,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 24px;
   flex-shrink: 0;
   background: linear-gradient(
     180deg,
@@ -213,12 +214,12 @@ body {
   display: flex;
   flex-direction: column;
   margin: 0 3px !important;
-  height: 100%;
+  height: calc(100% - 24px);
 }
 
 .layout {
   display: flex;
-  height: 100%;
+  height: calc(100% - 36px);
 }
 
 .layout__sidebar {
