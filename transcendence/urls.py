@@ -24,7 +24,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from django.views.static import serve
 import os
 from pathlib import Path
-from apps.chat.consumers import DirectMessageConsumer
+from apps.chat.views import DirectMessageViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -38,6 +38,7 @@ router.register(r'auth/42', FortyTwoAuthView, basename='auth_42')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/chat/', include('apps.chat.urls')),
     # OpenAPI schema endpoints
     path('api/schema', SpectacularAPIView.as_view(), name='schema'),
     # Optional UI endpoints

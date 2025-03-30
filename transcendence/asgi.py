@@ -12,7 +12,7 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
-from apps.chat.routing import chat_urlpatterns
+from apps.chat.urls import ws_urlpatterns
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'transcendence.settings')
 
@@ -20,7 +20,7 @@ application = ProtocolTypeRouter({
     'http': get_asgi_application(),
     'websocket': AllowedHostsOriginValidator(
         URLRouter([
-            *chat_urlpatterns
+            *ws_urlpatterns
         ])
     )
 })

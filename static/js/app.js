@@ -10,14 +10,13 @@ import { DirectMessagePage } from './pages/chat/:id.js';
 // so it can be accessed from anywhere in the code
 globalThis.router = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const rootElement = document.getElementById('page');
   const router = new Router(rootElement);
 
   // Register the routes
   router.registerRoute('/', new GamePage());
   router.registerRoute('/profile', new ProfilePage());
-  router.registerRoute('/chat', new ChatPage());
   router.registerRoute('/profile/:id', new UserProfilePage());
   router.registerRoute('/chat/:id', new DirectMessagePage());
 
