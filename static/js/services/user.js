@@ -2,19 +2,6 @@
 // so that it can be accessed from anywhere
 globalThis.user = null;
 
-async function fetchToken() {
-  const response = await fetch('/api/auth/get-token/', {
-    method: 'GET',
-    credentials: 'include', // Permet d'envoyer les cookies
-  });
-  if (!response.ok) {
-    console.error('Impossible de récupérer le token');
-    return null;
-  }
-  const data = await response.json();
-  return data.access_token;
-}
-
 export async function getUser() {
   const accessToken = await fetchToken();
   console.log('Access Token:', accessToken);
@@ -75,7 +62,7 @@ export function signOut() {
  *  AJOUT : Mise à jour du profil
  *  ============================ */
 export async function updateUser(updatedUser) {
-  const accessToken = await fetchToken();
+  const accessToken = getCookie('access_token');
   if (!accessToken) {
     console.error("Impossible de mettre à jour l'utilisateur : Pas de token");
     return;
@@ -107,7 +94,7 @@ export async function updateUser(updatedUser) {
 }
 
 export async function uploadAvatar(avatarFile) {
-  const accessToken = await fetchToken();
+  const accessToken = getCookie('access_token');
   if (!accessToken) {
     console.error("Impossible de télécharger l'avatar : Pas de token");
     return;
