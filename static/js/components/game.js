@@ -167,7 +167,7 @@ import { GameManager } from '../pages/gameManager.js';
       }
 
       // Move the ball
-      moveBall() {
+      moveBall(player_left, player_right) {
         // Lorsque la balle touche le paddle, ajuster sa position légèrement au-delà du paddle
         if (
           this.isBallinPlayer(
@@ -292,6 +292,7 @@ import { GameManager } from '../pages/gameManager.js';
   
         setup3D(ballSpeed, paddleSize, paddleSpeed/*, backgroundTextur*/) {
           const canvas = document.getElementById('pongCanvas');
+          console.log("qgqgqgge", canvas.width);
           this.renderer = new THREE.WebGLRenderer({ canvas });
           this.renderer.setSize(canvas.width, canvas.height);
           this.scene = new THREE.Scene();
@@ -312,13 +313,13 @@ import { GameManager } from '../pages/gameManager.js';
           this.scene.add(cube);
           // Initialize game objects
           this.playerLeft = new Player(-10, 0, 0, paddleSize, paddleSpeed, 'green');
-          this.playerLeft.sceneADD(scene);
+          this.playerLeft.sceneADD(this.scene);
   
           this.playerRight = new Player(10, 0, 0, paddleSize, paddleSpeed, 'blue');
-          this.playerRight.sceneADD(scene);
+          this.playerRight.sceneADD(this.scene);
   
           this.ball = new ball(0, 0, 0, 1, 1, ballSpeed, 0.5, 'red');
-          this.ball.sceneADD(scene);
+          this.ball.sceneADD(this.scene);
   
           // Lumière ambiante (plus faible, pour adoucir les ombres)
           const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
@@ -464,7 +465,7 @@ import { GameManager } from '../pages/gameManager.js';
         
         if (checkXCollision(game, winScore)) {
           updatePos(game);
-          game.ball.moveBall();
+          game.ball.moveBall(game.playerLeft, game.playerRight);
           updateScore(game.playerLeft, game.playerRight);
           game.renderer.render(game.scene, game.camera);
         } else {
