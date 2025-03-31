@@ -118,8 +118,13 @@ create-fake-users:
 	@echo "Creating fake users..."
 	@$(PYTHON_VENV) manage.py create_fake_users $(word 2,$(MAKECMDGOALS))
 
+create-user-token:
+	@echo "Creating user token..."
+	@$(PYTHON_VENV) manage.py create_user_token $(word 2,$(MAKECMDGOALS))
+
 # Ignore all targets that don't match any of the above
 %:
 	@:
 
 .PHONY: help setup install docker stop clean migrate static run test create-db
+
