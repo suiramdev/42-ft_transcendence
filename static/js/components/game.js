@@ -502,3 +502,41 @@ import { GameManager } from '../pages/gameManager.js';
         // Start the animation loop
         animate(game, winScore);
       }
+
+      export function setupSliders() {
+        // Ball speed slider
+        const ballSpeedSlider = document.getElementById('ball-speed');
+        const ballSpeedValue = document.getElementById('ball-speed-value');
+        if (ballSpeedSlider && ballSpeedValue) {
+          ballSpeedSlider.addEventListener('input', function() {
+            ballSpeedValue.textContent = this.value;
+          });
+        }
+      
+        // Paddle size slider
+        const paddleSizeSlider = document.getElementById('paddle-size');
+        const paddleSizeValue = document.getElementById('paddle-size-value');
+        if (paddleSizeSlider && paddleSizeValue) {
+          paddleSizeSlider.addEventListener('input', function() {
+            paddleSizeValue.textContent = this.value;
+          });
+        }
+      
+        // Paddle speed slider
+        const paddleSpeedSlider = document.getElementById('paddle-speed');
+        const paddleSpeedValue = document.getElementById('paddle-speed-value');
+        if (paddleSpeedSlider && paddleSpeedValue) {
+          paddleSpeedSlider.addEventListener('input', function() {
+            paddleSpeedValue.textContent = this.value;
+          });
+        }
+      
+        // Win score slider
+        const winScoreSlider = document.getElementById('win-score');
+        const winScoreValue = document.getElementById('win-score-value');
+        if (winScoreSlider && winScoreValue) {
+          winScoreSlider.addEventListener('input', function() {
+            winScoreValue.textContent = this.value;
+          });
+        }
+      }
