@@ -1,3 +1,5 @@
+import { getCookie } from "../utils/cookies.js"
+
 export class GameManager {
   constructor() {
     this.gameSocket = null;
@@ -11,6 +13,7 @@ export class GameManager {
       const response = await fetch('/api/game/join/', {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${getCookie('access_token')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ gameId: gameId }),
@@ -55,6 +58,7 @@ export class GameManager {
       const response = await fetch('/api/game/', {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${getCookie('access_token')}`,
           'Content-Type': 'application/json',
         },
       });
