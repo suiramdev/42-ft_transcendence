@@ -32,6 +32,7 @@ class Command(BaseCommand):
                 
                 self.stdout.write(
                     self.style.SUCCESS(
+                        f'id: {user.id}\n'
                         f'username: {username}\n'
                         f'email: {email}\n'
                         f'nickname: {nickname}\n'
