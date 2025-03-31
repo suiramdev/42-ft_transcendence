@@ -1,6 +1,6 @@
 import { Page } from '../core/Page.js';
 import { GameManager } from './gameManager.js';
-import {Player, movePlayer, stopPlayer, ball, updatePos, checkXCollision, updateScore, Game, pregame, animate, initGame, startGameLoop} from '../components/game.js';
+import { setupSliders, Player, movePlayer, stopPlayer, ball, updatePos, checkXCollision, updateScore, Game, pregame, animate, initGame, startGameLoop} from '../components/game.js';
  
 export class GamePage extends Page {
   constructor() {
@@ -24,11 +24,9 @@ export class GamePage extends Page {
     const joinGameButton = document.getElementById('join-game');
 
     console.log('game is loaded!');
-
-    let canvas = document.getElementById('pongCanvas');
     
  
-
+    setupSliders();
     
     pregame();
     // Écouter les mises à jour du jeu
