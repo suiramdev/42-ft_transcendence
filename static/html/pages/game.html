@@ -1,5 +1,6 @@
 <section class="game">
-  <div id="pregame-menu">
+  <div id="pregame-menu" class="pregame-menu">
+    <h2> PONG </h2>
     <h3>Game Settings</h3>
     <div class="slider-item">
       <div class="slider-container">
@@ -19,14 +20,14 @@
       </div>
       <div class="slider-container">
         <label for="win-score">Win Score</label>
-        <input type="range" id="win-score" min="3" max="11" step="2" value="5" />
+        <input type="range" id="win-score" min="3" max="11" step="1" value="5" />
         <span id="win-score-value">5</span>
       </div>
-      <button id="start-game" class="button-54">Start Game</button>
-      <div class="join-game-container">
-        <button id="join-game" class="button-54">Join Game</button>
-        <input type="text" id="game-id-input" placeholder="Enter Game ID" class="game-input" />
-      </div>
+    </div>
+    <button id="start-game">Start Game</button>
+    <div class="join-game-container">
+      <button id="join-game">Join Game</button>
+      <input type="text" id="game-id-input" placeholder="Enter Game ID" class="game-input" />
     </div>
   </div>
   <div id="waiting-screen" style="display: none;">

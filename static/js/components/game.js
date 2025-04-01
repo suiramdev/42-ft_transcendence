@@ -409,8 +409,8 @@ import { GameManager } from '../pages/gameManager.js';
           this.removeEventListeners();
   
           // Nettoyage de la scène
-          while (scene.children.length > 0) {
-            scene.remove(scene.children[0]);
+          while (this.scene.children.length > 0) {
+            this.scene.remove(scene.children[0]);
           }
   
           // Nettoyage des ressources
@@ -427,7 +427,7 @@ import { GameManager } from '../pages/gameManager.js';
   
           // Message du gagnant
           const winner =
-            this.playerLeft.getScore() > this.playerRight.getScore() ? 'Left Player' : 'Right Player';
+            this.playerLeft.getScore() > this.playerRight.getScore() ? this.playerLeft.nickname : this.playerRight.nickname;
           const winnerMessage = document.createElement('div');
           winnerMessage.textContent = `${winner} Wins!`;
           winnerMessage.style.color = 'black';
@@ -436,7 +436,7 @@ import { GameManager } from '../pages/gameManager.js';
           canvas.insertBefore(winnerMessage, canvas.firstChild);
   
           // Nettoyage final
-          renderer.dispose();
+          this.renderer.dispose();
           this.playerLeft.scoreCount = 0;
           this.playerRight.scoreCount = 0;
           updateScore();
