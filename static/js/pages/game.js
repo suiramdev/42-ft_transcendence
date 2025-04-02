@@ -1,7 +1,8 @@
 import { Page } from '../core/Page.js';
 import { GameManager } from './gameManager.js';
 import { setupSliders, Player, movePlayer, stopPlayer, ball, updatePos, checkXCollision, updateScore, Game, pregame, animate, initGame, startGameLoop} from '../components/game.js';
- 
+import { pregameSetup, stopPregameAnimations} from './pregame.js'; 
+
 export class GamePage extends Page {
   constructor() {
     super('game.html', 'game.css');
@@ -29,6 +30,8 @@ export class GamePage extends Page {
     setupSliders();
     
     pregame();
+    console.log("pregame startqrqrqwqrqr");
+    pregameSetup();
     // Écouter les mises à jour du jeu
     document.addEventListener('game-update', event => {
       this.handleGameUpdate(event.detail);
@@ -75,6 +78,7 @@ export class GamePage extends Page {
     
         // Show waiting screen
         document.getElementById('pregame-menu').style.display = 'none';
+        isAnimating = false;
         document.getElementById('waiting-screen').style.display = 'flex';
         document.getElementById('waiting-game-id').textContent = this.gameId;
     
@@ -129,7 +133,8 @@ export class GamePage extends Page {
         if (waitingScreen) {
           waitingScreen.style.display = 'none';
         }
-        
+        if (isAnimating == true)
+          isAnimating = false;
         // Show game container
         document.getElementById('game-container').style.display = 'block';
         
