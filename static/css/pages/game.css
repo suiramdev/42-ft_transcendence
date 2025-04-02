@@ -1,7 +1,6 @@
 /* Style de la page complète */
 .game {
-  background-color: #000;
-  /* min-height: 100vh; */
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -9,23 +8,13 @@
   font-family: 'Arial';
 }
 
-.pregame-menu h2 {
-  color: #fa4c07; /* Orange vif */
-  font-family: 'Arial', sans-serif;
-  font-size: 32px;
-  font-weight: bold;
-  text-align: right;
-  margin: 0 5px 10px 0; /* Marge: haut droite bas gauche */
-  letter-spacing: 2px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-}
 
 /* Style du menu de pré-jeu */
 .pregame-menu {
-  background-color: #000;
+  /* background-color: #000; */
+  align-self: center;
   padding: 40px;
   border-radius: 8px;
-  max-width: 600px;
   margin: 0 auto;
 }
 
@@ -41,158 +30,216 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 15px;
+  gap: 20px;
   margin-bottom: 30px;
   aspect-ratio: 1/1;
-  width: 500px;
+  width: 900px;
   height: 500px;
   margin: 0 auto 30px;
 }
 
-/* Style de base pour chaque conteneur de slider */
+/* Style Windows pour chaque conteneur de slider */
 .slider-container {
-  aspect-ratio: 1/1;
   margin: 0;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  background-color: #ece9d8;
+  border-radius: 8px;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
   transition: transform 0.2s;
 }
 
 .slider-container:hover {
-  transform: scale(1.03);
+  transform: scale(1.02)
 }
 
-/* Couleurs Windows XP pour chaque slider */
-.slider-container:nth-child(1) {
-  background-color: #0078d7; /* Bleu Windows XP */
-}
-
-.slider-container:nth-child(2) {
-  background-color: #7cbb00; /* Vert Windows XP */
-}
-
-.slider-container:nth-child(3) {
-  background-color: #f25022; /* Rouge Windows XP */
-}
-
-.slider-container:nth-child(4) {
-  background-color: #ffb900; /* Jaune Windows XP */
-}
-
-/* Style des labels des sliders */
-.slider-container label {
-  width: 100%;
-  margin-bottom: 15px;
+/* Barre de titre Windows XP pour chaque slider */
+.slider-container::before {
+  content: attr(data-title);
+  display: flex;
+  align-items: center;
+  padding: 5px 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 151, 255, 1) 0%,
+    rgba(0, 83, 238, 1) 8%,
+    rgba(0, 80, 238, 1) 40%,
+    rgba(0, 102, 255, 1) 88%,
+    rgba(0, 102, 255, 1) 93%,
+    rgba(0, 91, 255, 1) 95%,
+    rgba(0, 61, 215, 1) 96%,
+    rgba(0, 61, 215, 1) 100%
+  );
   color: white;
   font-weight: bold;
-  text-align: center;
-  font-size: 16px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  font-size: 14px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  margin-bottom: 10px;
+  height: 25px;
+  text-shadow: 1px 1px #0f1089;
 }
 
-/* Style des inputs range */
-.slider-container input {
-  width: 80%;
+/* Couleurs différentes pour chaque barre de titre */
+.slider-container:nth-child(1)::before {
+  content: "Ball Speed";
+  background: linear-gradient(
+    180deg,
+    rgba(9, 151, 255, 1) 0%,
+    rgba(0, 83, 238, 1) 100%
+  );
+}
+
+.slider-container:nth-child(2)::before {
+  content: "Paddle Size";
+  background: linear-gradient(
+    180deg,
+    rgba(124, 187, 0, 1) 0%,
+    rgba(80, 140, 0, 1) 100%
+  );
+}
+
+.slider-container:nth-child(3)::before {
+  content: "Paddle Speed";
+  background: linear-gradient(
+    180deg,
+    rgba(242, 80, 34, 1) 0%,
+    rgba(200, 40, 0, 1) 100%
+  );
+}
+
+.slider-container:nth-child(4)::before {
+  content: "Win Score";
+  background: linear-gradient(
+    180deg,
+    rgba(255, 185, 0, 1) 0%,
+    rgba(210, 150, 0, 1) 100%
+  );
+}
+
+/* Conteneur du contenu du slider */
+/* Modify the slider-content style */
+.slider-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  height: 100%;
+  position: relative;
+}
+
+/* Add a new wrapper for the input and value */
+.slider-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
   margin: 10px 0;
-  -webkit-appearance: none;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.3);
+
+}
+
+/* Modify the input range style */
+.slider-container input[type="range"] {
+  width: 70%;
+  height: 12px;
+  background: #fff;
+  border: 1px solid #999;
   border-radius: 4px;
+  margin: 0;
+}
+
+/* Modify the value span style */
+.slider-container span {
+  color: #000;
+  font-weight: bold;
+  font-size: 18px;
+  position: absolute;
+  left: calc(80% + 15px); /* Position after the slider */
+  transform: translateY(-50%);
+  white-space: nowrap;
 }
 
 .slider-container input::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: white;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(236, 235, 229, 1) 86%,
+    rgba(216, 208, 196, 1) 100%
+  );
+  border: 1px solid #003c74;
   cursor: pointer;
 }
 
 /* Style des valeurs de sliders */
 .slider-container span {
-  color: white;
+  color: #000;
   font-weight: bold;
   margin-top: 15px;
-  font-size: 18px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  font-size: 15px;
 }
 
+/* .button-container {
+
+} */
+
 /* Styles des boutons */
+#start-game, #join-game {
+  padding: 8px 20px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(236, 235, 229, 1) 86%,
+    rgba(216, 208, 196, 1) 100%
+  );
+  border: 1px solid #003c74;
+  border-radius: 3px;
+  color: #000;
+  font-weight: normal;
+  font-size: 14px;
+  cursor: pointer;
+  margin: 5px;
+}
+
 #start-game {
   display: block;
   margin: 0 auto 20px;
-  padding: 12px 30px;
-  background: linear-gradient(to bottom, #247cd4, #0066c0);
-  border: 1px solid #003c74;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  min-width: 120px;
 }
 
-#start-game:hover {
-  background: linear-gradient(to bottom, #0078e7, #0061b7);
+#start-game:hover, #join-game:hover {
+  box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761,
+    inset 2px -2px #e5a01a;
+}
+
+#start-game:active, #join-game:active {
+  box-shadow: none;
+  background: linear-gradient(
+    180deg,
+    rgba(205, 202, 195, 1) 0%,
+    rgba(229, 229, 222, 1) 100%
+  );
 }
 
 .join-game-container {
   margin-top: 20px;
   display: flex;
-  gap: 15px;
+  gap: 10px;
   justify-content: center;
   align-items: center;
 }
 
-#join-game {
-  padding: 10px 20px;
-  background: linear-gradient(to bottom, #247cd4, #0066c0);
-  border: 1px solid #003c74;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-#join-game:hover {
-  background: linear-gradient(to bottom, #0078e7, #0061b7);
-}
-
 .game-input {
-  padding: 10px;
-  border: 1px solid #555;
-  background-color: #222;
-  color: white;
-  border-radius: 5px;
+  padding: 6px 8px;
+  border: 1px solid #7b9ebd;
+  background-color: #fff;
+  color: #000;
   font-size: 14px;
-  width: 200px;
-}
-
-/* Style du conteneur de jeu */
-#game-container {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-/* Style de l'écran d'attente */
-#waiting-screen {
-  color: white;
-  text-align: center;
-}
-
-.waiting-window {
-  background-color: #1f1f1f;
-  border-radius: 10px;
-  border: 1px solid #444;
-  padding: 20px;
-  max-width: 500px;
-  margin: 0 auto;
+  width: 180px;
 }
