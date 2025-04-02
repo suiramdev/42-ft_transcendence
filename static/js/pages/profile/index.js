@@ -1,42 +1,32 @@
-import { Page } from '../core/Page.js';
-import { isLoggedIn, getUser, updateUser } from '../services/user.js';
+import { Page } from '../../core/Page.js';
+import { getUser, isLoggedIn, updateUser } from '../../services/user.js';
 
 export class ProfilePage extends Page {
   constructor() {
-    super('profile.html', 'profile.css');
+    super('profile/index.html', 'profile/index.css');
   }
 
-  async mount(container) {
+  async beforeMount() {
     await getUser();
-
     if (!isLoggedIn()) {
-      // If the user is not logged in, navigate to the home page
-      router.navigate('/');
-      return;
+      globalThis.router.back();
+      return false;
     }
-    await super.mount(container);
-
-    this.setupEditProfile(); // Ajout de la gestion de l'édition du profil
 
     return true;
   }
 
+  // Ajout de la gestion de l'édition du profil
   onMount() {
+    this.setupEditProfile();
     this.renderProfilePicture();
     this.renderAlias();
     this.renderBio(); // Ajout de l'affichage de la bio
 
     document.addEventListener('userStateChange', () => {
-      // TODO: Probably remove this with next load user changes
-      if (!isLoggedIn()) {
-        // If the user is not logged in, navigate to the home page
-        router.navigate('/');
-        return;
-      }
-
       this.renderProfilePicture();
       this.renderAlias();
-      this.renderBio(); // Mise à jour de la bio après un changement d'état
+      this.renderBio();
     });
   }
 

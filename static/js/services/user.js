@@ -20,6 +20,7 @@ export async function getUser() {
     document.dispatchEvent(new Event('userStateChange'));
     return;
   }
+
   const response = await fetch('/api/user/me/', {
     method: 'GET',
     headers: {
@@ -32,12 +33,14 @@ export async function getUser() {
   if (!response.ok) {
     globalThis.user = null;
     document.dispatchEvent(new Event('userStateChange'));
-    throw new Error('Utilisateur non connecté');
+    return null;
   }
 
   const data = await response.json();
   globalThis.user = data;
   document.dispatchEvent(new Event('userStateChange'));
+
+  return data;
 }
 
 /**

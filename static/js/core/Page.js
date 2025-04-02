@@ -20,7 +20,7 @@ export class Page {
    * @returns {Promise<string>} The template HTML content
    * @private
    */
-  async fetchTemplate() {
+  async _fetchTemplate() {
     try {
       const response = await fetch(`/static/html/pages/${this.templatePath}`, {
         cache: 'no-store',
@@ -36,7 +36,7 @@ export class Page {
     }
   }
 
-  async fetchStyle() {
+  async _fetchStyle() {
     if (!this.stylePath) return;
 
     try {
@@ -57,7 +57,7 @@ export class Page {
    * @param {HTMLElement} container - The container element to render the template into
    * @private
    */
-  render(container) {
+  _render(container) {
     if (!container) {
       throw new Error('Container element is required for rendering');
     }
@@ -72,13 +72,18 @@ export class Page {
    * @returns {Promise<boolean>} Whether the mount was successful
    */
   async mount(container, params) {
+    let shouldMount = await this.beforeMount(params);
+    if (!shouldMount) {
+      return false;
+    }
+
     try {
-      await this.fetchTemplate();
+      await this._fetchTemplate();
 
-      await this.fetchStyle();
+      await this._fetchStyle();
 
-      this.render(container);
-      this.onMount(params);
+      this._render(container);
+      await this.onMount(params);
       return true;
     } catch (error) {
       console.error('Error mounting page:', error);
@@ -86,7 +91,18 @@ export class Page {
     }
   }
 
-  onMount() {
+  /**
+   * Called before the page is mounted
+   *
+   * @param {Object} params - The parameters to pass to the page
+   * @returns {Promise<boolean>} Whether the page should be mounted
+   */
+  async beforeMount() {
+    // Override in subclasses to add custom behavior
+    return true;
+  }
+
+  async onMount() {
     // Override in subclasses to add custom behavior
   }
 }
