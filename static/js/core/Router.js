@@ -1,5 +1,4 @@
 import { NotFoundPage } from '../pages/not-found.js';
-import { fetchUser } from '../services/user.js';
 
 /**
  * Router class
@@ -31,8 +30,6 @@ export class Router {
       this._handleRoute();
     });
     window.addEventListener('popstate', async () => {
-      await fetchUser();
-
       // Handle route changes when the user navigates back/forward
       this._handleRoute();
     });

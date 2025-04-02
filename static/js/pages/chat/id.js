@@ -1,32 +1,75 @@
 import { Page } from '../../core/Page.js';
-import { isLoggedIn } from '../../services/user.js';
 import { getCookie } from '../../utils/cookies.js';
 
 export class DirectMessagePage extends Page {
+  /**
+   * The other user to chat with
+   *
+   * @type {Object}
+   */
+  otherUser;
+
   constructor() {
     super('chat/id.html', 'chat/id.css');
   }
 
-  async onMount(params) {
-    if (!isLoggedIn()) {
-      router.navigate('/');
-      return;
+  async beforeMount(params) {
+    try {
+      await this._loadUser(params.id);
+    } catch (error) {
+      globalThis.router.back();
+      return false;
     }
 
-    this.otherUserId = params.id;
+    return true;
+  }
 
-    this.setupEventListeners();
+  async onMount() {
+    document.querySelector('#chat-form').addEventListener('submit', this._onSubmitInput.bind(this));
+    document
+      .querySelector('#block-button')
+      .addEventListener('click', this._handleBlockUser.bind(this));
+    document
+      .querySelector('#unblock-button')
+      .addEventListener('click', this._handleUnblockUser.bind(this));
+
+    document.querySelector('#chat-username').textContent = this.otherUser.nickname;
 
     try {
-      await this.loadUserInfo();
-      await this.loadExistingMessages();
-      await this.setupWebSocket();
+      await this._loadExistingMessages();
+      await this._connectToWebSocket();
     } catch (error) {
-      console.error('Error loading user info or messages:', error);
+      console.error('Error loading messages:', error);
     }
   }
 
-  setupWebSocket() {
+  /**
+   * Load the other user to chat with
+   * @private
+   *
+   * @param {string} id - The id of the other user
+   */
+  async _loadUser(id) {
+    const response = await fetch(`/api/user/${id}/`, {
+      headers: {
+        Authorization: `Bearer ${getCookie('access_token')}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to load user');
+    }
+
+    this.otherUser = await response.json();
+  }
+
+  /**
+   * Connect to the web socket
+   * @private
+   *
+   * @returns {Promise<void>}
+   */
+  async _connectToWebSocket() {
     return new Promise((resolve, reject) => {
       if (this.socket) {
         this.socket.close();
@@ -35,10 +78,10 @@ export class DirectMessagePage extends Page {
       this.socket = new WebSocket(
         `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${
           window.location.host
-        }/ws/chat/${this.otherUserId}/?token=${getCookie('access_token')}`
+        }/ws/chat/${this.otherUser.id}/?token=${getCookie('access_token')}`
       );
 
-      this.socket.onmessage = this.onReceiveMessage.bind(this);
+      this.socket.onmessage = this._onReceiveMessage.bind(this);
 
       this.socket.onopen = resolve;
       this.socket.onclose = reject;
@@ -46,83 +89,48 @@ export class DirectMessagePage extends Page {
     });
   }
 
-  setupEventListeners() {
-    document.querySelector('#chat-form').addEventListener('submit', this.onSubmitInput.bind(this));
-    document
-      .querySelector('#block-button')
-      .addEventListener('click', this.handleBlockUser.bind(this));
-    document
-      .querySelector('#unblock-button')
-      .addEventListener('click', this.handleUnblockUser.bind(this));
-  }
+  /**
+   * Load the existing messages
+   * @private
+   *
+   * @returns {Promise<void>}
+   * @throws {Error} If the response is not ok
+   */
+  async _loadExistingMessages() {
+    const response = await fetch(`/api/chat/messages/${this.otherUser.id}`, {
+      headers: {
+        Authorization: `Bearer ${getCookie('access_token')}`,
+      },
+    });
 
-  async loadUserInfo() {
-    try {
-      const response = await fetch(`/api/user/${this.otherUserId}/`, {
-        headers: {
-          Authorization: `Bearer ${getCookie('access_token')}`,
-        },
-      });
-
-      if (response.status === 404) {
-        router.navigate('/404');
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const userData = await response.json();
-      document.querySelector('#chat-username').textContent = userData.nickname ?? 'Unknown User';
-    } catch (error) {
-      console.error('Error loading user info:', error);
+    if (response.status === 403) {
+      this._updateChatBlockStatus(true);
+      return;
     }
-  }
 
-  async loadExistingMessages() {
-    try {
-      const response = await fetch(`/api/chat/messages/${this.otherUserId}`, {
-        headers: {
-          Authorization: `Bearer ${getCookie('access_token')}`,
-        },
-      });
-
-      if (response.status === 403) {
-        this.updateChatBlockStatus(true);
-        return;
-      }
-
-      if (response.status === 404) {
-        router.navigate('/404');
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const messages = await response.json();
-      messages.forEach(message => {
-        this.addMessageToChat({
-          message: message.content,
-          sender_id: message.sender.id,
-          timestamp: message.timestamp,
-        });
-      });
-
-      this.updateChatBlockStatus(false);
-    } catch (error) {
-      console.error('Error loading messages:', error);
+    if (!response.ok) {
+      throw new Error('Failed to load messages');
     }
+
+    const messages = await response.json();
+    messages.forEach(message => {
+      this._addMessageToChat({
+        message: message.content,
+        sender_id: message.sender.id,
+        timestamp: message.timestamp,
+      });
+    });
+
+    this._updateChatBlockStatus(false);
   }
 
   /**
    * Update the chat block status, this will show or hide the block button and the blocked message
+   * @private
    *
    * @param {boolean} isBlocked - Whether the chat is blocked
    */
-  updateChatBlockStatus(isBlocked) {
+  _updateChatBlockStatus(isBlocked) {
     const blockButton = document.querySelector('#block-button');
     const unblockButton = document.querySelector('#unblock-button');
     const chatError = document.querySelector('#chat-error');
@@ -141,9 +149,15 @@ export class DirectMessagePage extends Page {
     }
   }
 
-  async handleBlockUser() {
+  /**
+   * Block the other user
+   * @private
+   *
+   * @returns {Promise<void>}
+   */
+  async _handleBlockUser() {
     try {
-      const response = await fetch(`/api/chat/messages/${this.otherUserId}/block_user/`, {
+      const response = await fetch(`/api/chat/messages/${this.otherUser.id}/block_user/`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${getCookie('access_token')}`,
@@ -152,16 +166,22 @@ export class DirectMessagePage extends Page {
 
       if (!response.ok) throw new Error('Failed to block user');
 
-      this.updateChatBlockStatus(true);
+      this._updateChatBlockStatus(true);
       this.socket.close();
     } catch (error) {
       console.error('Error blocking user:', error);
     }
   }
 
-  async handleUnblockUser() {
+  /**
+   * Unblock the other user
+   * @private
+   *
+   * @returns {Promise<void>}
+   */
+  async _handleUnblockUser() {
     try {
-      const response = await fetch(`/api/chat/messages/${this.otherUserId}/unblock_user/`, {
+      const response = await fetch(`/api/chat/messages/${this.otherUser.id}/unblock_user/`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${getCookie('access_token')}`,
@@ -170,15 +190,21 @@ export class DirectMessagePage extends Page {
 
       if (!response.ok) throw new Error('Failed to unblock user');
 
-      await this.setupWebSocket();
-      await this.loadExistingMessages();
-      this.updateChatBlockStatus(false);
+      await this._connectToWebSocket();
+      await this._loadExistingMessages();
+      this._updateChatBlockStatus(false);
     } catch (error) {
       console.error('Error unblocking user:', error);
     }
   }
 
-  addMessageToChat(data) {
+  /**
+   * Add a message to the chat
+   * @private
+   *
+   * @param {Object} data - The message data
+   */
+  _addMessageToChat(data) {
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('chat__message');
 
@@ -217,12 +243,24 @@ export class DirectMessagePage extends Page {
     messageContainer.scrollIntoView({ behavior: 'smooth' });
   }
 
-  onReceiveMessage(e) {
+  /**
+   * Receive a message from the web socket
+   * @private
+   *
+   * @param {Object} e - The event object
+   */
+  _onReceiveMessage(e) {
     const data = JSON.parse(e.data);
-    this.addMessageToChat(data);
+    this._addMessageToChat(data);
   }
 
-  async onSubmitInput(e) {
+  /**
+   * Submit a message
+   * @private
+   *
+   * @param {Event} e - The event object
+   */
+  async _onSubmitInput(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const message = formData.get('message');
