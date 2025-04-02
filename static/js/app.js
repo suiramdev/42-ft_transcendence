@@ -2,6 +2,7 @@ import { Router } from './core/Router.js';
 import { GamePage } from './pages/game.js';
 import { ProfilePage } from './pages/profile/index.js';
 import { UserProfilePage } from './pages/profile/id.js';
+import { getUser } from './services/user.js';
 
 // Initialize the router in globalThis
 // so it can be accessed from anywhere in the code
@@ -17,4 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
   router.registerRoute('/profile/:id', new UserProfilePage());
 
   globalThis.router = router;
+
+  getUser();
 });

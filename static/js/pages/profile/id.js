@@ -48,8 +48,7 @@ export class UserProfilePage extends Page {
   async _renderProfile() {
     document.querySelector('.profile__alias').textContent =
       this.displayUser.nickname ?? 'Utilisateur inconnu';
-    document.querySelector('.profile__bio').textContent =
-      this.displayUser.bio ?? 'Aucune bio renseignée.';
+    document.querySelector('.profile__bio').textContent = this.displayUser.bio;
     document.querySelector('.profile__avatar-image').src =
       this.displayUser.avatar ?? '/static/images/avatars/duck.webp';
   }

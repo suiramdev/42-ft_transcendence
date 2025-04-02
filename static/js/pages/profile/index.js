@@ -48,9 +48,7 @@ export class ProfilePage extends Page {
   renderBio() {
     const bio = document.querySelector('.profile__bio');
     if (bio && globalThis.user) {
-      bio.textContent =
-        globalThis.user.bio ||
-        'Slt tt le monde! Mwa g 2 koi vs rakonT... Jss 1 gro fan 2 pong é g kiff tro joué! Jfé ossi d la prog mé c pa tjs fassil mdr ^^ Vné mfèr 1 pti coucou si vs voulé! Bizzzoux <3';
+      bio.textContent = globalThis.user.bio;
     }
   }
 
