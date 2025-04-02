@@ -290,9 +290,8 @@ import { GameManager } from '../pages/gameManager.js';
   
         // ----------------- 3D setup -----------------
   
-        setup3D(ballSpeed, paddleSize, paddleSpeed/*, backgroundTextur*/) {
+        setup3D(ballSpeed, paddleSize, paddleSpeed) {
           const canvas = document.getElementById('pongCanvas');
-          console.log("qgqgqgge", canvas.width);
           this.renderer = new THREE.WebGLRenderer({ canvas });
           this.renderer.setSize(canvas.width, canvas.height);
           this.scene = new THREE.Scene();
