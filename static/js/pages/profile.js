@@ -1,5 +1,5 @@
 import { Page } from '../core/Page.js';
-import { isLoggedIn, getUser, updateUser, uploadAvatar } from '../services/user.js';
+import { isLoggedIn, getUser, updateUser } from '../services/user.js';
 
 export class ProfilePage extends Page {
   constructor() {
@@ -27,6 +27,7 @@ export class ProfilePage extends Page {
     this.renderBio(); // Ajout de l'affichage de la bio
 
     document.addEventListener('userStateChange', () => {
+      // TODO: Probably remove this with next load user changes
       if (!isLoggedIn()) {
         // If the user is not logged in, navigate to the home page
         router.navigate('/');
@@ -87,17 +88,12 @@ export class ProfilePage extends Page {
     });
 
     saveBtn.addEventListener('click', async () => {
-  const updatedUser = {
-    nickname: aliasInput.value,
-    bio: bioInput.value,
-  };
-
       try {
-        if (avatarSelect.files[0]) {
-          await uploadAvatar(avatarSelect.files[0]);
-        }
-
-        await updateUser(updatedUser);
+        await updateUser({
+          nickname: aliasInput.value,
+          bio: bioInput.value,
+          avatar: avatarSelect.files[0] || globalThis.user.avatar,
+        });
         document.dispatchEvent(new Event('userStateChange'));
         editForm.classList.add('hidden');
       } catch (error) {

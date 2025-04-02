@@ -5,7 +5,7 @@ class User(AbstractUser):
     """Custom user model extending Django's built-in User"""
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     nickname = models.CharField(max_length=50, unique=True)
-    bio = models.CharField(max_length=255)
+    bio = models.CharField(max_length=255, null=True, blank=True)
     two_factor_enabled = models.BooleanField(default=False)
     coalition = models.CharField(max_length=50, null=True, blank=True)
     wins = models.IntegerField(default=0)
@@ -53,7 +53,6 @@ class User(AbstractUser):
 
     def get_games(self):
         """Get all games for the user"""
-        return (self.games_as_player1.all() |
         return (self.games_as_player1.all() |
                 self.games_as_player2.all()).distinct()
 
