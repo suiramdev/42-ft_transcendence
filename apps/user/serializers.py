@@ -13,9 +13,12 @@ class UserReadSerializer(serializers.ModelSerializer):
             'losses',
             'ladder_level',
             'status',
+            'bio',
         )
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField(required=False)  # Ensure avatar is handled as an image field
+
     class Meta:
         model = User
-        fields = ('nickname', 'avatar')
+        fields = ('nickname', 'avatar', 'bio')

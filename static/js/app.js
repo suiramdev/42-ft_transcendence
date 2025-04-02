@@ -1,7 +1,7 @@
 import { Router } from './core/Router.js';
 import { GamePage } from './pages/game.js';
-import { ProfilePage } from './pages/profile.js';
-import { UserProfilePage } from './pages/user-profile.js';
+import { ProfilePage } from './pages/profile/index.js';
+import { UserProfilePage } from './pages/profile/id.js';
 import { getUser } from './services/user.js';
 
 // Initialize the router in globalThis
@@ -19,6 +19,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   globalThis.router = router;
 
-  // Fetch user info at startup
   getUser();
 });
