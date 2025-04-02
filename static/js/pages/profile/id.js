@@ -51,5 +51,9 @@ export class UserProfilePage extends Page {
     document.querySelector('.profile__bio').textContent = this.displayUser.bio;
     document.querySelector('.profile__avatar-image').src =
       this.displayUser.avatar ?? '/static/images/avatars/duck.webp';
+
+    document.querySelector('#message-btn').addEventListener('click', () => {
+      globalThis.router.navigate(`/chat/${this.displayUser.id}`);
+    });
   }
 }

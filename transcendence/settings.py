@@ -38,11 +38,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'apps.chat',
     'apps.authentication',
     'apps.game',
     'apps.user',
     'corsheaders',
     'drf_spectacular',
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -195,3 +198,18 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
 ]
+
+# This setting specifies the ASGI application entry point for Django Channels
+# It points to the ASGI application defined in transcendence/asgi.py
+ASGI_APPLICATION = 'transcendence.asgi.application'
+
+# Channel Layers for Redis
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [(os.environ.get('REDIS_HOST', 'localhost'), 
+                      int(os.environ.get('REDIS_PORT', 6379)))],
+        },
+    },
+}

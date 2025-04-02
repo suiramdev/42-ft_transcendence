@@ -14,6 +14,15 @@ services:
     networks:
       - ft_transcendence_network
 
+  redis:
+    image: redis:latest
+    container_name: ft_transcendence_redis
+    restart: always
+    ports:
+      - '${REDIS_PORT}:6379'
+    networks:
+      - ft_transcendence_network
+
   web:
     build:
       context: ..
