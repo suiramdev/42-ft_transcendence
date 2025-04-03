@@ -8,10 +8,7 @@
   font-family: 'Arial';
 }
 
-
-/* Style du menu de pré-jeu */
 .pregame-menu {
-  /* background-color: #000; */
   align-self: center;
   padding: 40px;
   border-radius: 8px;
@@ -25,7 +22,6 @@
   font-size: 24px;
 }
 
-/* Layout carré pour les quatre sliders */
 .slider-item {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -38,7 +34,6 @@
   margin: 0 auto 30px;
 }
 
-/* Style Windows pour chaque conteneur de slider */
 .slider-container {
   margin: 0;
   padding: 0;
@@ -55,7 +50,6 @@
   transform: scale(1.02)
 }
 
-/* Barre de titre Windows XP pour chaque slider */
 .slider-container::before {
   content: attr(data-title);
   display: flex;
@@ -111,7 +105,7 @@
 }
 
 .slider-container:nth-child(4)::before {
-  content: "Win Score";
+  content: "Ball size";
   background: linear-gradient(
     180deg,
     rgba(255, 185, 0, 1) 0%,

@@ -2,94 +2,126 @@ import { Page } from '../core/Page.js';
 import * as THREE from 'three';
 
 class Paddle {
-    constructor (x, z, width, height, speed, color){
-        this.x = x;
-        this.z = z;
-        this.width = width;
-        this.height = height;
-        this.speed = speed;
-        this.color = color;
+    constructor(){
+        this.x = 0;
+        this.speed = 0.1;
+        this.width = 3;
+        this.size = 0.2;
+        this.direction = 1;
     }
     
     sceneADD(scene) {
-        const geometry = new THREE.BoxGeometry(this.size, this.height, this.size);
-        const material = new THREE.MeshPhongMaterial({ color: this.color });
+        const geometry = new THREE.BoxGeometry(this.width, 1, 1);
+        const material = new THREE.MeshPhongMaterial({ color: 'white' });
         const cube = new THREE.Mesh(geometry, material);
         this.pCube = cube;
-        cube.position.x = this.x;
-        cube.position.z = this.z;
+        cube.position.x = 0;
+        cube.position.y = 0;
+        cube.position.z = 0;
 
         scene.add(cube);
     }
 
+    checkXCollision() {
+        if (this.x - this.width/2 <= -8 || this.x + this.width/2 >= 8) { 
+            this.direction *= -1;
+        }
+    }
 
+    updatePose() {
+        this.checkXCollision();
+        this.x += this.speed * this.direction;
+        if (this.pCube) {
+            this.pCube.position.x = this.x;
+        }
+    }
 }
 
 class Ball {
-    constructor(x, z, width, height, speed, radius, color) {
-      this.x = x;
-      this.z = z;
-      this.width = width;
-      this.height = height;
-      this.speed = speed;
-      this.radius = radius;
-      this.color = color;
-      this.direction_x = -1;
-      this.direction_y = 1;
-      this.isPregame = true;
+    constructor () {
+        this.x = 0;
+        this.speed = 0.1;
+        this.size = 1;
+        this.direction = 1;
+        this.radius = 0.5;
     }
-
     sceneADD(scene) {
-        const geometry = new THREE.SphereGeometry(this.radius, 32, 32);
-        const material = new THREE.MeshPhongMaterial({ color: this.color });
+        const geometry = new THREE.SphereGeometry(this.radius, 32, 16);
+        const material = new THREE.MeshPhongMaterial({ color: 'white' });
         const sphere = new THREE.Mesh(geometry, material);
-        this.bSphere = sphere;
-        sphere.position.x = this.x;
-        sphere.position.z = this.z;
+        this.sphere = sphere;
+        sphere.position.x = 0;
+        sphere.position.y = 0;
+        sphere.position.z = 0;
         scene.add(sphere);
     }
 
+    checkXCollision() {
+        if (this.x <= -8 || this.x >= 8) {
+            this.direction *= -1;
+        }
+    }
+
+    updatePose() {
+        this.checkXCollision();
+        this.x += this.speed * this.direction;
+        if (this.sphere) {
+            this.sphere.position.x = this.x;
+        }
+    }
 }
 
 
 export class Pregame {
     constructor(canva, type) {
         this.canva = canva;
-        this.type = type; // 'ball', 'paddleSize', 'paddleSpeed', 'winScore'
+        this.type = type;
         this.setup();
         this.createElements();
     }
 
     setup() {
-        this.renderer = new THREE.WebGLRenderer({ canvas: this.canva });
+        this.renderer = new THREE.WebGLRenderer({ 
+            canvas: this.canva,
+            antialias: true
+        });
         this.renderer.setSize(this.canva.width, this.canva.height);
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(100, this.canva.width / this.canva.height, 5, 100);
-        this.camera.position.z = 8;
-        this.camera.position.y = 0;
-
-        // Add lighting
+        this.scene.background = new THREE.Color(0x000000);
+        
+        this.camera = new THREE.PerspectiveCamera(
+            75,
+            this.canva.width / this.canva.height,
+            0.1,
+            1000
+        );
+        this.camera.position.z = 5;
+        
         const light = new THREE.DirectionalLight(0xffffff, 1);
         light.position.set(0, 1, 2);
         this.scene.add(light);
+        
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        this.scene.add(ambientLight);
     }
 
     createElements() {
         switch(this.type) {
             case 'ball':
-                this.ball = new Ball(0, 0, 1, 1, 0.1, 0.5, 0xffffff);
+                this.ball = new Ball();
                 this.ball.sceneADD(this.scene);
                 break;
             case 'paddleSize':
-                this.paddle = new Paddle(0, 0, 1, 3, 0.1, 0x00ff00);
+                this.paddle = new Paddle();
                 this.paddle.sceneADD(this.scene);
                 break;
             case 'paddleSpeed':
-                this.paddle = new Paddle(-3, 0, 1, 2, 0.2, 0xff0000);
+                this.paddle = new Paddle();
                 this.paddle.sceneADD(this.scene);
                 break;
-            case 'winScore':
-                // Créer une visualisation appropriée pour le score
+            case 'ballSize':
+                this.ball = new Ball();
+                this.ball.sceneADD(this.scene);
                 break;
         }
     }
@@ -97,16 +129,16 @@ export class Pregame {
     animate() {
         switch(this.type) {
             case 'ball':
-                this.animateBall();
+                this.updateSpeed(this.speed);
                 break;
             case 'paddleSize':
-                this.animatePaddleSize();
+                this.updateSize(this.size);
                 break;
             case 'paddleSpeed':
-                this.animatePaddleSpeed();
+                this.updateSpeed(this.speed);
                 break;
-            case 'winScore':
-                this.animateWinScore();
+            case 'ballSize':
+                this.updateSize(this.radius);
                 break;
         }
         this.renderer.render(this.scene, this.camera);
@@ -122,78 +154,82 @@ export class Pregame {
 
     updateSize(value) {
         if (this.type === 'paddleSize') {
+            const newGeometry = new THREE.BoxGeometry(parseFloat(value), 1, 1);
+            this.paddle.pCube.geometry.dispose();
+            this.paddle.pCube.geometry = newGeometry;
             this.paddle.height = parseFloat(value);
-            // Recreate paddle with new size
-            this.scene.remove(this.paddle.pCube);
-            this.paddle.sceneADD(this.scene);
+        } else if (this.type === 'ballSize') {
+            const newGeometry = new THREE.SphereGeometry(parseFloat(value), 32, 16);
+            this.ball.sphere.geometry.dispose();
+            this.ball.sphere.geometry = newGeometry;
+            this.ball.radius = parseFloat(value);
         }
     }
 
-    updateScore(value) {
-        if (this.type === 'winScore') {
-            this.winScore = parseInt(value);
-        }
-    }
 }
 
-let animations;
 let isAnimating = true;
 
 export function stopPregameAnimations() {
     isAnimating = false;
 }
 
-function setupEventListeners() {
+function setupEventListeners(animations) {
     const ballSpeedInput = document.getElementById('ball-speed');
     const paddleSizeInput = document.getElementById('paddle-size');
     const paddleSpeedInput = document.getElementById('paddle-speed');
-    const winScoreInput = document.getElementById('win-score');
+    const ballSizeInput = document.getElementById('ball-size');
 
     if (ballSpeedInput) {
         ballSpeedInput.addEventListener('input', (e) => {
-            animations.ball.updateSpeed(e.target.value);
             document.getElementById('ball-speed-value').textContent = e.target.value;
+            animations.ball.updateSpeed(e.target.value);
         });
     }
 
     if (paddleSizeInput) {
         paddleSizeInput.addEventListener('input', (e) => {
-            animations.paddleSize.updateSize(e.target.value);
             document.getElementById('paddle-size-value').textContent = e.target.value;
+            animations.paddleSize.updateSize(e.target.value);
         });
     }
 
     if (paddleSpeedInput) {
         paddleSpeedInput.addEventListener('input', (e) => {
-            animations.paddleSpeed.updateSpeed(e.target.value);
             document.getElementById('paddle-speed-value').textContent = e.target.value;
+            animations.paddleSpeed.updateSpeed(e.target.value);
         });
     }
 
-    if (winScoreInput) {
-        winScoreInput.addEventListener('input', (e) => {
-            animations.winScore.updateScore(e.target.value);
-            document.getElementById('win-score-value').textContent = e.target.value;
+    if (ballSizeInput) {
+        ballSizeInput.addEventListener('input', (e) => {
+            document.getElementById('ball-size-value').textContent = e.target.value;
+            animations.ballSize.updateSize(e.target.value);
         });
     }
 }
 
-
-function animate() {
-    if (!isAnimating) {
-        requestAnimationFrame(animate);
-        Object.values(animations).forEach(anim => anim.animate());
+function animate(animations) {
+    if (isAnimating) {
+        requestAnimationFrame(() => animate(animations)); // Pass animations to callback
+        Object.values(animations).forEach(anim => {
+            if ((anim.type === 'ball' || anim.type === 'ballSize') && anim.ball) {
+                anim.ball.updatePose();
+            } else if ((anim.type === 'paddleSize' || anim.type === 'paddleSpeed') && anim.paddle) {
+                anim.paddle.updatePose();
+            }
+            anim.renderer.render(anim.scene, anim.camera);
+        });
     }
 }
 
 export function pregameSetup() {
-    console.log("pregame start");
     const animations = {
         ball: new Pregame(document.getElementById("ball-speed-canva"), 'ball'),
         paddleSize: new Pregame(document.getElementById("paddle-size-canva"), 'paddleSize'),
         paddleSpeed: new Pregame(document.getElementById("paddle-speed-canva"), 'paddleSpeed'),
-        winScore: new Pregame(document.getElementById("win-score-canva"), 'winScore')
+        ballSize: new Pregame(document.getElementById("ball-size-canva"), 'ballSize')
     };
-    setupEventListeners();
-    animate();
+    setupEventListeners(animations);
+    animate(animations);
 }
