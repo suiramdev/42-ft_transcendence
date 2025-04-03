@@ -22,15 +22,11 @@ export class GamePage extends Page {
   onMount() {
     console.log('Game page mounted');
     const startGame = document.getElementById('start-game');
-    const joinGameButton = document.getElementById('join-game');
-
-    console.log('game is loaded!');
-    
+    const joinGameButton = document.getElementById('join-game');    
  
     setupSliders();
     
     pregame();
-    console.log("pregame startqrqrqwqrqr");
     pregameSetup();
     // Écouter les mises à jour du jeu
     document.addEventListener('game-update', event => {
@@ -104,7 +100,6 @@ export class GamePage extends Page {
   
     switch (data.type) {
       case 'player_joined':
-        console.log('Player joined the game:', data.player);
         
         // If player 2 joined and we're player 1 (waiting)
         if (this.waitingForPlayer && data.player === 'right') {
