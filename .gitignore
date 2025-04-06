@@ -69,3 +69,4 @@ docker/*
 !docker/docker-compose.yml
 !docker/Dockerfile
 !docker/nginx/
+docker/nginx/ssl

@@ -20,12 +20,12 @@ class FortyTwoAuthView(viewsets.ViewSet):
         """Get access token from 42 API using the authorization code"""
         data = {
             'grant_type': 'authorization_code',
-            'client_id': os.getenv('AUTH_FORTY_TWO_UID'),
-            'client_secret': os.getenv('AUTH_FORTY_TWO_SECRET'),
+            'client_id': os.getenv('OAUTH_42_UID'),
+            'client_secret': os.getenv('OAUTH_42_SECRET'),
             'code': code,
         }
 
-        token_uri = f"{os.getenv('AUTH_FORTY_TWO_TOKEN_URI')}?client_id={os.getenv('AUTH_FORTY_TWO_UID')}&client_secret={os.getenv('AUTH_FORTY_TWO_SECRET')}&code={code}&redirect_uri={os.getenv('AUTH_FORTY_TWO_REDIRECT_URI')}"
+        token_uri = f"{os.getenv('OAUTH_42_TOKEN_URI')}?client_id={os.getenv('OAUTH_42_UID')}&client_secret={os.getenv('OAUTH_42_SECRET')}&code={code}&redirect_uri={os.getenv('OAUTH_42_REDIRECT_URI')}"
         print(token_uri)
         response = requests.post(token_uri, data=data)
         print(response.json())
@@ -36,7 +36,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
 
     def get_forty_two_user(self, access_token):
         """Get user info from 42 API using the access token"""
-        user_uri = f"{os.getenv('AUTH_FORTY_TWO_USER_URI')}"
+        user_uri = f"{os.getenv('OAUTH_42_USER_URI')}"
         response = requests.get(user_uri, headers={'Authorization': f'Bearer {access_token}'})
         if response.status_code != 200:
             raise Exception('Failed to get user info')
@@ -46,7 +46,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
     @action(detail=False, methods=['get'], url_path='authorize')
     def authorize(self, request):
         """Retourne l'URL d'autorisation 42"""
-        oauth_uri = f"{os.getenv('AUTH_FORTY_TWO_OAUTH_URI')}?client_id={os.getenv('AUTH_FORTY_TWO_UID')}&redirect_uri={os.getenv('AUTH_FORTY_TWO_REDIRECT_URI')}&response_type=code"
+        oauth_uri = f"{os.getenv('OAUTH_42_AUTH_URI')}?client_id={os.getenv('OAUTH_42_UID')}&redirect_uri={os.getenv('OAUTH_42_REDIRECT_URI')}&response_type=code"
         return Response({'redirect_url': oauth_uri})  # On envoie l'URL au frontend
 
     @action(detail=False, methods=['get'], url_path='callback')
