@@ -94,27 +94,39 @@
 
 .chat__message {
   max-width: 70%;
-  padding: 0.8rem;
-  border-radius: 8px;
   position: relative;
+  gap: 4px;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat__message--sent {
   align-self: flex-end;
-  background-color: #007bff;
-  color: white;
+  align-items: flex-end;
 }
 
 .chat__message--received {
   align-self: flex-start;
-  background-color: white;
-  color: #333;
+  align-items: flex-start;
 }
 
 .chat__message-content {
   display: flex;
   flex-direction: column;
+  padding: 0.8rem;
+  border-radius: 8px;
+  width: fit-content;
   gap: 0.3rem;
+}
+
+.chat__message--sent .chat__message-content {
+  background-color: #007bff;
+  color: white;
+}
+
+.chat__message--received .chat__message-content {
+  background-color: white;
+  color: #333;
 }
 
 .chat__message-text {
@@ -128,6 +140,12 @@
 .chat__message-time {
   font-size: 0.8rem;
   opacity: 0.7;
+}
+
+.chat__message-error {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  color: #c00;
 }
 
 .chat__form {

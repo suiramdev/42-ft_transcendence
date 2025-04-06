@@ -13,6 +13,9 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
         self.other_user_id = self.scope['url_route']['kwargs']['id']
         self.user = self.scope['user']
 
+        # First accept the connection
+        await self.accept()
+
         if not self.user.is_authenticated:
             await self.close(code=4001)
             return
@@ -27,10 +30,7 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
         # Sort IDs to ensure same room name regardless of who initiates
         users = sorted([str(self.user.id), str(self.other_user_id)])
         self.room_name = f"dm_{users[0]}_{users[1]}"
-         
-        # First accept the connection
-        await self.accept()
-        
+           
         # Then join the room
         await self.channel_layer.group_add(
             self.room_name,

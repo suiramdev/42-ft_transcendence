@@ -35,6 +35,8 @@ export class DirectMessagePage extends Page {
 
     document.querySelector('#chat-username').textContent = this.otherUser.nickname;
 
+    this._updateChatBlockStatus(false);
+
     try {
       await this._loadExistingMessages();
       await this._connectToWebSocket();
@@ -67,7 +69,7 @@ export class DirectMessagePage extends Page {
    * Connect to the web socket
    * @private
    *
-   * @returns {Promise<void>}
+   * @returns {Promise<WebSocket>}
    */
   async _connectToWebSocket() {
     return new Promise((resolve, reject) => {
@@ -83,9 +85,22 @@ export class DirectMessagePage extends Page {
 
       this.socket.onmessage = this._onReceiveMessage.bind(this);
 
-      this.socket.onopen = resolve;
-      this.socket.onclose = reject;
-      this.socket.onerror = reject;
+      this.socket.onopen = () => {
+        resolve(this.socket);
+      };
+
+      this.socket.onclose = event => {
+        if (event.code === 4003) {
+          this._updateChatBlockStatus(true);
+        }
+
+        reject(new Error('WebSocket connection closed'));
+      };
+
+      this.socket.onerror = error => {
+        console.error('WebSocket error:', error);
+        reject(error);
+      };
     });
   }
 
@@ -103,11 +118,6 @@ export class DirectMessagePage extends Page {
       },
     });
 
-    if (response.status === 403) {
-      this._updateChatBlockStatus(true);
-      return;
-    }
-
     if (!response.ok) {
       throw new Error('Failed to load messages');
     }
@@ -120,8 +130,6 @@ export class DirectMessagePage extends Page {
         timestamp: message.timestamp,
       });
     });
-
-    this._updateChatBlockStatus(false);
   }
 
   /**
@@ -133,19 +141,13 @@ export class DirectMessagePage extends Page {
   _updateChatBlockStatus(isBlocked) {
     const blockButton = document.querySelector('#block-button');
     const unblockButton = document.querySelector('#unblock-button');
-    const chatError = document.querySelector('#chat-error');
-    const chatForm = document.querySelector('#chat-form');
 
     if (isBlocked) {
       blockButton.style.display = 'none';
       unblockButton.style.display = 'flex';
-      chatError.style.display = 'flex';
-      chatForm.style.display = 'none';
     } else {
       blockButton.style.display = 'flex';
       unblockButton.style.display = 'none';
-      chatError.style.display = 'none';
-      chatForm.style.display = 'flex';
     }
   }
 
@@ -191,7 +193,6 @@ export class DirectMessagePage extends Page {
       if (!response.ok) throw new Error('Failed to unblock user');
 
       await this._connectToWebSocket();
-      await this._loadExistingMessages();
       this._updateChatBlockStatus(false);
     } catch (error) {
       console.error('Error unblocking user:', error);
@@ -203,11 +204,16 @@ export class DirectMessagePage extends Page {
    * @private
    *
    * @param {Object} data - The message data
+   * @param {string} data.message - The message content
+   * @param {number} data.sender_id - The id of the sender
+   * @param {string} data.timestamp - The timestamp of the message
+   * @param {boolean} [success=true] - Whether the message was sent successfully
    */
-  _addMessageToChat(data) {
+  _addMessageToChat(data, success = true) {
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('chat__message');
 
+    // If the message is sent by the user, add the sent class
     if (data.sender_id === globalThis.user.id) {
       messageContainer.classList.add('chat__message--sent');
     } else {
@@ -238,6 +244,15 @@ export class DirectMessagePage extends Page {
     messageContent.appendChild(messageText);
     messageContent.appendChild(messageTime);
     messageContainer.appendChild(messageContent);
+
+    // If the message was sent successfully, add the success class
+    if (!success) {
+      const errorMessage = document.createElement('div');
+      errorMessage.classList.add('chat__message-error');
+      errorMessage.textContent = 'Could not send message, please try again';
+      messageContainer.appendChild(errorMessage);
+    }
+
     document.querySelector('#chat-messages').appendChild(messageContainer);
 
     messageContainer.scrollIntoView({ behavior: 'smooth' });
@@ -281,10 +296,15 @@ export class DirectMessagePage extends Page {
     } catch (error) {
       console.error('Error sending message:', error);
 
-      // Try to reconnect if connection is closed
-      if (this.socket.readyState !== WebSocket.OPEN) {
-        await this.setupWebSocket();
-      }
+      // Add the message to the chat as an error
+      this._addMessageToChat(
+        {
+          message: message,
+          sender_id: globalThis.user.id,
+          timestamp: new Date().toISOString(),
+        },
+        false
+      );
     }
   }
 }
