@@ -15,6 +15,8 @@
 
     <link rel="stylesheet" href="/static/css/components/navbar.css" />
     <script type="module" src="/static/js/components/navbar.js"></script>
+
+    <link rel="stylesheet" href="/static/css/components/sidebar.css" />
   </head>
   <body>
     <div class="desktop">
@@ -49,7 +51,7 @@
             </div>
           </nav>
           <div class="layout">
-            <aside class="sidebar">
+            <aside class="layout__sidebar">
               <div class="userlist">
                 <div class="userlist__header">
                   <span class="userlist__title">Users</span>
@@ -57,11 +59,10 @@
                 <div class="userlist__content"></div>
               </div>
             </aside>
-            <main class="main" id="page"></main>
+            <main class="layout__content" id="page"></main>
           </div>
         </div>
       </div>
     </div>
-    <footer class="desktop-footer"></footer>
   </body>
 </html>

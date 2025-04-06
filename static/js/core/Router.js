@@ -29,7 +29,7 @@ export class Router {
       // Handle the initial route
       this._handleRoute();
     });
-    window.addEventListener('popstate', () => {
+    window.addEventListener('popstate', async () => {
       // Handle route changes when the user navigates back/forward
       this._handleRoute();
     });

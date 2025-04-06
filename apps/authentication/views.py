@@ -99,7 +99,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
             response.set_cookie(
                 'access_token',
                 str(refresh.access_token),
-                secure=True,
+                secure=False,
                 samesite='Lax',
                 max_age=3600  # 1 hour
             )
@@ -108,7 +108,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
                 'refresh_token',
                 str(refresh),
                 httponly=True,
-                secure=True,  # Only send over HTTPS
+                secure=False,
                 samesite='Lax',
                 max_age=7 * 24 * 60 * 60  # 7 days
             )
