@@ -19,8 +19,8 @@ RED = \033[0;31m
 
 help:
 	@echo "Available commands:"
-	@echo "  make setup          - Initial project setup (venv, dependencies, env file, docker)"
-	@echo "  make serve         - Run the Django development server"
+	@echo "  make setup         - Initial project setup (venv, dependencies, env file, docker)"
+	@echo "  make run         	- Run the Django development server"
 	@echo "  make install       - Install Python dependencies"
 	@echo "  make prod          - Start all containers (production mode)"
 	@echo "  make services      - Start essential services (postgres and redis)"
@@ -55,7 +55,7 @@ install:
 	@$(PIP) install -r requirements.txt
 
 # Development Commands
-serve: $(VENV) services
+run: $(VENV) services
 	@echo "Starting development server..."
 	@$(PYTHON_VENV) manage.py runserver
 
@@ -138,5 +138,5 @@ ssl:
 %:
 	@:
 
-.PHONY: help setup install build prod services down clean migrate serve docs create db ssl
+.PHONY: help setup install build prod services down clean migrate run docs create db ssl
 
