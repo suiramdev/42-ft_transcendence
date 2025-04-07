@@ -80,6 +80,10 @@ down:
 	@echo "Stopping all containers..."
 	@$(DOCKER_COMPOSE_PROD) down
 
+logs:
+	@echo "Showing logs..."
+	@$(DOCKER_COMPOSE_PROD) logs -f
+
 # Database Commands
 db:
 	@echo "Ensuring database exists..."

@@ -56,12 +56,6 @@ SECURE_HSTS_PRELOAD = True
 # JWT settings for production
 SIMPLE_JWT['SIGNING_KEY'] = os.getenv('AUTH_JWT_SECRET_KEY')
 
-# Redis settings for production
-CHANNEL_LAYERS['default']['CONFIG']['hosts'] = [
-    (os.getenv('CACHE_REDIS_HOST', 'redis'), 
-     int(os.getenv('CACHE_REDIS_PORT', 6379)))
-]
-
 # Logging configuration
 LOGGING = {
     'version': 1,
