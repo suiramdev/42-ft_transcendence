@@ -26,9 +26,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
         }
 
         token_uri = f"{os.getenv('OAUTH_42_TOKEN_URI')}?client_id={os.getenv('OAUTH_42_UID')}&client_secret={os.getenv('OAUTH_42_SECRET')}&code={code}&redirect_uri={os.getenv('OAUTH_42_REDIRECT_URI')}"
-        print(token_uri)
         response = requests.post(token_uri, data=data)
-        print(response.json())
         if response.status_code != 200:
             raise Exception('Failed to exchange code for token')
 

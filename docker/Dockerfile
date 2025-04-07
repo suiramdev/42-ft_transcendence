@@ -31,8 +31,8 @@ COPY docker/scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-# Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "transcendence.wsgi:application"]
+# Run uvicorn (ASGI server) instead of gunicorn
+CMD ["uvicorn", "transcendence.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--access-log"]
 
 # Expose port
 EXPOSE 8000
