@@ -86,6 +86,7 @@ export class DirectMessagePage extends Page {
       this.socket.onmessage = this._onReceiveMessage.bind(this);
 
       this.socket.onopen = () => {
+        this._updateChatBlockStatus(false);
         resolve(this.socket);
       };
 
@@ -193,7 +194,6 @@ export class DirectMessagePage extends Page {
       if (!response.ok) throw new Error('Failed to unblock user');
 
       await this._connectToWebSocket();
-      this._updateChatBlockStatus(false);
     } catch (error) {
       console.error('Error unblocking user:', error);
     }
