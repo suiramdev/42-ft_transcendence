@@ -80,7 +80,7 @@ export class DirectMessagePage extends Page {
       this.socket = new WebSocket(
         `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${
           window.location.host
-        }/ws/chat/${this.otherUser.id}/?token=${getCookie('access_token')}`
+        }/ws/chat/${this.otherUser.id}/`
       );
 
       this.socket.onmessage = this._onReceiveMessage.bind(this);
