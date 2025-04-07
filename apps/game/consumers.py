@@ -30,16 +30,13 @@ class GameConsumer(AsyncWebsocketConsumer):
         print(f"WebSocket disconnected for game: {self.game_id}, code: {close_code}")
 
     async def receive(self, text_data):
-        # Parse the received JSON data
         try:
             data = json.loads(text_data)
             print(f"Received message: {data}")
             
-            # Get the message type
             message_type = data.get('type', '')
             
             if message_type == 'player_joined':
-                # Forward player joined message to the group
                 await self.channel_layer.group_send(
                     self.game_group_name,
                     {
@@ -49,16 +46,45 @@ class GameConsumer(AsyncWebsocketConsumer):
                     }
                 )
             
+            elif message_type == 'game-settings':
+                # Forward game settings to other player
+                await self.channel_layer.group_send(
+                    self.game_group_name,
+                    {
+                        'type': 'game_settings',
+                        'settings': data.get('settings', {}),
+                        'game_id': data.get('game_id', '')
+                    }
+                )
+
+            elif message_type == 'game-settings-received':
+                # Forward settings confirmation
+                await self.channel_layer.group_send(
+                    self.game_group_name,
+                    {
+                        'type': 'game_settings_received',
+                        'status': data.get('status', ''),
+                        'reason': data.get('reason', ''),
+                        'game_id': data.get('game_id', '')
+                    }
+                )
+
             elif message_type == 'ready':
-                # Update player ready status in the database
-                player_ready = data.get('player', '')
                 game_id = data.get('game_id', '')
                 
-                # Mark player as ready in the database
+                # Store settings if they're valid
+                if not await self.validate_and_store_settings(game_id, data.get('settings', {})):
+                    await self.send(text_data=json.dumps({
+                        'type': 'error',
+                        'message': 'Invalid game settings'
+                    }))
+                    return
+
+                # Mark player as ready
                 both_ready = await self.mark_player_ready(game_id)
                 
-                # If both players are ready, send game_start event
-                if both_ready:
+                # If both players are ready and settings match, start game
+                if both_ready and await self.check_settings_match(game_id):
                     await self.channel_layer.group_send(
                         self.game_group_name,
                         {
@@ -92,6 +118,41 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'type': 'error',
                 'message': str(e)
             }))
+
+
+    @database_sync_to_async
+    def validate_and_store_settings(self, game_id, settings):
+        """Validate and store game settings"""
+        try:
+            game = Game.objects.get(id=game_id)
+            return game.validate_and_store_settings(settings)
+        except Game.DoesNotExist:
+            return False
+
+    @database_sync_to_async
+    def check_settings_match(self, game_id):
+        """Check if both players have matching settings"""
+        try:
+            game = Game.objects.get(id=game_id)
+            return game.check_settings_match()
+        except Game.DoesNotExist:
+            return False
+
+    # Add new message type handlers
+    async def game_settings(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'game-settings',
+            'settings': event['settings'],
+            'game_id': event['game_id']
+        }))
+
+    async def game_settings_received(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'game-settings-received',
+            'status': event['status'],
+            'reason': event.get('reason', ''),
+            'game_id': event['game_id']
+        }))
 
     @database_sync_to_async
     def mark_player_ready(self, game_id):

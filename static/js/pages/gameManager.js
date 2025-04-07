@@ -62,7 +62,7 @@ export class GameManager {
           'Content-Type': 'application/json',
         },
       });
-
+      console.log(response);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create game');

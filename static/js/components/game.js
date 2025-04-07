@@ -277,14 +277,14 @@ import { GameManager } from '../pages/gameManager.js';
     };
 
     export class Game {
-        constructor(ballSpeed, paddleSize, paddleSpeed, winScore) {
+        constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore) {
             this.handleKeyDown = this.handleKeyDown.bind(this);
             this.handleKeyUp = this.handleKeyUp.bind(this);
             this.isGameRunning = true;
             this.winScore = winScore;
 
             // Initialisation
-            this.setup3D(ballSpeed, paddleSize, paddleSpeed);
+            this.setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize);
             this.addEventListeners();
         }
   
@@ -317,7 +317,7 @@ import { GameManager } from '../pages/gameManager.js';
           this.playerRight = new Player(10, 0, 0, paddleSize, paddleSpeed, 'blue');
           this.playerRight.sceneADD(this.scene);
   
-          this.ball = new ball(0, 0, 0, 1, 1, ballSpeed, 0.5, 'red');
+          this.ball = new ball(0, 0, 0, 1, 1, ballSpeed, ballSize, 'red');
           this.ball.sceneADD(this.scene);
   
           // Lumière ambiante (plus faible, pour adoucir les ombres)
