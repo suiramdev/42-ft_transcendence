@@ -38,10 +38,3 @@ See the full list of available commands with:
 ```bash
 make help
 ```
-
-Common commands:
-
-- `make run` - Start the development server
-- `make migrate` - Apply database migrations
-- `make create app <name>` - Create a new Django app
-- `make create migrations <name>` - Create a new migration

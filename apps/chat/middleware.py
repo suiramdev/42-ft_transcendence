@@ -8,7 +8,11 @@ from django.contrib.auth import get_user_model
 
 class ChatAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
-        token = parse_qs(scope["query_string"].decode("utf8"))["token"][0]
+        headers = dict(scope["headers"])
+        cookie_string = headers.get(b'cookie', b'').decode()
+        token = None
+        if 'access_token=' in cookie_string:
+            token = cookie_string.split('access_token=')[1].split(';')[0]
 
         scope['user'] = await self.get_user(token)
         return await super().__call__(scope, receive, send)

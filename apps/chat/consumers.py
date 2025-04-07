@@ -1,11 +1,12 @@
-import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
-from django.contrib.auth import get_user_model
 from .models import DirectMessage, BlockedUser
 import datetime
 from django.db import models
 from .errors import ChatErrorCodes
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
@@ -13,13 +14,20 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
         self.other_user_id = self.scope['url_route']['kwargs']['id']
         self.user = self.scope['user']
 
+        logger.info(f"User: {self.user.id if self.user else 'None'} is connecting to {self.other_user_id} chat")
+
+        # First accept the connection
+        await self.accept()
+
         if not self.user.is_authenticated:
+            logger.info(f"User: {self.user.id if self.user else 'None'} is not authenticated, closing connection")
             await self.close(code=4001)
             return
 
         # Check for blocks before accepting connection
         is_blocked = await self.check_blocked()
         if is_blocked:
+            logger.info(f"User: {self.user.id} is blocked by {self.other_user_id}, closing connection")
             await self.close(code=4003)
             return
 
@@ -27,15 +35,14 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
         # Sort IDs to ensure same room name regardless of who initiates
         users = sorted([str(self.user.id), str(self.other_user_id)])
         self.room_name = f"dm_{users[0]}_{users[1]}"
-         
-        # First accept the connection
-        await self.accept()
-        
+           
         # Then join the room
         await self.channel_layer.group_add(
             self.room_name,
             self.channel_name
         )
+
+        logger.info(f"User: {self.user.id} joined room {self.room_name}")
 
     async def disconnect(self, close_code):
         # Leave room
@@ -49,6 +56,7 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
         # Check for blocks before processing message
         is_blocked = await self.check_blocked()
         if is_blocked:
+            logger.info(f"User: {self.user.id} is blocked by {self.other_user_id}, sending error")
             await self.send_json({
                 'error': 'Message not sent - blocking is active',
                 'code': ChatErrorCodes.BLOCKED_USER
@@ -58,6 +66,7 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
         # Handle received message
         message = content.get('message', '')
         if not message or not message.strip():
+            logger.info(f"User: {self.user.id} sent empty message, sending error")
             await self.send_json({
                 'error': 'Message cannot be empty',
                 'code': ChatErrorCodes.INVALID_MESSAGE
@@ -66,6 +75,7 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
             
         # Save message to database
         await self.save_message(message)
+        logger.info(f"User: {self.user.id} saved message to database")
         
         # Send message to room group
         await self.channel_layer.group_send(
@@ -77,6 +87,8 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
                 'timestamp': str(datetime.datetime.now())
             }
         )
+
+        logger.info(f"User: {self.user.id} sent message to room {self.room_name}")
 
     async def chat_message(self, event):
         # Send message to WebSocket

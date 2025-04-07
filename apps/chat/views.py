@@ -9,26 +9,14 @@ from .serializers import DirectMessageSerializer
 from django.db import models
 from django.contrib.auth import get_user_model
 from .errors import ChatErrorCodes
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 # Create your views here.
 
 class DirectMessageViewSet(viewsets.ModelViewSet):
     serializer_class = DirectMessageSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-    def check_blocked(self, user, other_user_id):
-        is_blocked = BlockedUser.objects.filter(
-            (models.Q(user=user, blocked_user_id=other_user_id) |
-             models.Q(user_id=other_user_id, blocked_user=user))
-        ).exists()
-
-        if is_blocked:
-            raise PermissionDenied({
-                "error": "Cannot interact with blocked user",
-                "code": ChatErrorCodes.BLOCKED_USER
-            })
-
-        return False
 
     def get_queryset(self):
         user = self.request.user
@@ -37,9 +25,6 @@ class DirectMessageViewSet(viewsets.ModelViewSet):
         # Validate other user exists
         get_object_or_404(get_user_model(), id=other_user_id)
         
-        # Check if blocked before returning messages
-        self.check_blocked(user, other_user_id)
-            
         return DirectMessage.objects.filter(
             (models.Q(sender=user, receiver_id=other_user_id) |
              models.Q(sender_id=other_user_id, receiver=user))
@@ -61,6 +46,20 @@ class DirectMessageViewSet(viewsets.ModelViewSet):
         BlockedUser.objects.get_or_create(
             user=request.user,
             blocked_user_id=user_id
+        )
+
+        # Close WebSocket connections
+        # Create a unique room name for these two users
+        users = sorted([str(request.user.id), str(user_id)])
+        room_name = f"dm_{users[0]}_{users[1]}"
+
+        # Send message to close connections
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            room_name,
+            {
+                'type': 'close_connection'
+            }
         )
 
         return Response({"status": "user blocked"}, status=status.HTTP_200_OK)

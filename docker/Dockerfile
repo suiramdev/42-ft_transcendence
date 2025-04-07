@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.10-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -17,12 +17,22 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy project files
+COPY . .
+
+# Create necessary directories with correct permissions
+RUN mkdir -p /app/staticfiles /app/media
+
 # Install Python dependencies
-COPY ../requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project
-COPY .. /app/
+# Set entrypoint script
+COPY docker/scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Run uvicorn (ASGI server) instead of gunicorn
+CMD ["uvicorn", "transcendence.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--access-log"]
+
+# Expose port
+EXPOSE 8000
