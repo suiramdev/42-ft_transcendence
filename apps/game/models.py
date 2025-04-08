@@ -1,5 +1,6 @@
 from django.db import models
 from apps.user.models import User
+from apps.tournament.models import Tournament
 
 class Game(models.Model):
     """Records games between users"""
@@ -11,6 +12,7 @@ class Game(models.Model):
     player2_score = models.IntegerField()
     player_rdy = models.IntegerField(default=0)
     settings = models.JSONField(null=True, blank=True)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE,  blank=True, null=True)
     game_type = models.CharField(
         max_length=20,
         choices=[

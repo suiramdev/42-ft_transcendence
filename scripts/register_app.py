@@ -2,7 +2,7 @@ import sys
 import os
 
 def register_app(app_name):
-    settings_path = "transcendence/settings.py"
+    settings_path = "transcendence/settings/base.py"
     apps_file_path = f"apps/{app_name}/apps.py"
     
     # Read the current content of settings.py
