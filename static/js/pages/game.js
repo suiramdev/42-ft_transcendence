@@ -84,11 +84,6 @@ export class GamePage extends Page {
             winScore: parseInt(settingsElements.winScore.value)
         };
 
-        // Validate settings before creating game
-        const validation = this.validateGameSettings(this.gameSettings);
-        if (!validation.valid) {
-            throw new Error(validation.reason);
-        }    
         // Create the game
         const gameData = await this.gameManager.createGame();
         this.gameId = gameData.game_id;
@@ -111,81 +106,7 @@ export class GamePage extends Page {
       }
     });
   }
-    
-  validateGameSettings(settings) {
-    // First check if all required settings exist
-    if (!settings || typeof settings !== 'object') {
-      return { valid: false, reason: 'Invalid settings object' };
-    }
 
-    const requiredSettings = ['ballSpeed', 'paddleSize', 'paddleSpeed', 'ballSize', 'winScore'];
-    for (const setting of requiredSettings) {
-      if (!(setting in settings)) {
-        return { valid: false, reason: `Missing ${setting} setting` };
-      }
-    }
-
-    // Validate ranges for each setting
-    const validations = {
-      ballSpeed: { min: 0.05, max: 0.3 },
-      paddleSize: { min: 2, max: 7 },
-      paddleSpeed: { min: 0.1, max: 0.4 },
-      ballSize: { min: 0.1, max: 1.5 },
-      winScore: { validValues: [3, 5, 7] }
-    };
-
-    for (const [setting, range] of Object.entries(validations)) {
-      if ('validValues' in range) {
-        if (!range.validValues.includes(parseInt(settings[setting]))) {
-          return { 
-            valid: false, 
-            reason: `${setting} must be one of ${range.validValues.join(', ')}` 
-          };
-        }
-      } else {
-        const value = parseFloat(settings[setting]);
-        if (value < range.min || value > range.max) {
-          return { 
-            valid: false, 
-            reason: `${setting} must be between ${range.min} and ${range.max}` 
-          };
-        }
-      }
-    }
-
-    return { valid: true };
-  }
-
-  // Add this server-side validation check for player settings
-  comparePlayerSettings(player1Settings, player2Settings) {
-    // First validate each player's settings individually
-    const p1Validation = this.validateGameSettings(player1Settings);
-    const p2Validation = this.validateGameSettings(player2Settings);
-
-    if (!p1Validation.valid) {
-      return { valid: false, reason: `Player 1: ${p1Validation.reason}` };
-    }
-    if (!p2Validation.valid) {
-      return { valid: false, reason: `Player 2: ${p2Validation.reason}` };
-    }
-
-    // Then compare settings between players
-    for (const key of Object.keys(player1Settings)) {
-      if (player1Settings[key] !== player2Settings[key]) {
-        return {
-          valid: false,
-          reason: `Mismatched ${key} settings between players`,
-          mismatch: {
-            setting: key,
-            player1: player1Settings[key],
-            player2: player2Settings[key]
-          }
-        };
-      }
-    }
-
-    return { valid: true };
-  }
 
 
   handleGameUpdate(data) {
@@ -208,42 +129,20 @@ export class GamePage extends Page {
       case 'game-settings':
         if (this.gameManager.localPlayer === 'right') {
           // Validate received settings
-          const validation = this.validateGameSettings(data.settings);
-          if (!validation.valid) {
-            this.gameManager.sendGameEvent('game-settings-received', {
-              status: 'rejected',
-              reason: validation.reason,
-              gameId: this.gameId
-            });
-            return;
-          }
-          
           this.gameSettings = data.settings;
-          this.gameManager.sendGameEvent('game-settings-received', {
-            status: 'accepted',
-            gameId: this.gameId
-          });
           this.gameManager.sendReadyStatus();
         }
         break;
   
-      case 'game-settings-received':
-        if (this.gameManager.localPlayer === 'left') {
-          if (data.status === 'accepted') {
-            // Settings confirmed, host can now send ready
-            this.gameManager.sendReadyStatus();
-          } else {
-            // Handle rejected settings
-            console.error('Game settings were rejected:', data.reason);
-            alert('Game settings were rejected by other player');
-          }
-        }
-        break;
-  
+
       case 'game_start':
         // Both players ready and settings validated by backend
         console.log('Both players ready, starting game!');
         this.startGame();
+        break;
+
+      case 'end_game' :
+        this.gameInstance.endgame();
         break;
 
       case 'player_move':

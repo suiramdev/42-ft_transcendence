@@ -298,7 +298,12 @@ import { GameManager } from '../pages/gameManager.js';
           this.camera = new THREE.PerspectiveCamera(100, canvas.width / canvas.height, 5, 100);
           this.camera.position.z = 8;
           this.camera.position.y = 0;
-  
+          // Check if all elements exist
+          for (const [key, element] of Object.entries(settingsElements)) {
+            if (!element) {
+                throw new Error(`Missing ${key} setting element`);
+            }
+        }
           const geometry = new THREE.BoxGeometry(50, 25, 0);
   
           // Charger la texture

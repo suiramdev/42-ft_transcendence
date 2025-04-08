@@ -57,18 +57,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
-            elif message_type == 'game-settings-received':
-                # Forward settings confirmation
-                await self.channel_layer.group_send(
-                    self.game_group_name,
-                    {
-                        'type': 'game_settings_received',
-                        'status': data.get('status', ''),
-                        'reason': data.get('reason', ''),
-                        'game_id': data.get('game_id', '')
-                    }
-                )
-
             elif message_type == 'ready':
                 game_id = data.get('game_id', '')
                 
@@ -84,7 +72,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 both_ready = await self.mark_player_ready(game_id)
                 
                 # If both players are ready and settings match, start game
-                if both_ready and await self.check_settings_match(game_id):
+                if both_ready :
                     await self.channel_layer.group_send(
                         self.game_group_name,
                         {
@@ -119,38 +107,11 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'message': str(e)
             }))
 
-
-    @database_sync_to_async
-    def validate_and_store_settings(self, game_id, settings):
-        """Validate and store game settings"""
-        try:
-            game = Game.objects.get(id=game_id)
-            return game.validate_and_store_settings(settings)
-        except Game.DoesNotExist:
-            return False
-
-    @database_sync_to_async
-    def check_settings_match(self, game_id):
-        """Check if both players have matching settings"""
-        try:
-            game = Game.objects.get(id=game_id)
-            return game.check_settings_match()
-        except Game.DoesNotExist:
-            return False
-
     # Add new message type handlers
     async def game_settings(self, event):
         await self.send(text_data=json.dumps({
             'type': 'game-settings',
             'settings': event['settings'],
-            'game_id': event['game_id']
-        }))
-
-    async def game_settings_received(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game-settings-received',
-            'status': event['status'],
-            'reason': event.get('reason', ''),
             'game_id': event['game_id']
         }))
 
