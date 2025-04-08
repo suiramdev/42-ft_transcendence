@@ -277,7 +277,8 @@ import { GameManager } from '../pages/gameManager.js';
     };
 
     export class Game {
-        constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore) {
+        constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, gameManager) {
+            this.gameManager = gameManager;
             this.handleKeyDown = this.handleKeyDown.bind(this);
             this.handleKeyUp = this.handleKeyUp.bind(this);
             this.isGameRunning = true;
@@ -290,7 +291,7 @@ import { GameManager } from '../pages/gameManager.js';
   
         // ----------------- 3D setup -----------------
   
-        setup3D(ballSpeed, paddleSize, paddleSpeed) {
+        setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize) {
           const canvas = document.getElementById('pongCanvas');
           this.renderer = new THREE.WebGLRenderer({ canvas });
           this.renderer.setSize(canvas.width, canvas.height);
@@ -299,11 +300,7 @@ import { GameManager } from '../pages/gameManager.js';
           this.camera.position.z = 8;
           this.camera.position.y = 0;
           // Check if all elements exist
-          for (const [key, element] of Object.entries(settingsElements)) {
-            if (!element) {
-                throw new Error(`Missing ${key} setting element`);
-            }
-        }
+          
           const geometry = new THREE.BoxGeometry(50, 25, 0);
   
           // Charger la texture
@@ -322,6 +319,7 @@ import { GameManager } from '../pages/gameManager.js';
           this.playerRight = new Player(10, 0, 0, paddleSize, paddleSpeed, 'blue');
           this.playerRight.sceneADD(this.scene);
   
+          console.log("ball speed : " , ballSpeed);
           this.ball = new ball(0, 0, 0, 1, 1, ballSpeed, ballSize, 'red');
           this.ball.sceneADD(this.scene);
   
@@ -466,7 +464,7 @@ import { GameManager } from '../pages/gameManager.js';
         if (!game || !game.isGameRunning) return;
         
         requestAnimationFrame(() => animate(game, winScore));
-        
+        console.log("win score : ", winScore);
         if (checkXCollision(game, winScore)) {
           updatePos(game);
           game.ball.moveBall(game.playerLeft, game.playerRight);

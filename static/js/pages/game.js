@@ -87,7 +87,7 @@ export class GamePage extends Page {
         // Create the game
         const gameData = await this.gameManager.createGame();
         this.gameId = gameData.game_id;
-    
+        
         // Show waiting screen
         // document.getElementById('pregame-menu').style.display = 'none';
         if (getIsAnimating())
@@ -123,6 +123,7 @@ export class GamePage extends Page {
             settings: this.gameSettings,
             gameId: this.gameId
           });
+          this.gameManager.sendReadyStatus();
         }
         break;
   
@@ -135,11 +136,26 @@ export class GamePage extends Page {
         break;
   
 
-      case 'game_start':
-        // Both players ready and settings validated by backend
-        console.log('Both players ready, starting game!');
-        this.startGame();
-        break;
+        case 'game_start':
+          console.log('Both players ready, starting game!');
+          // Hide appropriate screens based on player type
+          if (this.gameManager.localPlayer === 'left') {
+              document.getElementById('waiting-screen').style.display = 'none';
+          } else {
+              // For right player, hide pregame menu
+              document.getElementById('pregame-menu').style.display = 'none';
+          }
+          document.getElementById('game-container').style.display = 'flex';
+          this.gameInstance = new Game(
+              this.gameSettings.ballSpeed,
+              this.gameSettings.paddleSize,
+              this.gameSettings.paddleSpeed,
+              this.gameSettings.ballSize,
+              this.gameSettings.winScore,
+              this.gameManager
+          );
+          startGameLoop(this.gameInstance, this.gameInstance.winScore);
+          break;
 
       case 'end_game' :
         this.gameInstance.endgame();

@@ -59,14 +59,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
             elif message_type == 'ready':
                 game_id = data.get('game_id', '')
-                
-                # Store settings if they're valid
-                if not await self.validate_and_store_settings(game_id, data.get('settings', {})):
-                    await self.send(text_data=json.dumps({
-                        'type': 'error',
-                        'message': 'Invalid game settings'
-                    }))
-                    return
 
                 # Mark player as ready
                 both_ready = await self.mark_player_ready(game_id)
