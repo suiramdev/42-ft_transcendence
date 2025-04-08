@@ -8,6 +8,8 @@ DOCKER_COMPOSE_DEV = docker compose -f docker/docker-compose.yml --env-file .env
 DB_NAME = $(shell grep DB_NAME .env | cut -d '=' -f2)
 DB_USER = $(shell grep DB_USER .env | cut -d '=' -f2)
 DB_PASSWORD = $(shell grep DB_PASSWORD .env | cut -d '=' -f2)
+MAKE_RUN_HOST = $(shell grep MAKE_RUN_HOST .env | cut -d '=' -f2)
+MAKE_RUN_PORT = $(shell grep MAKE_RUN_PORT .env | cut -d '=' -f2)
 
 # Colors for terminal output
 GREEN = \033[0;32m
@@ -57,7 +59,7 @@ install:
 # Development Commands
 run: $(VENV) services
 	@echo "Starting development server..."
-	@$(PYTHON_VENV) manage.py runserver
+	@$(PYTHON_VENV) manage.py runserver $(MAKE_RUN_HOST):$(MAKE_RUN_PORT)
 
 docs:
 	@echo "Starting documentation server..."
@@ -125,7 +127,7 @@ create:
 			$(PYTHON_VENV) manage.py create_user_token $(word 2,$(MAKECMDGOALS));; \
 	esac
 
-# Cleanup Commands
+# Cleanup Commandus
 clean:
 	@echo "Cleaning up..."
 	@rm -rf $(VENV) __pycache__ .pytest_cache
