@@ -1,6 +1,6 @@
 import { Page } from '../core/Page.js';
 import { GameManager } from './gameManager.js';
-import { setupSliders, Player, movePlayer, stopPlayer, ball, updatePos, checkXCollision, updateScore, Game, pregame, animate, initGame, startGameLoop} from '../components/game.js';
+import { setupSliders,Game, pregame, startGameLoop} from '../components/game.js';
 import { pregameSetup, stopPregameAnimations, getIsAnimating} from './pregame.js'; 
 
 export class GamePage extends Page {
@@ -138,6 +138,7 @@ export class GamePage extends Page {
 
         case 'game_start':
           console.log('Both players ready, starting game!');
+          console.log("im : ", this.gameManager.localPlayer);
           // Hide appropriate screens based on player type
           if (this.gameManager.localPlayer === 'left') {
               document.getElementById('waiting-screen').style.display = 'none';

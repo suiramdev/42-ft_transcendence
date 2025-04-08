@@ -77,31 +77,6 @@ import { GameManager } from '../pages/gameManager.js';
       }
     }
 
-    // ----------------- Player related functions -----------------
-
-    // Move the players based on key input
-    export function movePlayer(e, player_right, player_left) {
-      if (e.code === 'ArrowUp') {
-        player_right.moveUp();
-        // player_right.pCube.rotateZ(0.1);
-      } else if (e.code === 'ArrowDown') {
-        player_right.moveDown();
-      } else if (e.code === 'KeyW') {
-        player_left.moveUp();
-      } else if (e.code === 'KeyS') {
-        player_left.moveDown();
-      }
-    }
-
-    // Stop the players when the key is released
-    export function stopPlayer(e, player_right, player_left) {
-      if (e.code === 'ArrowUp' || e.code === 'ArrowDown') {
-        player_right.dy = 0;
-      } else if (e.code === 'KeyW' || e.code === 'KeyS') {
-        player_left.dy = 0;
-      }
-    }
-
     // ----------------- Ball Class -----------------
 
     export class ball {
@@ -354,13 +329,13 @@ import { GameManager } from '../pages/gameManager.js';
           return true;
         }
   
-        handleKeyDown(e, localPlayer) {
+        handleKeyDown(e) {
           if (e.code === 'ArrowUp' || e.code === 'KeyW') {
               // C'est une commande du joueur local
               this.gameManager.sendPlayerMove('up');
   
               // Mettre à jour localement pour une réactivité immédiate
-              if (localPlayer === 'left') {
+              if (this.gameManager.localPlayer === 'left') {
                 this.playerLeft.moveUp();
               } else {
                 this.playerRight.moveUp();
@@ -370,7 +345,7 @@ import { GameManager } from '../pages/gameManager.js';
               this.gameManager.sendPlayerMove('down');
   
               // Mettre à jour localement pour une réactivité immédiate
-              if (localPlayer === 'left') {
+              if (this.gameManager.localPlayer === 'left') {
                 this.playerLeft.moveDown();
               } else {
                 this.playerRight.moveDown();
@@ -378,7 +353,7 @@ import { GameManager } from '../pages/gameManager.js';
           }
         }
   
-        handleKeyUp(e, localPlayer) {
+        handleKeyUp(e) {
           if (
             e.code === 'ArrowUp' ||
             e.code === 'ArrowDown' ||
@@ -388,7 +363,7 @@ import { GameManager } from '../pages/gameManager.js';
               this.gameManager.sendPlayerMove('stop');
   
               // Mettre à jour localement pour une réactivité immédiate
-              if (localPlayer === 'left') {
+              if (this.gameManager.localPlayer === 'left') {
                 this.playerLeft.dy = 0;
               } else {
                 this.playerRight.dy = 0;
