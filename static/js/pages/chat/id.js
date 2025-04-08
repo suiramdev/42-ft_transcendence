@@ -35,8 +35,6 @@ export class DirectMessagePage extends Page {
 
     document.querySelector('#chat-username').textContent = this.otherUser.nickname;
 
-    this._updateChatBlockStatus(false);
-
     try {
       await this._loadExistingMessages();
       await this._connectToWebSocket();
@@ -134,18 +132,18 @@ export class DirectMessagePage extends Page {
    * Update the chat block status, this will show or hide the block button and the blocked message
    * @private
    *
-   * @param {boolean} isBlocked - Whether the chat is blocked
+   * @param {boolean} show - Whether to show the block button
    */
-  _updateChatBlockStatus(isBlocked) {
+  _showBlockButton(show) {
     const blockButton = document.querySelector('#block-button');
     const unblockButton = document.querySelector('#unblock-button');
 
-    if (isBlocked) {
-      blockButton.style.display = 'none';
-      unblockButton.style.display = 'flex';
-    } else {
+    if (show) {
       blockButton.style.display = 'flex';
       unblockButton.style.display = 'none';
+    } else {
+      blockButton.style.display = 'none';
+      unblockButton.style.display = 'flex';
     }
   }
 
@@ -166,7 +164,7 @@ export class DirectMessagePage extends Page {
 
       if (!response.ok) throw new Error('Failed to block user');
 
-      this._updateChatBlockStatus(true);
+      this._showBlockButton(true);
     } catch (error) {
       console.error('Error blocking user:', error);
     }
@@ -189,7 +187,7 @@ export class DirectMessagePage extends Page {
 
       if (!response.ok) throw new Error('Failed to unblock user');
 
-      this._updateChatBlockStatus(false);
+      this._showBlockButton(false);
     } catch (error) {
       console.error('Error unblocking user:', error);
     }

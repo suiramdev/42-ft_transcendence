@@ -8,9 +8,6 @@ from .models import DirectMessage, BlockedUser
 from .serializers import DirectMessageSerializer
 from django.db import models
 from django.contrib.auth import get_user_model
-from .errors import ChatErrorCodes
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 
 # Create your views here.
 
@@ -41,25 +38,17 @@ class DirectMessageViewSet(viewsets.ModelViewSet):
             receiver_id=other_user_id
         )
 
+    def check_blocked(self, user, other_user_id):
+        return BlockedUser.objects.filter(
+            user=user,
+            blocked_user_id=other_user_id
+        ).exists()
+
     @action(detail=False, methods=['post'])
     def block_user(self, request, user_id=None):
         BlockedUser.objects.get_or_create(
             user=request.user,
             blocked_user_id=user_id
-        )
-
-        # Close WebSocket connections
-        # Create a unique room name for these two users
-        users = sorted([str(request.user.id), str(user_id)])
-        room_name = f"dm_{users[0]}_{users[1]}"
-
-        # Send message to close connections
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            room_name,
-            {
-                'type': 'close_connection'
-            }
         )
 
         return Response({"status": "user blocked"}, status=status.HTTP_200_OK)
