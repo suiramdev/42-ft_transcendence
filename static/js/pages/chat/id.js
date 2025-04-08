@@ -86,15 +86,12 @@ export class DirectMessagePage extends Page {
       this.socket.onmessage = this._onReceiveMessage.bind(this);
 
       this.socket.onopen = () => {
-        this._updateChatBlockStatus(false);
+        console.log('WebSocket connection opened');
         resolve(this.socket);
       };
 
       this.socket.onclose = event => {
-        if (event.code === 4003) {
-          this._updateChatBlockStatus(true);
-        }
-
+        console.log('WebSocket connection closed', event);
         reject(new Error('WebSocket connection closed'));
       };
 
@@ -170,7 +167,6 @@ export class DirectMessagePage extends Page {
       if (!response.ok) throw new Error('Failed to block user');
 
       this._updateChatBlockStatus(true);
-      this.socket.close();
     } catch (error) {
       console.error('Error blocking user:', error);
     }
@@ -193,7 +189,7 @@ export class DirectMessagePage extends Page {
 
       if (!response.ok) throw new Error('Failed to unblock user');
 
-      await this._connectToWebSocket();
+      this._updateChatBlockStatus(false);
     } catch (error) {
       console.error('Error unblocking user:', error);
     }
@@ -207,9 +203,9 @@ export class DirectMessagePage extends Page {
    * @param {string} data.message - The message content
    * @param {number} data.sender_id - The id of the sender
    * @param {string} data.timestamp - The timestamp of the message
-   * @param {boolean} [success=true] - Whether the message was sent successfully
+   * @param {string} [error] - The error message
    */
-  _addMessageToChat(data, success = true) {
+  _addMessageToChat(data, error = null) {
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('chat__message');
 
@@ -246,10 +242,10 @@ export class DirectMessagePage extends Page {
     messageContainer.appendChild(messageContent);
 
     // If the message was sent successfully, add the success class
-    if (!success) {
+    if (error) {
       const errorMessage = document.createElement('div');
       errorMessage.classList.add('chat__message-error');
-      errorMessage.textContent = 'Could not send message, please try again';
+      errorMessage.textContent = error;
       messageContainer.appendChild(errorMessage);
     }
 
@@ -263,10 +259,22 @@ export class DirectMessagePage extends Page {
    * @private
    *
    * @param {Object} e - The event object
+   * @param {Object} e.data - The data object
+   * @param {string} e.data.type - The type of message (error, message)
+   * @param {string} [e.data.error] - The error message
+   * @param {string} [e.data.code] - The error code (UNAUTHORIZED, INVALID_MESSAGE, etc.)
+   * @param {string} [e.data.message] - The message
+   * @param {number} [e.data.sender_id] - The id of the sender
+   * @param {string} [e.data.timestamp] - The timestamp of the message
    */
   _onReceiveMessage(e) {
-    const data = JSON.parse(e.data);
-    this._addMessageToChat(data);
+    const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+    if (!data) return;
+
+    // If the message is sent by the other user, add it to the chat
+    if (data.type === 'message') {
+      this._addMessageToChat(data);
+    }
   }
 
   /**
@@ -292,19 +300,13 @@ export class DirectMessagePage extends Page {
           message: message,
         })
       );
-      e.target.reset();
     } catch (error) {
       console.error('Error sending message:', error);
 
-      // Add the message to the chat as an error
-      this._addMessageToChat(
-        {
-          message: message,
-          sender_id: globalThis.user.id,
-          timestamp: new Date().toISOString(),
-        },
-        false
-      );
+      e.target.reset();
+      // TODO: Add error to input
+    } finally {
+      e.target.reset();
     }
   }
 }
