@@ -35,9 +35,8 @@ export class DirectMessagePage extends Page {
 
     document.querySelector('#chat-username').textContent = this.otherUser.nickname;
 
-    this._updateChatBlockStatus(false);
-
     try {
+      await this._loadBlockedStatus();
       await this._loadExistingMessages();
       await this._connectToWebSocket();
     } catch (error) {
@@ -66,6 +65,28 @@ export class DirectMessagePage extends Page {
   }
 
   /**
+   * Load the blocked status of the other user
+   * @private
+   *
+   * @returns {Promise<void>}
+   */
+  async _loadBlockedStatus() {
+    const response = await fetch(`/api/chat/messages/${this.otherUser.id}/is_blocked/`, {
+      headers: {
+        Authorization: `Bearer ${getCookie('access_token')}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to check if user is blocked');
+    }
+
+    const data = await response.json();
+
+    this._showBlockButton(!data.blocked);
+  }
+
+  /**
    * Connect to the web socket
    * @private
    *
@@ -86,15 +107,12 @@ export class DirectMessagePage extends Page {
       this.socket.onmessage = this._onReceiveMessage.bind(this);
 
       this.socket.onopen = () => {
-        this._updateChatBlockStatus(false);
+        console.log('WebSocket connection opened');
         resolve(this.socket);
       };
 
       this.socket.onclose = event => {
-        if (event.code === 4003) {
-          this._updateChatBlockStatus(true);
-        }
-
+        console.log('WebSocket connection closed', event);
         reject(new Error('WebSocket connection closed'));
       };
 
@@ -137,19 +155,40 @@ export class DirectMessagePage extends Page {
    * Update the chat block status, this will show or hide the block button and the blocked message
    * @private
    *
-   * @param {boolean} isBlocked - Whether the chat is blocked
+   * @param {boolean} show - Whether to show the block button
    */
-  _updateChatBlockStatus(isBlocked) {
+  _showBlockButton(show) {
     const blockButton = document.querySelector('#block-button');
     const unblockButton = document.querySelector('#unblock-button');
 
-    if (isBlocked) {
-      blockButton.style.display = 'none';
-      unblockButton.style.display = 'flex';
-    } else {
+    if (show) {
       blockButton.style.display = 'flex';
       unblockButton.style.display = 'none';
+    } else {
+      blockButton.style.display = 'none';
+      unblockButton.style.display = 'flex';
     }
+  }
+
+  /**
+   * Set the form error
+   * @private
+   *
+   * @param {string} reason - The reason for the error
+   */
+  _setFormError(reason) {
+    const formError = document.querySelector('#chat-form-error');
+    formError.textContent = reason;
+    formError.style.display = 'block';
+  }
+
+  /**
+   * Clear the form error
+   * @private
+   */
+  _clearFormError() {
+    const formError = document.querySelector('#chat-form-error');
+    formError.style.display = 'none';
   }
 
   /**
@@ -169,8 +208,7 @@ export class DirectMessagePage extends Page {
 
       if (!response.ok) throw new Error('Failed to block user');
 
-      this._updateChatBlockStatus(true);
-      this.socket.close();
+      this._showBlockButton(false);
     } catch (error) {
       console.error('Error blocking user:', error);
     }
@@ -193,7 +231,7 @@ export class DirectMessagePage extends Page {
 
       if (!response.ok) throw new Error('Failed to unblock user');
 
-      await this._connectToWebSocket();
+      this._showBlockButton(true);
     } catch (error) {
       console.error('Error unblocking user:', error);
     }
@@ -207,9 +245,8 @@ export class DirectMessagePage extends Page {
    * @param {string} data.message - The message content
    * @param {number} data.sender_id - The id of the sender
    * @param {string} data.timestamp - The timestamp of the message
-   * @param {boolean} [success=true] - Whether the message was sent successfully
    */
-  _addMessageToChat(data, success = true) {
+  _addMessageToChat(data) {
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('chat__message');
 
@@ -245,14 +282,6 @@ export class DirectMessagePage extends Page {
     messageContent.appendChild(messageTime);
     messageContainer.appendChild(messageContent);
 
-    // If the message was sent successfully, add the success class
-    if (!success) {
-      const errorMessage = document.createElement('div');
-      errorMessage.classList.add('chat__message-error');
-      errorMessage.textContent = 'Could not send message, please try again';
-      messageContainer.appendChild(errorMessage);
-    }
-
     document.querySelector('#chat-messages').appendChild(messageContainer);
 
     messageContainer.scrollIntoView({ behavior: 'smooth' });
@@ -263,10 +292,28 @@ export class DirectMessagePage extends Page {
    * @private
    *
    * @param {Object} e - The event object
+   * @param {Object} e.data - The data object
+   * @param {string} e.data.type - The type of message (error, message)
+   * @param {string} [e.data.error] - The error message
+   * @param {string} [e.data.code] - The error code (UNAUTHORIZED, INVALID_MESSAGE, etc.)
+   * @param {string} [e.data.message] - The message
+   * @param {number} [e.data.sender_id] - The id of the sender
+   * @param {string} [e.data.timestamp] - The timestamp of the message
    */
   _onReceiveMessage(e) {
-    const data = JSON.parse(e.data);
-    this._addMessageToChat(data);
+    const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+    if (!data) return;
+
+    if (data.type === 'message') {
+      // If the message is sent by the other user, add it to the chat
+      this._addMessageToChat(data);
+      this._clearFormError();
+    } else if (data.type === 'error') {
+      // If the message occurred an error, show the error
+      this._setFormError(data.error);
+    } else {
+      console.error('Unknown message type:', data);
+    }
   }
 
   /**
@@ -280,8 +327,6 @@ export class DirectMessagePage extends Page {
     const formData = new FormData(e.target);
     const message = formData.get('message');
 
-    if (!message.trim()) return;
-
     try {
       if (this.socket.readyState !== WebSocket.OPEN) {
         throw new Error('Connection is not open');
@@ -292,19 +337,12 @@ export class DirectMessagePage extends Page {
           message: message,
         })
       );
-      e.target.reset();
     } catch (error) {
       console.error('Error sending message:', error);
 
-      // Add the message to the chat as an error
-      this._addMessageToChat(
-        {
-          message: message,
-          sender_id: globalThis.user.id,
-          timestamp: new Date().toISOString(),
-        },
-        false
-      );
+      this._setFormError('Failed to send message, please try again');
+    } finally {
+      e.target.reset();
     }
   }
 }
