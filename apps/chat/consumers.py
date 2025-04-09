@@ -52,7 +52,7 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
             logger.info(f"User: {self.user.id} is blocked by {self.other_user_id}, sending error")
             await self.send_json({
                 'type': 'error',
-                'error': 'You cannot send messages to this user',
+                'error': 'You have or have been blocked by this user, you cannot send messages to them',
                 'code': ChatErrorCodes.UNAUTHORIZED
             })
             return
@@ -76,7 +76,7 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_send(
             self.room_name,
             {
-                'type': 'chat_message',
+                'type': 'message',
                 'message': message,
                 'sender_id': self.user.id,
                 'timestamp': str(datetime.datetime.now())
@@ -99,3 +99,11 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
             (models.Q(user=self.user, blocked_user_id=self.other_user_id) |
              models.Q(user_id=self.other_user_id, blocked_user=self.user))
         ).exists()
+
+    async def message(self, event):
+        await self.send_json({
+            'type': 'message',
+            'message': event['message'],
+            'sender_id': event['sender_id'],
+            'timestamp': event['timestamp']
+        })

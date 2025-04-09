@@ -51,7 +51,7 @@ class DirectMessageViewSet(viewsets.ModelViewSet):
             blocked_user_id=user_id
         )
 
-        return Response({"status": "user blocked"}, status=status.HTTP_200_OK)
+        return Response({"blocked": True}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
     def unblock_user(self, request, user_id=None):
@@ -60,4 +60,10 @@ class DirectMessageViewSet(viewsets.ModelViewSet):
             blocked_user_id=user_id
         ).delete()
 
-        return Response({"status": "user unblocked"}, status=status.HTTP_200_OK)
+        return Response({"blocked": False}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def is_blocked(self, request, user_id=None):
+        is_blocked = self.check_blocked(request.user, user_id)
+
+        return Response({"blocked": is_blocked}, status=status.HTTP_200_OK)
