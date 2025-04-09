@@ -84,6 +84,17 @@ class GameConsumer(AsyncWebsocketConsumer):
                     }
                 )
             
+            elif message_type == 'hit_ball':
+                # Forward the hit ball message to the group
+                await self.channel_layer.group_send(
+                    self.game_group_name,
+                    {
+                        'type': 'hit_ball',
+                        'hit_position': data.get('hit_position', ''),
+                        'direction': data.get('direction', '')
+                    }
+                )
+            
             # Add other message types as needed
             
         except json.JSONDecodeError:
@@ -99,14 +110,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'message': str(e)
             }))
 
-    # Add new message type handlers
-    async def game_settings(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game-settings',
-            'settings': event['settings'],
-            'game_id': event['game_id']
-        }))
-
     @database_sync_to_async
     def mark_player_ready(self, game_id):
         """Mark a player as ready and return True if both players are ready"""
@@ -115,6 +118,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             return game.addPlayerRdy()  # This updates and returns True if both players are ready
         except Game.DoesNotExist:
             return False
+
+    # Add new message type handlers
+    async def game_settings(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'game-settings',
+            'settings': event['settings'],
+            'game_id': event['game_id']
+        }))
 
     # Handler for player_joined messages
     async def player_joined(self, event):
@@ -136,5 +147,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'player_move',
             'player': event['player'],
+            'direction': event['direction']
+        }))
+
+    async def hit_ball(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'hit_ball',
+            'hit_position': event['hit_position'],
             'direction': event['direction']
         }))

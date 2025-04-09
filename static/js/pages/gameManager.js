@@ -166,5 +166,12 @@ export class GameManager {
       })
     );
   }
-}
 
+  // Method to send hit ball events
+  sendHitBall(hitPosition, direction) {
+    this.sendGameEvent('hit_ball', {
+      hit_position: hitPosition,
+      direction: direction,
+    });
+  }
+}
