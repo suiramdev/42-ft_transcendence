@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'apps.authentication',
     'apps.game',
     'apps.user',
+    'apps.tournament',
     
     # Third-party apps
     'corsheaders',

@@ -1,0 +1,39 @@
+.tournament {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .tournament-window {
+    background: #ECE9D8;
+    border: 1px solid #003C74;
+    border-radius: 3px;
+    padding: 20px;
+    width: 800px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .window-title {
+    background: linear-gradient(180deg, #0058B4 0%, #003C74 100%);
+    color: white;
+    padding: 5px 10px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .tournament-content {
+    padding: 15px;
+  }
+  
+  .xp-button {
+    background: #ECE9D8;
+    border: 1px solid #003C74;
+    padding: 5px 15px;
+    margin: 5px;
+    cursor: pointer;
+  }
+  
+  .xp-button:hover {
+    background: #DBD8C7;
+  }

@@ -1,3 +1,97 @@
 <section class="game">
-  <canvas class="game__canvas"></canvas>
+  <div id="pregame-menu" class="pregame-menu">
+    <h3>Game Settings</h3>
+    <div class="slider-item">
+      <div class="slider-container">
+        <div class="slider-content">
+          <canvas id="ball-speed-canva"></canvas>
+          <div class="slider-input-wrapper">
+            <input type="range" id="ball-speed" min="0.05" max="0.3" step="0.05" value="0.1" />
+            <span id="ball-speed-value">0.1</span>
+          </div>
+        </div>
+      </div>
+      <div class="slider-container">
+        <div class="slider-content">
+          <canvas id="paddle-size-canva" ></canvas>
+          <div class="slider-input-wrapper">
+            <input type="range" id="paddle-size" min="2" max="7" step="0.5" value="3" />
+            <span id="paddle-size-value">2.5</span>
+          </div>
+        </div>
+      </div>
+      <div class="slider-container">
+        <div class="slider-content">
+          <canvas id="paddle-speed-canva"></canvas>
+          <div class="slider-input-wrapper">
+            <input type="range" id="paddle-speed" min="0.1" max="0.4" step="0.05" value="0.2" />
+            <span id="paddle-speed-value">0.2</span>
+          </div>
+        </div>
+      </div>
+      <div class="slider-container">
+        <div class="slider-content">
+          <canvas id="ball-size-canva"></canvas>
+          <div class="slider-input-wrapper">
+            <input type="range" id="ball-size" min="0.1" max="1.5" step="0.1" value="0.5" />
+            <span id="ball-size-value">0.5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="button-container">
+      <div class="score-selector">
+        <div class="score-selector-title">Win Score</div>
+        <div class="radio-group">
+          <label class="xp-radio">
+            <input type="radio" name="win-score" value="3" checked>
+            <span class="radio-custom"></span>
+            3 Goals
+          </label>
+          <label class="xp-radio">
+            <input type="radio" name="win-score" value="5">
+            <span class="radio-custom"></span>
+            5 Goals
+          </label>
+          <label class="xp-radio">
+            <input type="radio" name="win-score" value="7">
+            <span class="radio-custom"></span>
+            7 Goals
+          </label>
+        </div>
+      </div>
+      <button id="start-game">Start Game</button>
+      <div class="join-game-container">
+        <button id="join-game">Join Game</button>
+        <input type="text" id="game-id-input" placeholder="Enter Game ID" class="game-input" />
+      </div>
+    </div>
+  </div>
+  <div id="waiting-screen" style="display: none;">
+    <div class="window waiting-window">
+      <div class="window__titlebar">
+        <div class="window__title">Waiting for Player 2</div>
+        <div class="window__controls">
+          <button class="window__button" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window__content waiting-content">
+        <div class="waiting-message">
+          <p>Game created successfully!</p>
+          <p>Share this Game ID with your opponent:</p>
+          <div class="game-id-display" id="waiting-game-id"></div>
+          <div class="waiting-animation">
+            <div class="loading-bar"></div>
+          </div>
+          <p class="waiting-status">Waiting for player to join...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="game-container" style="display: none">
+    <div class="score-container">
+      <div id="score" class="score-display">0 | 0</div>
+    </div>
+    <canvas id="pongCanvas" width="800" height="600"></canvas>
+  </div>
 </section>

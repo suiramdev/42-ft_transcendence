@@ -27,6 +27,8 @@ from pathlib import Path
 from apps.chat.views import DirectMessageViewSet
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.game.views import gameViewset
+from apps.tournament.views import tournamentViewset
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -34,6 +36,8 @@ router = routers.DefaultRouter()
 router.register(r'user', UserViewSet, basename='user')
 router.register(r'auth', AuthView, basename='auth')
 router.register(r'auth/42', FortyTwoAuthView, basename='auth_42')
+router.register(r'game', gameViewset, basename='game')
+router.register(r'tournament', tournamentViewset, basename='tournament')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
