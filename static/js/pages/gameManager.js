@@ -168,10 +168,11 @@ export class GameManager {
   }
 
   // Method to send hit ball events
-  sendHitBall(hitPosition, direction) {
+  sendHitBall(hitPosition, direction, paddlePosition) {
     this.sendGameEvent('hit_ball', {
       hit_position: hitPosition,
       direction: direction,
+      paddle_position: paddlePosition,
     });
   }
 }

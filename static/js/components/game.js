@@ -166,7 +166,8 @@ export class ball {
         if (this.gameManager) {
           this.gameManager.sendHitBall(
             { x: this.x, y: this.y },
-            { x: this.direction_x, y: this.direction_y }
+            { x: this.direction_x, y: this.direction_y },
+            { x: player_left.getx(), y: player_left.gety() }
           );
         }
       }
@@ -192,7 +193,8 @@ export class ball {
         if (this.gameManager) {
           this.gameManager.sendHitBall(
             { x: this.x, y: this.y },
-            { x: this.direction_x, y: this.direction_y }
+            { x: this.direction_x, y: this.direction_y },
+            { x: player_right.getx(), y: player_right.gety() }
           );
         }
       }
@@ -302,13 +304,24 @@ export class Game {
   }
 
   handleHitBall(data) {
-    const { hit_position, direction } = data;
+    const { hit_position, direction, paddle_position } = data;
 
     // Update ball position and direction
     this.ball.x = hit_position.x;
     this.ball.y = hit_position.y;
     this.ball.direction_x = direction.x;
     this.ball.direction_y = direction.y;
+
+    // Update paddle position
+    if (paddle_position) {
+      if (this.gameManager.localPlayer === 'left') {
+        this.playerRight.y = paddle_position.y;
+        this.playerRight.pCube.position.y = paddle_position.y;
+      } else {
+        this.playerLeft.y = paddle_position.y;
+        this.playerLeft.pCube.position.y = paddle_position.y;
+      }
+    }
 
     // Update visual representation
     this.ball.bSphere.position.x = this.ball.x;

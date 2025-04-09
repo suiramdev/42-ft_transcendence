@@ -91,7 +91,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                     {
                         'type': 'hit_ball',
                         'hit_position': data.get('hit_position', ''),
-                        'direction': data.get('direction', '')
+                        'direction': data.get('direction', ''),
+                        'paddle_position': data.get('paddle_position', '')
                     }
                 )
             
@@ -154,5 +155,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'hit_ball',
             'hit_position': event['hit_position'],
-            'direction': event['direction']
+            'direction': event['direction'],
+            'paddle_position': event['paddle_position']
         }))
