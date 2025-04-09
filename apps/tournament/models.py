@@ -7,4 +7,5 @@ class Tournament(models.Model):
     player2 = models.ForeignKey(User, related_name='tournament_as_player2', on_delete=models.CASCADE, blank=True ,null=True)
     player3 = models.ForeignKey(User, related_name='tournament_as_player3', on_delete=models.CASCADE, blank=True ,null=True)
     player4 = models.ForeignKey(User, related_name='tournament_as_player4', on_delete=models.CASCADE, blank=True ,null=True)
+    # winner = models.ForeignKey(User, related_name='tournament_wins', on_delete=models.SET_NULL, blank=True, null=True)
     played_at = models.DateTimeField(auto_now_add=True)

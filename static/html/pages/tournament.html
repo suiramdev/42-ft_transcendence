@@ -1,7 +1,9 @@
 <section class="tournament">
-    <div class="tournament-window">
-      <div class="window-title">Tournament</div>
-      <div class="tournament-content">
+  <div class="tournament-window">
+    <div class="window-title">Tournament</div>
+    <div class="tournament-content">
+      <!-- Default view -->
+      <div class="tournament-default-view">
         <div class="tournament-info">
           <h2>Active Tournament</h2>
           <div id="current-tournament">No active tournament</div>
@@ -10,9 +12,29 @@
           <button id="create-tournament" class="xp-button">Create Tournament</button>
           <button id="join-tournament" class="xp-button">Join Tournament</button>
         </div>
-        <div class="tournament-bracket" id="tournament-bracket">
-          <!-- Bracket will be generated dynamically -->
+      </div>
+      
+      <!-- Waiting room view (initially hidden) -->
+      <div class="tournament-waiting-view" style="display: none;">
+        <h2>Tournament Waiting Room</h2>
+        <div class="tournament-waiting-container">
+          <div class="players-list">
+            <h3>Players Joined</h3>
+            <ul id="joined-players-list">
+              <!-- Players will be listed here dynamically -->
+            </ul>
+          </div>
+          <div id="tournament-status">Waiting for players...</div>
+        </div>
+        <div class="tournament-controls">
+          <button id="start-tournament" class="xp-button" disabled>Start Tournament</button>
+          <button id="leave-tournament" class="xp-button">Leave Tournament</button>
         </div>
       </div>
+      
+      <div class="tournament-bracket" id="tournament-bracket">
+        <!-- Bracket will be generated dynamically -->
+      </div>
     </div>
-  </section>
+  </div>
+</section>
