@@ -63,7 +63,7 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
             logger.info(f"User: {self.user.id} sent empty message, sending error")
             await self.send_json({
                 'type': 'error',
-                'error': 'Message cannot be empty',
+                'error': 'Please enter a message',
                 'code': ChatErrorCodes.INVALID_MESSAGE
             })
             return
