@@ -20,6 +20,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from apps.game.routing import websocket_urlpatterns
 from apps.chat.urls import ws_urlpatterns
+from apps.tournament.routing import websocket_urlpatterns
 
 application = ProtocolTypeRouter({
     "http": django_asgi_app,

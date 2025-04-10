@@ -11,6 +11,10 @@ export class TournamentPage extends Page {
 
     onMount() {
 
+        document.addEventListener('tournament-update', event => {
+            this.handleTournamentUpdate(event.detail);
+        });
+
         document.getElementById('create-tournament').addEventListener('click', async () => {
 
             
@@ -18,12 +22,19 @@ export class TournamentPage extends Page {
 
             document.querySelector('.tournament-default-view').style.display = 'none';
             document.querySelector('.tournament-waiting-view').style.display = 'flex';
-            this.updatePlayersList()
+            // this.updatePlayersList()
+
         });
 
         document.getElementById('join-tournament').addEventListener('click', async () => {
 
             //TODO : get the id 
+            const tournamentIdInput = document.getElementById('tournament-id-input');
+            if (!tournamentIdInput) {
+                console.error('Torunament ID input not found in the DOM');
+                return;
+              }
+            const tournamentId = tournamentIdInput.value.trim();
             const tournament = await this.manager.joinTournament(tournamentId);
         });
     }
@@ -45,6 +56,14 @@ export class TournamentPage extends Page {
                 document.getElementById('tournament-status').textContent = 'Tournament ready to start!';
                 document.getElementById('start-tournament').disabled = false;
             }
+        }
+    }
+
+    handleGameUpdate(data) {
+        switch (data.type) {
+            case '':
+
+                break;
         }
     }
 
