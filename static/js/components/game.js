@@ -1,6 +1,3 @@
-import * as THREE from 'three';
-import { GameManager } from '../pages/gameManager.js';
-
 // ----------------- Player Class -----------------
 
 export class Player {
