@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from apps.user.models import User
 from rest_framework import permissions
 from apps.tournament.models import Tournament
+from apps.tournament.models import TournamentStatus
 
 
 
@@ -49,7 +50,8 @@ class tournamentViewset(viewsets.ViewSet):
                 'error': 'Tournament not found'
             }, status=status.HTTP_404_NOT_FOUND)
         
-        if tournament.status == "CLOSED":
+        print(tournament.status)
+        if tournament.status == TournamentStatus.CANCELLED :
             return Response({
                 'error': 'This tournament has been closed and cannot be joined'
             }, status=status.HTTP_400_BAD_REQUEST)

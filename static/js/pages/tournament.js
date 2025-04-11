@@ -31,10 +31,6 @@ export class TournamentPage extends Page {
         document.getElementById('join-tournament').addEventListener('click', async () => {
             try {
                 const tournamentIdInput = document.getElementById('tournament-id-input');
-                if (!tournamentIdInput) {
-                    console.error('Tournament ID input not found in the DOM');
-                    return;
-                }
                 
                 const tournamentId = tournamentIdInput.value.trim();
                 if (!tournamentId) {

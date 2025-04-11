@@ -26,10 +26,13 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             self.tournament_group_name,
             self.channel_name
         )
+
+        print(self.user)
         
         # Check if this was the last player and close tournament if needed
-        if self.user and self.user.is_authenticated:
+        if self.user :
             tournament = await self.get_tournament()
+            print(tournament.status)
             if tournament:
                 # Get the player position in this tournament
                 player_position = await self.get_player_position(tournament)
@@ -49,6 +52,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     )
             tournament.status = TournamentStatus.CANCELLED
             tournament.save()
+           
                     
     async def receive(self, text_data):
         data = json.loads(text_data)
