@@ -1,5 +1,4 @@
-import { getCookie, deleteCookie } from '../utils/cookies.js';
-
+import { getAccessToken, clearTokens } from './token.js';
 /**
  * Global variable to store the user data
  * so that it can be accessed from anywhere
@@ -14,7 +13,7 @@ globalThis.user = null;
  * @returns {Promise<Object>}
  */
 export async function getUser() {
-  const accessToken = getCookie('access_token');
+  const accessToken = getAccessToken();
   if (!accessToken) {
     globalThis.user = null;
     document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
@@ -24,21 +23,21 @@ export async function getUser() {
   const response = await fetch('/api/user/me/', {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 
   // If the user is not connected, set the user to null and dispatch an event
   if (!response.ok) {
     globalThis.user = null;
-    document.dispatchEvent(new Event('userStateChange'));
+    document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
     return null;
   }
 
   const data = await response.json();
   globalThis.user = data;
-  document.dispatchEvent(new Event('userStateChange'));
+  document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
 
   return data;
 }
@@ -56,11 +55,8 @@ export function isLoggedIn() {
  * Sign out the user
  */
 export function signOut() {
-  // Delete the cookies by expiring them
-  document.cookie =
-    'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Lax';
-  document.cookie =
-    'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Lax';
+  // Clear the tokens
+  clearTokens();
 
   // Reset user state
   globalThis.user = null;
@@ -80,9 +76,8 @@ export function signOut() {
  * @param {File} data.avatar
  */
 export async function updateUser(data) {
-  const accessToken = getCookie('access_token');
+  const accessToken = getAccessToken();
   if (!accessToken) {
-    console.error("Impossible de mettre à jour l'utilisateur : Pas de token");
     return;
   }
 
@@ -105,7 +100,7 @@ export async function updateUser(data) {
     if (!response.ok) throw new Error('Erreur lors de la mise à jour du profil');
 
     globalThis.user = await response.json();
-    document.dispatchEvent(new Event('userStateChange'));
+    document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil:', error);
   }

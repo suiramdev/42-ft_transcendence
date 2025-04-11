@@ -4,7 +4,9 @@ import { ProfilePage } from './pages/profile/index.js';
 import { UserProfilePage } from './pages/profile/id.js';
 import { getUser } from './services/user.js';
 import { DirectMessagePage } from './pages/chat/id.js';
-import { TournamentPage } from './pages/tournament.js'
+import { TournamentPage } from './pages/tournament.js';
+import { apiFetch } from './services/token.js';
+import { FakeSignInPage } from './pages/dev/fake-signin.js';
 
 // Initialize the router in globalThis
 // so it can be accessed from anywhere in the code
@@ -20,8 +22,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   router.registerRoute('/profile/:id', new UserProfilePage());
   router.registerRoute('/chat/:id', new DirectMessagePage());
   router.registerRoute('/tournament', new TournamentPage());
+  router.registerRoute('/dev/fake-signin', new FakeSignInPage());
 
   globalThis.router = router;
 
   getUser();
 });
+
+// Store the original fetch function
+globalThis.originalFetch = globalThis.fetch;
+
+// Override the global fetch function
+globalThis.fetch = function (url, options = {}) {
+  // Skip token refresh for auth endpoints
+  if (url.includes('/api/auth/')) {
+    return globalThis.originalFetch(url, options);
+  }
+
+  return apiFetch(url, options);
+};
