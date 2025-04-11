@@ -18,16 +18,17 @@ django_asgi_app = get_asgi_application()
 
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from apps.game.routing import websocket_urlpatterns
-from apps.chat.urls import ws_urlpatterns
-from apps.tournament.routing import websocket_urlpatterns
+from apps.game.routing import websocket_urlpatterns as game_websocket_urlpatterns
+from apps.chat.urls import ws_urlpatterns as chat_websocket_urlpatterns
+from apps.tournament.routing import websocket_urlpatterns as tournament_websocket_urlpatterns
 
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
     "websocket": AuthMiddlewareStack(
         URLRouter([
-            *ws_urlpatterns,
-            *websocket_urlpatterns
+            *game_websocket_urlpatterns,
+            *chat_websocket_urlpatterns,
+            *tournament_websocket_urlpatterns
         ])
     ),
 })
