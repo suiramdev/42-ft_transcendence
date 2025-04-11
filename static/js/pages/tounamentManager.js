@@ -5,6 +5,9 @@ export class TournamentManager {
     this.tournamentId = null;
     this.readyState = false;
     this.tournamentSocket = null;
+    this.players = {}; // To store player information
+    this.matches = []; // To store match schedule
+    this.currentMatchIndex = -1;
   }
 
   async createTournament(){
@@ -27,12 +30,30 @@ export class TournamentManager {
         console.log('Tournament created:', tournamentData);
 
         this.tournamentId = tournamentData.tournament_id;
-        this.localPlayer = '0';
+        this.localPlayer = '1'; // Creator is always player1
+        this.players = { player1: tournamentData.player1 }; // Initialize with creator
+        
+        // Announce creation in UI
+        document.dispatchEvent(new CustomEvent('tournament-update', {
+          detail: {
+            type: 'players_update',
+            players: this.players,
+            player_count: 1
+          }
+        }));
+        
         await this.initializeTournamentSocket(tournamentData.tournament_id);
+        
+        // Announce creation to other potential players via websocket
+        this.sendTournamentEvent('tournament_created', {
+          tournament_id: this.tournamentId,
+          players: this.players
+        });
 
+        return tournamentData;
     } catch (error) {
-        console.error('Error joining tournament:', error);
-      throw error;
+        console.error('Error creating tournament:', error);
+        throw error;
     }
   }
 
@@ -57,7 +78,26 @@ export class TournamentManager {
       
       this.tournamentId = tournamentId;
       this.localPlayer = tournamentData.joined_as.replace('player', '');
+      this.players = tournamentData.players; // Store all current players
+      
+      // Update UI immediately with existing players
+      document.dispatchEvent(new CustomEvent('tournament-update', {
+        detail: {
+          type: 'players_update',
+          players: this.players,
+          player_count: tournamentData.player_count,
+          is_full: tournamentData.is_full
+        }
+      }));
+      
       await this.initializeTournamentSocket(tournamentId);
+      
+      // Announce join to other players
+      this.sendTournamentEvent('player_joined', {
+        player: tournamentData.joined_as,
+        nickname: tournamentData.players[tournamentData.joined_as],
+        player_count: tournamentData.player_count
+      });
       
       return tournamentData;
     } catch (error) {
@@ -107,35 +147,30 @@ export class TournamentManager {
           const data = JSON.parse(event.data);
           console.log('Received tournament update:', data);
 
-          // Dispatch a custom event to the tournament page
-          const tournamentEvent = new CustomEvent('tournament-update', {
-            detail: data,
-          });
-          document.dispatchEvent(tournamentEvent);
+          // Handle player updates
+          if (data.type === 'player_joined') {
+            // Update our local player list
+            this.players[data.player] = data.nickname;
+            
+            // Re-dispatch with complete player list
+            document.dispatchEvent(new CustomEvent('tournament-update', {
+              detail: {
+                type: 'players_update',
+                players: this.players,
+                player_count: data.player_count,
+                new_player: data.player
+              }
+            }));
+          } else {
+            // Forward other events
+            const tournamentEvent = new CustomEvent('tournament-update', {
+              detail: data,
+            });
+            document.dispatchEvent(tournamentEvent);
+          }
         } catch (error) {
           console.error('Error processing WebSocket message:', error);
         }
-      };
-
-      ws.onclose = event => {
-        console.log('WebSocket connection closed:', event.code, event.reason);
-
-        // Try to reconnect if it wasn't a normal closure
-        if (event.code !== 1000) {
-          console.log('Attempting to reconnect...');
-          setTimeout(() => this.initializeTournamentSocket(tournamentId), 3000);
-        }
-      };
-
-      ws.onerror = error => {
-        console.error('WebSocket error:', error);
-        reject(error);
-      };
-
-      ws.onopen = () => {
-        console.log('WebSocket connected for tournament:', tournamentId);
-        this.tournamentSocket = ws;
-        resolve(ws);
       };
     });
   }
@@ -152,6 +187,95 @@ export class TournamentManager {
         ...data,
       })
     );
+  }
+
+  /**
+   * Generate all possible matches between players in a round-robin format
+   * @returns {Array} Array of match objects
+   */
+  generateMatchSchedule() {
+    const playerIds = Object.keys(this.players).map(key => key.replace('player', ''));
+    const matches = [];
+    
+    // Generate all possible pairs (round-robin tournament)
+    for (let i = 0; i < playerIds.length; i++) {
+      for (let j = i + 1; j < playerIds.length; j++) {
+        matches.push({
+          id: `match_${matches.length + 1}`,
+          player1: `player${playerIds[i]}`,
+          player2: `player${playerIds[j]}`,
+          player1Name: this.players[`player${playerIds[i]}`],
+          player2Name: this.players[`player${playerIds[j]}`],
+          status: 'pending',
+          winner: null
+        });
+      }
+    }
+    
+    this.matches = matches;
+    console.log('Generated matches:', matches);
+    return matches;
+  }
+  
+  /**
+   * Start the tournament with the generated matches
+   */
+  startTournament() {
+    // Generate match schedule if not already done
+    if (this.matches.length === 0) {
+      this.generateMatchSchedule();
+    }
+    
+    // Send the complete match schedule to all clients
+    this.sendTournamentEvent('tournament_start', {
+      matches: this.matches
+    });
+    
+    // Start with the first match
+    this.currentMatchIndex = 0;
+    this.sendTournamentEvent('match_starting', {
+      matchIndex: this.currentMatchIndex,
+      match: this.matches[this.currentMatchIndex]
+    });
+  }
+  
+  /**
+   * Move to the next match in the tournament
+   */
+  advanceToNextMatch() {
+    if (this.currentMatchIndex < this.matches.length - 1) {
+      this.currentMatchIndex++;
+      this.sendTournamentEvent('match_starting', {
+        matchIndex: this.currentMatchIndex,
+        match: this.matches[this.currentMatchIndex]
+      });
+      return this.matches[this.currentMatchIndex];
+    } else {
+      // Tournament is complete
+      this.sendTournamentEvent('tournament_complete', {
+        matches: this.matches
+      });
+      return null;
+    }
+  }
+  
+  /**
+   * Record the result of a match
+   * @param {number} matchIndex - Index of the match
+   * @param {string} winner - ID of the winning player (e.g., 'player1')
+   */
+  recordMatchResult(matchIndex, winner) {
+    if (matchIndex >= 0 && matchIndex < this.matches.length) {
+      this.matches[matchIndex].status = 'completed';
+      this.matches[matchIndex].winner = winner;
+      
+      this.sendTournamentEvent('match_result', {
+        matchIndex,
+        match: this.matches[matchIndex],
+        winner,
+        winnerName: this.players[winner]
+      });
+    }
   }
 
 }

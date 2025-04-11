@@ -45,33 +45,71 @@
   margin: 15px 0;
 }
 
+/* Add this to your tournament.css file */
 .players-list {
-  margin-bottom: 15px;
+  width: 100%;
+  margin-bottom: 20px;
+  border: 1px solid #444;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #222;
+}
+
+.players-list h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #666;
+  padding-bottom: 5px;
 }
 
 #joined-players-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 #joined-players-list li {
-  padding: 5px 10px;
-  margin-bottom: 5px;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 3px;
-  border: 1px solid #ccc;
+  padding: 8px 10px;
+  border-bottom: 1px solid #333;
+}
+
+#joined-players-list li:last-child {
+  border-bottom: none;
+}
+
+#joined-players-list li.local-player {
+  background-color: rgba(0, 128, 0, 0.2);
+  font-weight: bold;
+}
+
+#joined-players-list li.waiting-player {
+  color: #777;
+  font-style: italic;
+}
+
+.tournament-waiting-view {
+  flex-direction: column;
+  width: 100%;
+}
+
+.tournament-waiting-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+  width: 100%;
 }
 
 #tournament-status {
-  font-weight: bold;
-  color: #003C74;
-  margin-top: 10px;
-  padding: 10px 0;
+  background-color: #333;
+  padding: 10px;
+  border-radius: 4px;
   text-align: center;
+  font-weight: bold;
 }
 
-.tournament-waiting-view .tournament-controls {
+.tournament-controls {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
+  justify-content: center;
   margin-top: 20px;
 }
