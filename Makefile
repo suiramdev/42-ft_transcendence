@@ -98,34 +98,35 @@ migrate: db
 
 # Creation Commands
 create:
-	@case "$(filter-out create,$(MAKECMDGOALS))" in \
-		"") \
-			echo "Usage:"; \
-			echo "  make create migrations [app_name]  - Create migrations for all or specific app"; \
-			echo "  make create app <app_name>        - Create new Django app"; \
-			echo "  make create users <number>        - Create fake users for testing"; \
-			echo "  make create token <user_id>       - Create user token for testing";; \
-		"migrations") \
-			echo "Creating migrations..."; \
-			$(PYTHON_VENV) manage.py makemigrations $(filter-out migrations create,$(MAKECMDGOALS)) 2>/dev/null; \
-			echo "${GREEN}Migrations created successfully!${NC}";; \
-		"app") \
-			echo "Creating new Django app..."; \
-			cd apps && ../$(PYTHON_VENV) ../manage.py startapp $(word 3,$(MAKECMDGOALS)) 2>/dev/null && { \
-				echo "Registering app in INSTALLED_APPS..."; \
-				cd .. && $(PYTHON_VENV) scripts/register_app.py $(word 3,$(MAKECMDGOALS)) 2>/dev/null; \
-				echo "${GREEN}App created and registered successfully!${NC}"; \
-			} || { \
-				echo "${RED}Failed to create app '$(word 3,$(MAKECMDGOALS))'. Make sure the app name is valid and doesn't already exist${NC}"; \
-				exit 1; \
-			};; \
-		"users") \
-			echo "Creating fake users..."; \
-			$(PYTHON_VENV) manage.py create_fake_users $(word 2,$(MAKECMDGOALS));; \
-		"token") \
-			echo "Creating user token..."; \
-			$(PYTHON_VENV) manage.py create_user_token $(word 2,$(MAKECMDGOALS));; \
-	esac
+	@if [ "$(filter migrations,$(MAKECMDGOALS))" = "migrations" ]; then \
+		echo "Creating migrations..."; \
+		$(PYTHON_VENV) manage.py makemigrations $(filter-out migrations,$(ARGS)) 2>/dev/null; \
+		echo "${GREEN}Migrations created successfully!${NC}"; \
+	elif [ "$(filter app,$(MAKECMDGOALS))" = "app" ]; then \
+		echo "Creating new Django app..."; \
+		cd apps && ../$(PYTHON_VENV) ../manage.py startapp $(word 3,$(MAKECMDGOALS)) 2>/dev/null && { \
+			echo "Registering app in INSTALLED_APPS..."; \
+			cd .. && $(PYTHON_VENV) scripts/register_app.py $(word 3,$(MAKECMDGOALS)) 2>/dev/null; \
+			echo "${GREEN}App created and registered successfully!${NC}"; \
+		} || { \
+			echo "${RED}Failed to create app '$(word 3,$(MAKECMDGOALS))'. Make sure the app name is valid and doesn't already exist${NC}"; \
+			exit 1; \
+		} \
+	elif [ "$(filter users,$(MAKECMDGOALS))" = "users" ]; then \
+		echo "Creating fake users..."; \
+		$(PYTHON_VENV) manage.py create_fake_users $(word 3,$(MAKECMDGOALS)); \
+		echo "${GREEN}Fake users created successfully!${NC}"; \
+	elif [ "$(filter token,$(MAKECMDGOALS))" = "token" ]; then \
+		echo "Creating user token..."; \
+		$(PYTHON_VENV) manage.py create_user_token $(word 3,$(MAKECMDGOALS)); \
+		echo "${GREEN}User token created successfully!${NC}"; \
+	else \
+		echo "Usage:"; \
+		echo "  make create migrations [app_name]  - Create migrations for all or specific app"; \
+		echo "  make create app <app_name>        - Create new Django app"; \
+		echo "  make create users <number>        - Create fake users for testing"; \
+		echo "  make create token <user_id>       - Create user token for testing"; \
+	fi
 
 # Cleanup Commandus
 clean:
