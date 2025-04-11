@@ -31,13 +31,13 @@ export async function getUser() {
   // If the user is not connected, set the user to null and dispatch an event
   if (!response.ok) {
     globalThis.user = null;
-    document.dispatchEvent(new Event('userStateChange'));
+    document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
     return null;
   }
 
   const data = await response.json();
   globalThis.user = data;
-  document.dispatchEvent(new Event('userStateChange'));
+  document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
 
   return data;
 }
@@ -100,7 +100,7 @@ export async function updateUser(data) {
     if (!response.ok) throw new Error('Erreur lors de la mise à jour du profil');
 
     globalThis.user = await response.json();
-    document.dispatchEvent(new Event('userStateChange'));
+    document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil:', error);
   }

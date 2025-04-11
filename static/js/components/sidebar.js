@@ -4,6 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
   populateUserList();
 });
 
+document.addEventListener('userStateChange', () => {
+  populateUserList();
+});
+
 async function populateUserList() {
   const accessToken = getCookie('access_token');
   if (!accessToken) {

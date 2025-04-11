@@ -1,4 +1,5 @@
 import { Page } from '../../core/Page.js';
+import { getUser } from '../../services/user.js';
 
 export class FakeSignInPage extends Page {
   constructor() {
@@ -27,7 +28,7 @@ export class FakeSignInPage extends Page {
     });
 
     if (response.ok) {
-      globalThis.router.navigate('/profile');
+      await getUser();
     } else {
       alert('Failed to sign in');
     }
