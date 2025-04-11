@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from apps.user.models import User
 from .serializers import AuthSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.conf import settings
 import os
 import requests
 import logging
@@ -99,7 +100,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
                 str(refresh.access_token),
                 secure=False,
                 samesite='Lax',
-                max_age=3600  # 1 hour
+                max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()
             )
 
             response.set_cookie(
@@ -108,7 +109,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
                 httponly=True,
                 secure=False,
                 samesite='Lax',
-                max_age=7 * 24 * 60 * 60  # 7 days
+                max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds()
             )
 
             return response
@@ -128,21 +129,41 @@ class AuthView(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='refresh')
     def refresh(self, request):
         """Refresh JWT tokens"""
-        refresh_token = request.data.get('refresh')
+        refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
             return Response({'error': 'No refresh token provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            refresh = RefreshToken(refresh_token)
-            if refresh.is_expired():
-                return Response({'error': 'Refresh token expired'}, status=status.HTTP_400_BAD_REQUEST)
+        refresh = RefreshToken(refresh_token)
+        if refresh.check_exp():
+            return Response({'error': 'Refresh token expired'}, status=status.HTTP_400_BAD_REQUEST)
 
-            user = refresh.user
-            refresh = RefreshToken.for_user(user)
-            return Response({
-                'access': refresh.access_token,
-                'refresh': refresh,
-            })
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        # Get user ID from token payload and fetch user
+        user_id = refresh.payload.get('user_id')
+        user = User.objects.get(id=user_id)
+        
+        # Generate new tokens
+        refresh = RefreshToken.for_user(user)
+        
+        response = Response({
+            'access_token': str(refresh.access_token),
+            'refresh_token': str(refresh),
+        })
 
+        response.set_cookie(
+            'access_token',
+            str(refresh.access_token),
+            secure=False,
+            samesite='Lax',
+            max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()
+        )
+
+        response.set_cookie(
+            'refresh_token',
+            str(refresh),
+            httponly=True,
+            secure=False,
+            samesite='Lax',
+            max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds()
+        )
+
+        return response
