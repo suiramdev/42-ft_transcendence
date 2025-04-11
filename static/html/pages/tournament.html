@@ -33,8 +33,37 @@
         </div>
       </div>
       
-      <div class="tournament-bracket" id="tournament-bracket">
-        <!-- Bracket will be generated dynamically -->
+      <!-- Match view (initially hidden) -->
+      <div class="tournament-match-view" style="display: none;">
+        <h2>Current Match</h2>
+        <div id="current-match-info" class="match-info">
+          <div class="match-players">
+            <div class="match-player player1">
+              <span class="player-name"></span>
+              <span class="ready-status not-ready">Not Ready</span>
+            </div>
+            <div class="versus">VS</div>
+            <div class="match-player player2">
+              <span class="player-name"></span>
+              <span class="ready-status not-ready">Not Ready</span>
+            </div>
+          </div>
+          <div class="match-controls">
+            <button id="ready-button" class="xp-button">Ready</button>
+          </div>
+        </div>
+        
+        <h3>Tournament Bracket</h3>
+        <div class="tournament-bracket" id="tournament-bracket">
+          <!-- Bracket will be generated dynamically -->
+        </div>
+        
+        <div class="match-list">
+          <h3>Upcoming Matches</h3>
+          <ul id="matches-list">
+            <!-- Matches will be listed here dynamically -->
+          </ul>
+        </div>
       </div>
     </div>
   </div>

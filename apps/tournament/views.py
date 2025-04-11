@@ -12,6 +12,7 @@ from rest_framework import permissions
 from apps.tournament.models import Tournament
 
 
+
 class tournamentViewset(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -40,6 +41,7 @@ class tournamentViewset(viewsets.ViewSet):
                 'error': 'Tournament ID is required'
             }, status=status.HTTP_400_BAD_REQUEST)
         
+        
         try:
             tournament = Tournament.objects.get(id=tournament_id)
         except Tournament.DoesNotExist:
@@ -47,6 +49,10 @@ class tournamentViewset(viewsets.ViewSet):
                 'error': 'Tournament not found'
             }, status=status.HTTP_404_NOT_FOUND)
         
+        if tournament.status == "CLOSED":
+            return Response({
+                'error': 'This tournament has been closed and cannot be joined'
+            }, status=status.HTTP_400_BAD_REQUEST)
         # Track which position this player joined as
         joined_position = None
         

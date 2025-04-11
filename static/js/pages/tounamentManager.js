@@ -69,6 +69,7 @@ export class TournamentManager {
       });
   
       if (!response.ok) {
+        
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to join tournament');
       }
@@ -125,55 +126,151 @@ export class TournamentManager {
   // Add this method for proper cleanup
   disconnectFromTournament() {
     if (this.tournamentSocket) {
+      // Send a leave event before closing
+      this.sendTournamentEvent('player_leaving', {
+        player: `player${this.localPlayer}`,
+        tournament_id: this.tournamentId
+      });
+      
+      // Close the socket
       this.tournamentSocket.close(1000, "User left tournament");
       this.tournamentSocket = null;
     }
+    
     this.tournamentId = null;
     this.localPlayer = null;
     this.readyState = false;
+    this.players = {};
   }
 
 
   async initializeTournamentSocket(tournamentId) {
-    return new Promise((resolve, reject) => {
-      const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-      const wsUrl = `${wsProtocol}${window.location.host}/ws/tournament/${tournamentId}`;
-      console.log("wUrl : " , wsUrl);
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const wsUrl = `${wsProtocol}${window.location.host}/ws/tournament/${tournamentId}`;
+    console.log("wUrl : ", wsUrl);
 
-      const ws = new WebSocket(wsUrl);
+    this.tournamentSocket = new WebSocket(wsUrl);
 
-      ws.onmessage = event => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log('Received tournament update:', data);
+    this.tournamentSocket.onopen = () => {
+      console.log('Tournament WebSocket connection established');
+    };
+  
+    this.tournamentSocket.onclose = (event) => {
+      console.log('Tournament WebSocket connection closed:', event.code, event.reason);
+    };
+  
+    this.tournamentSocket.onerror = (error) => {
+      console.error('Tournament WebSocket error:', error);
+    };
 
-          // Handle player updates
-          if (data.type === 'player_joined') {
-            // Update our local player list
-            this.players[data.player] = data.nickname;
-            
-            // Re-dispatch with complete player list
-            document.dispatchEvent(new CustomEvent('tournament-update', {
-              detail: {
-                type: 'players_update',
-                players: this.players,
-                player_count: data.player_count,
-                new_player: data.player
-              }
-            }));
-          } else {
-            // Forward other events
-            const tournamentEvent = new CustomEvent('tournament-update', {
-              detail: data,
-            });
-            document.dispatchEvent(tournamentEvent);
+    // Modify the onmessage handler in initializeTournamentSocket method
+    this.tournamentSocket.onmessage = event => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received tournament update:', data);
+
+        // Handle player updates
+        if (data.type === 'player_joined') {
+          // Update our local player list
+          this.players[data.player] = data.nickname;
+
+          // Re-dispatch with complete player list
+          document.dispatchEvent(new CustomEvent('tournament-update', {
+            detail: {
+              type: 'players_update',
+              players: this.players,
+              player_count: data.player_count,
+              new_player: data.player
+            }
+          }));
+        } else if (data.type === 'player_ready') {
+          // Update ready players list
+          this.readyPlayers = data.readyPlayers;
+          
+          // Dispatch event to update UI
+          document.dispatchEvent(new CustomEvent('tournament-update', {
+            detail: {
+              type: 'ready_update',
+              player: data.player,
+              isReady: data.isReady,
+              readyPlayers: data.readyPlayers,
+              matchIndex: data.matchIndex
+            }
+          }));
+          
+          // Check if match can start
+          if (this.readyPlayers.length === 2) {
+            // Auto-start match after short delay
+            setTimeout(() => {
+              this.startMatch();
+            }, 1000);
           }
+        }else if (data.type === 'match_ready') {
+          // A new match is ready to accept ready states
+          this.readyPlayers = data.readyPlayers || [];
+          
+          // Dispatch event to update UI
+          document.dispatchEvent(new CustomEvent('tournament-update', {
+            detail: {
+              type: 'match_ready',
+              matchIndex: data.matchIndex,
+              match: data.match,
+              readyPlayers: this.readyPlayers
+            }
+          }));
+        } else if (data.type === 'tournament_start') {
+          // Store all match data
+          this.matches = data.matches;
+          this.currentMatchIndex = 0;
+          
+          document.dispatchEvent(new CustomEvent('tournament-update', {
+            detail: {
+              type: 'tournament_start',
+              matches: this.matches
+            }
+          }));
+        }
+        else if (data.type === 'player_left') {
+          // Remove player from our list
+          if (this.players[data.player]) {
+            delete this.players[data.player];
+          }
+
+          // Re-dispatch the event
+          document.dispatchEvent(new CustomEvent('tournament-update', {
+            detail: {
+              type: 'players_update',
+              players: this.players,
+              player_count: Object.keys(this.players).length,
+              left_player: data.player,
+              player_name: data.player_name
+            }
+          }));
+        }
+        else if (data.type === 'tournament_closed') {
+          // The tournament has been closed by the server
+          document.dispatchEvent(new CustomEvent('tournament-update', {
+            detail: {
+              type: 'tournament_closed',
+              reason: data.reason
+            }
+          }));
+          
+          // Clean up local state
+          this.disconnectFromTournament();
+        }
+        else {
+          // Forward other events
+          const tournamentEvent = new CustomEvent('tournament-update', {
+            detail: data,
+          });
+          document.dispatchEvent(tournamentEvent);
+        }
         } catch (error) {
           console.error('Error processing WebSocket message:', error);
         }
       };
-    });
-  }
+    }
 
   sendTournamentEvent(eventType, data = {}) {
     if (!this.tournamentSocket || this.tournamentSocket.readyState !== WebSocket.OPEN) {
@@ -278,4 +375,129 @@ export class TournamentManager {
     }
   }
 
+  startTournament() {
+    // Generate match schedule if not already done
+    if (this.matches.length === 0) {
+      this.generateMatchSchedule();
+    }
+    
+    // Initialize ready players array
+    this.readyPlayers = [];
+    
+    // Send the complete match schedule to all clients
+    this.sendTournamentEvent('tournament_start', {
+      matches: this.matches
+    });
+    
+    // Start with the first match
+    this.currentMatchIndex = 0;
+    this.sendTournamentEvent('match_ready', {
+      matchIndex: this.currentMatchIndex,
+      match: this.matches[this.currentMatchIndex],
+      readyPlayers: this.readyPlayers
+    });
+  }
+  
+  /**
+   * Toggle the ready state for the local player
+   */
+  toggleReady() {
+    // Get the current match
+    const currentMatch = this.matches[this.currentMatchIndex];
+    if (!currentMatch) return false;
+    
+    // Check if this player is participating in the current match
+    const myPlayerKey = `player${this.localPlayer}`;
+    const isParticipant = currentMatch.player1 === myPlayerKey || currentMatch.player2 === myPlayerKey;
+    
+    if (!isParticipant) {
+      console.log('You are not participating in this match');
+      return false;
+    }
+    
+    // Toggle ready state
+    const isReady = this.readyPlayers.includes(myPlayerKey);
+    
+    if (isReady) {
+      // Remove from ready array
+      this.readyPlayers = this.readyPlayers.filter(player => player !== myPlayerKey);
+    } else {
+      // Add to ready array
+      this.readyPlayers.push(myPlayerKey);
+    }
+    
+    // Broadcast new ready state
+    this.sendTournamentEvent('player_ready', {
+      matchIndex: this.currentMatchIndex,
+      player: myPlayerKey,
+      isReady: !isReady,
+      readyPlayers: this.readyPlayers
+    });
+    
+    return !isReady; // Return new ready state
+  }
+  
+  /**
+   * Check if both players in the current match are ready
+   */
+  checkMatchReady() {
+    const currentMatch = this.matches[this.currentMatchIndex];
+    if (!currentMatch) return false;
+    
+    const player1Ready = this.readyPlayers.includes(currentMatch.player1);
+    const player2Ready = this.readyPlayers.includes(currentMatch.player2);
+    
+    return player1Ready && player2Ready;
+  }
+  
+  /**
+   * Start the current match if both players are ready
+   */
+  startMatch() {
+    if (!this.checkMatchReady()) return false;
+    
+    // Notify all clients that the match is starting
+    this.sendTournamentEvent('match_starting', {
+      matchIndex: this.currentMatchIndex,
+      match: this.matches[this.currentMatchIndex]
+    });
+    
+    // Reset ready players for next match
+    this.readyPlayers = [];
+    
+    return true;
+  }
+  
+  /**
+   * Move to the next match in the tournament
+   */
+  advanceToNextMatch() {
+    if (this.currentMatchIndex < this.matches.length - 1) {
+      this.currentMatchIndex++;
+      // Reset ready players
+      this.readyPlayers = [];
+      
+      this.sendTournamentEvent('match_ready', {
+        matchIndex: this.currentMatchIndex,
+        match: this.matches[this.currentMatchIndex],
+        readyPlayers: this.readyPlayers
+      });
+      return this.matches[this.currentMatchIndex];
+    } else {
+      // Tournament is complete
+      this.sendTournamentEvent('tournament_complete', {
+        matches: this.matches
+      });
+      return null;
+    }
+  }
+  
+
 }
+
+
+
+
+
+
+

@@ -1,6 +1,12 @@
 from django.db import models
 from apps.user.models import User
 
+class TournamentStatus(models.TextChoices):
+        WAITING = 'waiting', 'Waiting for Players'
+        PLAYING = 'playing', 'In Progress'
+        FINISHED = 'finished', 'Finished'
+        CANCELLED = 'cancelled', 'Cancelled'
+
 class Tournament(models.Model):
 
     player1 = models.ForeignKey(User, related_name='tournament_as_player1', on_delete=models.CASCADE)
@@ -9,3 +15,10 @@ class Tournament(models.Model):
     player4 = models.ForeignKey(User, related_name='tournament_as_player4', on_delete=models.CASCADE, blank=True ,null=True)
     # winner = models.ForeignKey(User, related_name='tournament_wins', on_delete=models.SET_NULL, blank=True, null=True)
     played_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=TournamentStatus.choices,
+        default=TournamentStatus.WAITING
+    )
+
+    
