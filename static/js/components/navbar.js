@@ -1,4 +1,4 @@
-import { isLoggedIn, signOut} from '../services/user.js';
+import { isLoggedIn, signOut } from '../services/user.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const signInButton = document.querySelector('.navbar #sign-in');
@@ -35,7 +35,7 @@ function handleSignInClick() {
     .then(response => response.json())
     .then(data => {
       window.location.href = data.redirect_url; // Redirige l'utilisateur
-  })
+    })
     .catch(error => console.error("Erreur d'authentification :", error));
 }
 
