@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 // ----------------- Player Class -----------------
 
 export class Player {
@@ -328,11 +330,11 @@ export class Game {
   // ----------------- 3D setup -----------------
 
   setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize) {
-    const canvas = document.getElementById('pongCanvas');
-    this.renderer = new THREE.WebGLRenderer({ canvas });
-    this.renderer.setSize(canvas.width, canvas.height);
+    this.canvas = document.getElementById('pongCanvas');
+    this.renderer = new THREE.WebGLRenderer({ canvas : this.canvas });
+    this.renderer.setSize(this.canvas.width, this.canvas.height);
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(100, canvas.width / canvas.height, 5, 100);
+    this.camera = new THREE.PerspectiveCamera(100, this.canvas.width / this.canvas.height, 5, 100);
     this.camera.position.z = 8;
     this.camera.position.y = 0;
     // Check if all elements exist
@@ -444,7 +446,7 @@ export class Game {
 
     // Nettoyage de la scène
     while (this.scene.children.length > 0) {
-      this.scene.remove(scene.children[0]);
+      this.scene.remove(this.scene.children[0]);
     }
 
     // Nettoyage des ressources
@@ -460,16 +462,25 @@ export class Game {
     gameContainer.style.display = 'none';
 
     // Message du gagnant
-    const winner =
-      this.playerLeft.getScore() > this.playerRight.getScore()
-        ? this.playerLeft.nickname
-        : this.playerRight.nickname;
+    const leftPlayerName = this.playerLeft.nickname || 'Left Player';
+    const rightPlayerName = this.playerRight.nickname || 'Right Player';
+    
+    const winner = this.playerLeft.getScore() > this.playerRight.getScore()
+        ? leftPlayerName
+        : rightPlayerName;
+    
     const winnerMessage = document.createElement('div');
     winnerMessage.textContent = `${winner} Wins!`;
     winnerMessage.style.color = 'black';
     winnerMessage.style.fontSize = '24px';
     winnerMessage.style.marginBottom = '20px';
-    canvas.insertBefore(winnerMessage, canvas.firstChild);
+    winnerMessage.style.position = 'absolute';
+    winnerMessage.style.top = '50%';
+    winnerMessage.style.left = '50%';
+    winnerMessage.style.transform = 'translate(-50%, -50%)';
+    
+    // Add the message to the document body instead of the canvas
+    document.body.appendChild(winnerMessage);
 
     // Nettoyage final
     this.renderer.dispose();
