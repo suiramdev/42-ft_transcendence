@@ -1,6 +1,5 @@
 /* Style de la page complète */
 .game {
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,10 +15,16 @@
 }
 
 .pregame-menu h3 {
-  color: white;
-  text-align: center;
+  background: #ece9d8;
+  border: 1px solid #003c74;
+  border-radius: 3px;
+  padding: 10px;
   margin-bottom: 30px;
-  font-size: 24px;
+  font-size: 16px;
+  text-align: center;
+  color: #003c74;
+  font-weight: bold;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .slider-item {
@@ -179,9 +184,6 @@
   font-size: 15px;
 }
 
-/* .button-container {
-
-} */
 
 /* Styles des boutons */
 #start-game, #join-game {

@@ -393,156 +393,162 @@ export class Game {
     return true;
   }
 
-  createScoreDisplay() {
-    try {
-        // Create a loader for the font
-        const fontLoader = new FontLoader();
-        
-        // Load the font with an absolute URL as a string
-        const fontUrl = '/static/fonts/helvetiker_regular.typeface.json';
-        
-        console.log('Loading font from:', fontUrl);
-        
-        fontLoader.load(fontUrl, 
-            // Success callback
-            (font) => {
-                console.log('Font loaded successfully');
-                // Create text geometries for both scores
-                this.leftScoreGeometry = new TextGeometry('0', {
-                    font: font,
-                    size: 1,
-                    height: 0.1,
-                });
-                
-                this.rightScoreGeometry = new TextGeometry('0', {
-                    font: font,
-                    size: 1,
-                    height: 0.1,
-                });
-                
-                // Create materials for the text
-                const leftScoreMaterial = new THREE.MeshPhongMaterial({ color: 'green' });
-                const rightScoreMaterial = new THREE.MeshPhongMaterial({ color: 'blue' });
-                
-                // Create meshes for the text
-                this.leftScoreMesh = new THREE.Mesh(this.leftScoreGeometry, leftScoreMaterial);
-                this.rightScoreMesh = new THREE.Mesh(this.rightScoreGeometry, rightScoreMaterial);
-                
-                // Position the text
-                this.leftScoreMesh.position.set(-2, 5, 0);
-                this.rightScoreMesh.position.set(2, 5, 0);
-                
-                // Add the text to the scene
-                this.scene.add(this.leftScoreMesh);
-                this.scene.add(this.rightScoreMesh);
-            },
-            // Progress callback
-            (xhr) => {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
-            // Error callback
-            (error) => {
-                console.error('An error happened while loading the font:', error);
-                this.createFallbackScoreDisplay();
-            }
-        );
-    } catch (e) {
-        console.error('Exception in createScoreDisplay:', e);
-        this.createFallbackScoreDisplay();
-    }
-  }
 
-// Add a fallback method for when font loading fails
-createFallbackScoreDisplay() {
-    // Create a canvas-based text
+  createScoreDisplay() {
+    // Create a canvas-based text with dynamic sizing
     const createTextSprite = (text, color) => {
-        // Create canvas
+        // First create a temporary canvas to measure the text
+        const measureCanvas = document.createElement('canvas');
+        const measureContext = measureCanvas.getContext('2d');
+        
+        // Set the font we'll use for measurement
+        const fontSize = 120;
+        const fontFamily = 'Arial';
+        measureContext.font = `${fontSize}px ${fontFamily}`;
+        
+        // Measure the text
+        const metrics = measureContext.measureText(text);
+        
+        // Calculate width and height needed for the text
+        // width: text width + padding on both sides
+        // height: approximate text height + padding on top and bottom
+        const textWidth = metrics.width;
+        const textHeight = fontSize * 1.2; // Approximate height based on fontSize
+        
+        // Add padding
+        const padding = fontSize * 0.5;
+        const canvasWidth = textWidth + padding * 2;
+        const canvasHeight = textHeight + padding * 2;
+        
+        // Now create the actual canvas with the calculated size
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        canvas.width = 256;
-        canvas.height = 256;
         
-        // Draw background (optional)
+        // Set dimensions based on our measurements
+        canvas.width = Math.ceil(canvasWidth);
+        canvas.height = Math.ceil(canvasHeight);
+        
+        // Draw background (optional, transparent)
         context.fillStyle = 'rgba(0,0,0,0)';
         context.fillRect(0, 0, canvas.width, canvas.height);
         
         // Draw text
-        context.font = '120px Arial';
+        context.font = `${fontSize}px ${fontFamily}`;
         context.fillStyle = color;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.fillText(text, canvas.width/2, canvas.height/2);
         
-        // Canvas contents will be used for a texture
+        // Create texture from canvas
         const texture = new THREE.Texture(canvas);
         texture.needsUpdate = true;
         
-        // Create a sprite material using the texture
+        // Create sprite material and sprite
         const material = new THREE.SpriteMaterial({ map: texture });
         const sprite = new THREE.Sprite(material);
-        sprite.scale.set(2, 2, 1);
+        
+        // Scale sprite based on the aspect ratio of the canvas
+        const aspectRatio = canvas.width / canvas.height;
+        sprite.scale.set(2 * aspectRatio, 2, 1);
         
         return sprite;
     };
     
-    // Create sprites for left and right scores
+    // Create sprites for scores and player names
     this.leftScoreSprite = createTextSprite('0', 'green');
     this.rightScoreSprite = createTextSprite('0', 'blue');
+    
+    // Create player name sprites with potentially longer text
+    this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', 'green');
+    this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', 'blue');
     
     // Position the sprites
     this.leftScoreSprite.position.set(-2, 5, 0);
     this.rightScoreSprite.position.set(2, 5, 0);
+    this.leftNickSprite.position.set(-7, 5, 0);
+    this.rightNickSprite.position.set(7, 5, 0);
     
     // Add sprites to scene
     this.scene.add(this.leftScoreSprite);
     this.scene.add(this.rightScoreSprite);
-}
+    this.scene.add(this.leftNickSprite);
+    this.scene.add(this.rightNickSprite);
+  } 
 
-// Update the updateScore3D method to handle both font-based and fallback displays
-updateScore3D() {
-    if (this.leftScoreMesh && this.rightScoreMesh) {
-        // Font-based approach
-        // ...existing code...
-    } else if (this.leftScoreSprite && this.rightScoreSprite) {
-        // Fallback sprite-based approach
+  updateScore3D() {
+    if (this.leftScoreSprite && this.rightScoreSprite) {
+        // Remove existing sprites
         this.scene.remove(this.leftScoreSprite);
         this.scene.remove(this.rightScoreSprite);
         
+        // Create text sprites with dynamic sizing
         const createTextSprite = (text, color) => {
+            // First create a temporary canvas to measure the text
+            const measureCanvas = document.createElement('canvas');
+            const measureContext = measureCanvas.getContext('2d');
+            
+            // Set the font we'll use for measurement
+            const fontSize = 120;
+            const fontFamily = 'Arial';
+            measureContext.font = `${fontSize}px ${fontFamily}`;
+            
+            // Measure the text
+            const metrics = measureContext.measureText(text);
+            
+            // Calculate width and height needed for the text
+            const textWidth = metrics.width;
+            const textHeight = fontSize * 1.2; // Approximate height
+            
+            // Add padding
+            const padding = fontSize * 0.5;
+            const canvasWidth = textWidth + padding * 2;
+            const canvasHeight = textHeight + padding * 2;
+            
+            // Create the actual canvas with the calculated size
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-            canvas.width = 256;
-            canvas.height = 256;
+            canvas.width = Math.ceil(canvasWidth);
+            canvas.height = Math.ceil(canvasHeight);
             
+            // Draw background (optional, transparent)
             context.fillStyle = 'rgba(0,0,0,0)';
             context.fillRect(0, 0, canvas.width, canvas.height);
             
-            context.font = '120px Arial';
+            // Draw text
+            context.font = `${fontSize}px ${fontFamily}`;
             context.fillStyle = color;
             context.textAlign = 'center';
             context.textBaseline = 'middle';
             context.fillText(text, canvas.width/2, canvas.height/2);
             
+            // Create texture from canvas
             const texture = new THREE.Texture(canvas);
             texture.needsUpdate = true;
             
+            // Create sprite material and sprite
             const material = new THREE.SpriteMaterial({ map: texture });
             const sprite = new THREE.Sprite(material);
-            sprite.scale.set(2, 2, 1);
+            
+            // Scale sprite based on the aspect ratio of the canvas
+            const aspectRatio = canvas.width / canvas.height;
+            sprite.scale.set(2 * aspectRatio, 2, 1);
             
             return sprite;
         };
         
+        // Create new score sprites with updated scores
         this.leftScoreSprite = createTextSprite(this.playerLeft.getScore().toString(), 'green');
         this.rightScoreSprite = createTextSprite(this.playerRight.getScore().toString(), 'blue');
         
+        // Position the sprites (same positions as before)
         this.leftScoreSprite.position.set(-2, 5, 0);
         this.rightScoreSprite.position.set(2, 5, 0);
         
+        // Add the updated sprites to the scene
         this.scene.add(this.leftScoreSprite);
         this.scene.add(this.rightScoreSprite);
     }
-}
+  }
 
   handleKeyDown(e) {
     if (e.code === 'ArrowUp' || e.code === 'KeyW') {
