@@ -137,8 +137,6 @@ export class GamePage extends Page {
   
 
         case 'game_start':
-          console.log('Both players ready, starting game!');
-          console.log("im : ", this.gameManager.localPlayer);
           // Hide appropriate screens based on player type
           if (this.gameManager.localPlayer === 'left') {
               document.getElementById('waiting-screen').style.display = 'none';
@@ -147,13 +145,19 @@ export class GamePage extends Page {
               document.getElementById('pregame-menu').style.display = 'none';
           }
           document.getElementById('game-container').style.display = 'flex';
+          const leftPlayerNickname = data.player_left_nickname;
+          const rightPlayerNickname = data.player_right_nickname;
+  
+          
           this.gameInstance = new Game(
               this.gameSettings.ballSpeed,
               this.gameSettings.paddleSize,
               this.gameSettings.paddleSpeed,
               this.gameSettings.ballSize,
               this.gameSettings.winScore,
-              this.gameManager
+              this.gameManager,
+              leftPlayerNickname,
+              rightPlayerNickname
           );
           startGameLoop(this.gameInstance, this.gameInstance.winScore);
           break;

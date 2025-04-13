@@ -59,7 +59,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
             elif message_type == 'ready':
                 game_id = data.get('game_id', '')
-
+                game_info = await self.get_game_info(game_id)
                 # Mark player as ready
                 both_ready = await self.mark_player_ready(game_id)
                 
@@ -69,7 +69,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                         self.game_group_name,
                         {
                             'type': 'game_start',
-                            'game_id': game_id
+                            'game_id': game_id,
+                            'player_left_nickname': game_info['player_left_nickname'],
+                            'player_right_nickname': game_info['player_right_nickname']
                         }
                     )
             
@@ -138,10 +140,16 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     # Handler for game_start messages
     async def game_start(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game_start',
-            'game_id': event['game_id']
-        }))
+        try:
+            await self.send(text_data=json.dumps({
+                'type': 'game_start',
+                'game_id': event['game_id'],
+                'player_left_nickname': event['player_left_nickname'],
+                'player_right_nickname': event['player_right_nickname']
+            }))
+            print(f"Sent game_start message for game: {event['game_id']}")
+        except Exception as e:
+            print(f"Error sending game_start: {str(e)}")
 
     # Handler for player_move messages
     async def player_move(self, event):
@@ -158,3 +166,17 @@ class GameConsumer(AsyncWebsocketConsumer):
             'direction': event['direction'],
             'paddle_position': event['paddle_position']
         }))
+    @database_sync_to_async
+    def get_game_info(self, game_id):
+        """Get game information including player nicknames"""
+        try:
+            game = Game.objects.get(id=game_id)
+            return {
+                'player_left_nickname': game.player1.username if game.player1 else 'Player 1',
+                'player_right_nickname': game.player2.username if game.player2 else 'Player 2'
+            }
+        except Game.DoesNotExist:
+            return {
+                'player_left_nickname': 'Player 1',
+                'player_right_nickname': 'Player 2'
+            }

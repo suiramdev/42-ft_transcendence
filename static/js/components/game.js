@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 // ----------------- Player Class -----------------
 
 export class Player {
@@ -252,6 +253,7 @@ export function checkXCollision(game, winScore) {
         game.ball.resetBall(-1);
         game.playerRight.resetPlayer();
         game.playerLeft.resetPlayer();
+        if (game.updateScore3D) game.updateScore3D();
       } else return false; // Game over
     } else {
       game.playerLeft.incrementScore();
@@ -259,6 +261,7 @@ export function checkXCollision(game, winScore) {
         game.ball.resetBall(1);
         game.playerRight.resetPlayer();
         game.playerLeft.resetPlayer();
+        if (game.updateScore3D) game.updateScore3D();
       } else return false; // Game over
     }
   }
@@ -267,16 +270,9 @@ export function checkXCollision(game, winScore) {
 
 // ----------------- ath function -----------------
 
-export const updateScore = function (playerLeft, playerRight) {
-  // Only update if the score elements exist
-  const scoreDisplay = document.getElementById('score');
-  if (scoreDisplay && playerLeft && playerRight) {
-    scoreDisplay.textContent = `${playerLeft.getScore()} | ${playerRight.getScore()}`;
-  }
-};
 
 export class Game {
-  constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, gameManager) {
+  constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, gameManager, leftPlayerNickname, rightPlayerNickname) {
     this.gameManager = gameManager;
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
@@ -286,6 +282,9 @@ export class Game {
     this.lastUpdateTime = performance.now();
     this.accumulatedTime = 0;
     this.fixedTimeStep = 1 / 60; // 60 FPS physics update rate
+    this.leftPlayerNickname = leftPlayerNickname;
+    this.rightPlayerNickname = rightPlayerNickname;
+
 
     // Initialisation
     this.setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize);
@@ -362,6 +361,7 @@ export class Game {
     this.ball = new ball(0, 0, 0, 1, 1, ballSpeed, ballSize || 0.5, 'red', this.gameManager);
     this.ball.sceneADD(this.scene);
 
+    this.createScoreDisplay();
     // Lumière ambiante (plus faible, pour adoucir les ombres)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
     this.scene.add(ambientLight);
@@ -392,6 +392,157 @@ export class Game {
 
     return true;
   }
+
+  createScoreDisplay() {
+    try {
+        // Create a loader for the font
+        const fontLoader = new FontLoader();
+        
+        // Load the font with an absolute URL as a string
+        const fontUrl = '/static/fonts/helvetiker_regular.typeface.json';
+        
+        console.log('Loading font from:', fontUrl);
+        
+        fontLoader.load(fontUrl, 
+            // Success callback
+            (font) => {
+                console.log('Font loaded successfully');
+                // Create text geometries for both scores
+                this.leftScoreGeometry = new TextGeometry('0', {
+                    font: font,
+                    size: 1,
+                    height: 0.1,
+                });
+                
+                this.rightScoreGeometry = new TextGeometry('0', {
+                    font: font,
+                    size: 1,
+                    height: 0.1,
+                });
+                
+                // Create materials for the text
+                const leftScoreMaterial = new THREE.MeshPhongMaterial({ color: 'green' });
+                const rightScoreMaterial = new THREE.MeshPhongMaterial({ color: 'blue' });
+                
+                // Create meshes for the text
+                this.leftScoreMesh = new THREE.Mesh(this.leftScoreGeometry, leftScoreMaterial);
+                this.rightScoreMesh = new THREE.Mesh(this.rightScoreGeometry, rightScoreMaterial);
+                
+                // Position the text
+                this.leftScoreMesh.position.set(-2, 5, 0);
+                this.rightScoreMesh.position.set(2, 5, 0);
+                
+                // Add the text to the scene
+                this.scene.add(this.leftScoreMesh);
+                this.scene.add(this.rightScoreMesh);
+            },
+            // Progress callback
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            },
+            // Error callback
+            (error) => {
+                console.error('An error happened while loading the font:', error);
+                this.createFallbackScoreDisplay();
+            }
+        );
+    } catch (e) {
+        console.error('Exception in createScoreDisplay:', e);
+        this.createFallbackScoreDisplay();
+    }
+  }
+
+// Add a fallback method for when font loading fails
+createFallbackScoreDisplay() {
+    // Create a canvas-based text
+    const createTextSprite = (text, color) => {
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = 256;
+        canvas.height = 256;
+        
+        // Draw background (optional)
+        context.fillStyle = 'rgba(0,0,0,0)';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw text
+        context.font = '120px Arial';
+        context.fillStyle = color;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(text, canvas.width/2, canvas.height/2);
+        
+        // Canvas contents will be used for a texture
+        const texture = new THREE.Texture(canvas);
+        texture.needsUpdate = true;
+        
+        // Create a sprite material using the texture
+        const material = new THREE.SpriteMaterial({ map: texture });
+        const sprite = new THREE.Sprite(material);
+        sprite.scale.set(2, 2, 1);
+        
+        return sprite;
+    };
+    
+    // Create sprites for left and right scores
+    this.leftScoreSprite = createTextSprite('0', 'green');
+    this.rightScoreSprite = createTextSprite('0', 'blue');
+    
+    // Position the sprites
+    this.leftScoreSprite.position.set(-2, 5, 0);
+    this.rightScoreSprite.position.set(2, 5, 0);
+    
+    // Add sprites to scene
+    this.scene.add(this.leftScoreSprite);
+    this.scene.add(this.rightScoreSprite);
+}
+
+// Update the updateScore3D method to handle both font-based and fallback displays
+updateScore3D() {
+    if (this.leftScoreMesh && this.rightScoreMesh) {
+        // Font-based approach
+        // ...existing code...
+    } else if (this.leftScoreSprite && this.rightScoreSprite) {
+        // Fallback sprite-based approach
+        this.scene.remove(this.leftScoreSprite);
+        this.scene.remove(this.rightScoreSprite);
+        
+        const createTextSprite = (text, color) => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 256;
+            
+            context.fillStyle = 'rgba(0,0,0,0)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            
+            context.font = '120px Arial';
+            context.fillStyle = color;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(text, canvas.width/2, canvas.height/2);
+            
+            const texture = new THREE.Texture(canvas);
+            texture.needsUpdate = true;
+            
+            const material = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(2, 2, 1);
+            
+            return sprite;
+        };
+        
+        this.leftScoreSprite = createTextSprite(this.playerLeft.getScore().toString(), 'green');
+        this.rightScoreSprite = createTextSprite(this.playerRight.getScore().toString(), 'blue');
+        
+        this.leftScoreSprite.position.set(-2, 5, 0);
+        this.rightScoreSprite.position.set(2, 5, 0);
+        
+        this.scene.add(this.leftScoreSprite);
+        this.scene.add(this.rightScoreSprite);
+    }
+}
 
   handleKeyDown(e) {
     if (e.code === 'ArrowUp' || e.code === 'KeyW') {
@@ -443,12 +594,12 @@ export class Game {
   endgame() {
     this.isGameRunning = false;
     this.removeEventListeners();
-
+  
     // Nettoyage de la scène
     while (this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);
     }
-
+  
     // Nettoyage des ressources
     this.playerLeft.pCube.geometry.dispose();
     this.playerLeft.pCube.material.dispose();
@@ -456,37 +607,52 @@ export class Game {
     this.playerRight.pCube.material.dispose();
     this.ball.bSphere.geometry.dispose();
     this.ball.bSphere.material.dispose();
+  
+    if (this.leftScoreGeometry) this.leftScoreGeometry.dispose();
+    if (this.rightScoreGeometry) this.rightScoreGeometry.dispose();
 
     // Interface utilisateur
     const gameContainer = document.getElementById('game-container');
     gameContainer.style.display = 'none';
-
-    // Message du gagnant
-    const leftPlayerName = this.playerLeft.nickname || 'Left Player';
-    const rightPlayerName = this.playerRight.nickname || 'Right Player';
+  
+    // Get player names with fallbacks
+    const leftPlayerName = this.leftPlayerNickname || 'Left Player';
+    const rightPlayerName = this.rightPlayerNickname || 'Right Player';
     
-    const winner = this.playerLeft.getScore() > this.playerRight.getScore()
-        ? leftPlayerName
-        : rightPlayerName;
+    // Determine winner
+    const isLeftWinner = this.playerLeft.getScore() > this.playerRight.getScore();
+    const winnerName = isLeftWinner ? leftPlayerName : rightPlayerName;
     
-    const winnerMessage = document.createElement('div');
-    winnerMessage.textContent = `${winner} Wins!`;
-    winnerMessage.style.color = 'black';
-    winnerMessage.style.fontSize = '24px';
-    winnerMessage.style.marginBottom = '20px';
-    winnerMessage.style.position = 'absolute';
-    winnerMessage.style.top = '50%';
-    winnerMessage.style.left = '50%';
-    winnerMessage.style.transform = 'translate(-50%, -50%)';
+    // Update the end game screen with the details
+    document.getElementById('winner-name').textContent = `${winnerName} Wins!`;
+    document.getElementById('final-score').textContent = 
+      `${leftPlayerName} ${this.playerLeft.getScore()} - ${this.playerRight.getScore()} ${rightPlayerName}`;
     
-    // Add the message to the document body instead of the canvas
-    document.body.appendChild(winnerMessage);
-
+    // Show the end game screen
+    const endGameScreen = document.getElementById('end-game-screen');
+    endGameScreen.style.display = 'flex';
+    
+    // Add event listeners for buttons
+    document.getElementById('play-again-btn').addEventListener('click', () => {
+      endGameScreen.style.display = 'none';
+      window.location.reload();
+    });
+    
+    document.getElementById('main-menu-btn').addEventListener('click', () => {
+      endGameScreen.style.display = 'none';
+      window.location.href = '/';
+    });
+    
+    // Add event listener for close button
+    document.querySelector('.window__close').addEventListener('click', () => {
+      endGameScreen.style.display = 'none';
+      window.location.href = '/';
+    });
+  
     // Nettoyage final
     this.renderer.dispose();
     this.playerLeft.scoreCount = 0;
     this.playerRight.scoreCount = 0;
-    updateScore();
   }
 }
 
@@ -520,7 +686,6 @@ export function animate(game, winScore) {
     if (checkXCollision(game, winScore)) {
       updatePos(game, game.fixedTimeStep);
       game.ball.moveBall(game.playerLeft, game.playerRight, game.fixedTimeStep);
-      updateScore(game.playerLeft, game.playerRight);
     } else {
       game.endgame();
       return;
