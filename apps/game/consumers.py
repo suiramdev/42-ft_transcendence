@@ -2,27 +2,24 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from apps.game.models import Game
+from django.utils import timezone
+
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # Get the game ID from the URL route
         self.game_id = self.scope['url_route']['kwargs']['game_id']
         self.game_group_name = f'game_{self.game_id}'
-        
-        # Join the game group
+
         await self.channel_layer.group_add(
             self.game_group_name,
             self.channel_name
         )
-        
-        # Accept the connection
+
         await self.accept()
-        
-        # Log connection for debugging
+
         print(f"WebSocket connected for game: {self.game_id}")
 
     async def disconnect(self, close_code):
-        # Leave the game group
         await self.channel_layer.group_discard(
             self.game_group_name,
             self.channel_name
@@ -47,7 +44,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 )
             
             elif message_type == 'game-settings':
-                # Forward game settings to other player
                 await self.channel_layer.group_send(
                     self.game_group_name,
                     {
@@ -60,11 +56,9 @@ class GameConsumer(AsyncWebsocketConsumer):
             elif message_type == 'ready':
                 game_id = data.get('game_id', '')
                 game_info = await self.get_game_info(game_id)
-                # Mark player as ready
                 both_ready = await self.mark_player_ready(game_id)
-                
-                # If both players are ready and settings match, start game
-                if both_ready :
+
+                if both_ready:
                     await self.channel_layer.group_send(
                         self.game_group_name,
                         {
@@ -74,9 +68,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                             'player_right_nickname': game_info['player_right_nickname']
                         }
                     )
-            
+
             elif message_type == 'player_move':
-                # Forward player move message to the group
                 await self.channel_layer.group_send(
                     self.game_group_name,
                     {
@@ -85,9 +78,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                         'direction': data.get('direction', '')
                     }
                 )
-            
+
             elif message_type == 'hit_ball':
-                # Forward the hit ball message to the group
                 await self.channel_layer.group_send(
                     self.game_group_name,
                     {
@@ -97,11 +89,15 @@ class GameConsumer(AsyncWebsocketConsumer):
                         'paddle_position': data.get('paddle_position', '')
                     }
                 )
-            
-            # Add other message types as needed
-            
+
+            elif message_type == 'winner':
+                game_id = data.get('game_id', '')
+                winner_player = data.get('winner', '')
+                scores = data.get('scores', {})
+
+                await self.set_game_winner(game_id, winner_player, scores)
+
         except json.JSONDecodeError:
-            # Handle invalid JSON
             await self.send(text_data=json.dumps({
                 'type': 'error',
                 'message': 'Invalid JSON format'
@@ -118,11 +114,10 @@ class GameConsumer(AsyncWebsocketConsumer):
         """Mark a player as ready and return True if both players are ready"""
         try:
             game = Game.objects.get(id=game_id)
-            return game.addPlayerRdy()  # This updates and returns True if both players are ready
+            return game.addPlayerRdy()
         except Game.DoesNotExist:
             return False
 
-    # Add new message type handlers
     async def game_settings(self, event):
         await self.send(text_data=json.dumps({
             'type': 'game-settings',
@@ -130,7 +125,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             'game_id': event['game_id']
         }))
 
-    # Handler for player_joined messages
     async def player_joined(self, event):
         await self.send(text_data=json.dumps({
             'type': 'player_joined',
@@ -138,7 +132,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             'game_id': event['game_id']
         }))
 
-    # Handler for game_start messages
     async def game_start(self, event):
         try:
             await self.send(text_data=json.dumps({
@@ -151,7 +144,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             print(f"Error sending game_start: {str(e)}")
 
-    # Handler for player_move messages
     async def player_move(self, event):
         await self.send(text_data=json.dumps({
             'type': 'player_move',
@@ -166,6 +158,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             'direction': event['direction'],
             'paddle_position': event['paddle_position']
         }))
+
     @database_sync_to_async
     def get_game_info(self, game_id):
         """Get game information including player nicknames"""
@@ -180,3 +173,29 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'player_left_nickname': 'Player 1',
                 'player_right_nickname': 'Player 2'
             }
+
+    @database_sync_to_async
+    def set_game_winner(self, game_id, winner_player, scores):
+        try:
+            game = Game.objects.get(id=game_id)
+
+            if winner_player == 'left':
+                winner_user = game.player1
+            else:
+                winner_user = game.player2
+            
+            game.winner = winner_user
+            game.player1_score = scores.get('left', 0)
+            game.player2_score = scores.get('right', 0)
+
+            game.completed_at = timezone.now()
+            game.save()
+            game.incrementWinner()
+            print(f"Game {game_id} completed: Winner: {winner_user.nickname} with scores {scores}")
+
+        except Game.DoesNotExist:
+            print(f"Error: Game {game_id} not found")
+            return False
+        except Exception as e:
+            print(f"Error saving game winner: {str(e)}")
+            return False

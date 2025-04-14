@@ -165,7 +165,7 @@ export class GamePage extends Page {
       case 'end_game' :
         this.gameInstance.endgame();
         break;
-
+      
       case 'player_move':
       // Only process moves if we have a game instance
       if (!this.gameInstance) return;

@@ -245,6 +245,21 @@ export function updatePos(game, fixedTimeStep) {
   game.ball.bSphere.position.y = game.ball.y;
 }
 
+function declareWinner(game, winnerSide) {
+  // Only the host (left player) should send the winner
+  if (game.gameManager.localPlayer === 'left') {
+    game.gameManager.sendGameEvent('winner', {
+      game_id: game.gameManager.gameId,
+      winner: winnerSide,
+      scores: {
+        left: game.playerLeft.getScore(),
+        right: game.playerRight.getScore()
+      }
+    });
+  }
+  
+}
+
 export function checkXCollision(game, winScore) {
   if (game.ball.isBallinXWall()) {
     if (game.ball.x < 0) {
@@ -254,7 +269,10 @@ export function checkXCollision(game, winScore) {
         game.playerRight.resetPlayer();
         game.playerLeft.resetPlayer();
         if (game.updateScore3D) game.updateScore3D();
-      } else return false; // Game over
+      } else {
+        declareWinner(game, 'rigth');
+        return false; // Game over
+      }
     } else {
       game.playerLeft.incrementScore();
       if (game.playerLeft.getScore() < winScore) {
@@ -262,7 +280,10 @@ export function checkXCollision(game, winScore) {
         game.playerRight.resetPlayer();
         game.playerLeft.resetPlayer();
         if (game.updateScore3D) game.updateScore3D();
-      } else return false; // Game over
+      } else {
+        declareWinner(game, 'left');
+        return false; // Game over
+      }
     }
   }
   return true; // Game continues
@@ -600,7 +621,7 @@ export class Game {
   endgame() {
     this.isGameRunning = false;
     this.removeEventListeners();
-  
+    
     // Nettoyage de la scène
     while (this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);
