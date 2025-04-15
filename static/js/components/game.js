@@ -1,3 +1,6 @@
+import * as THREE from 'three';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 // ----------------- Player Class -----------------
 
 export class Player {
@@ -242,6 +245,21 @@ export function updatePos(game, fixedTimeStep) {
   game.ball.bSphere.position.y = game.ball.y;
 }
 
+function declareWinner(game, winnerSide) {
+  // Only the host (left player) should send the winner
+  if (game.gameManager.localPlayer === 'left') {
+    game.gameManager.sendGameEvent('winner', {
+      game_id: game.gameManager.gameId,
+      winner: winnerSide,
+      scores: {
+        left: game.playerLeft.getScore(),
+        right: game.playerRight.getScore()
+      }
+    });
+  }
+  
+}
+
 export function checkXCollision(game, winScore) {
   if (game.ball.isBallinXWall()) {
     if (game.ball.x < 0) {
@@ -250,14 +268,22 @@ export function checkXCollision(game, winScore) {
         game.ball.resetBall(-1);
         game.playerRight.resetPlayer();
         game.playerLeft.resetPlayer();
-      } else return false; // Game over
+        if (game.updateScore3D) game.updateScore3D();
+      } else {
+        declareWinner(game, 'rigth');
+        return false; // Game over
+      }
     } else {
       game.playerLeft.incrementScore();
       if (game.playerLeft.getScore() < winScore) {
         game.ball.resetBall(1);
         game.playerRight.resetPlayer();
         game.playerLeft.resetPlayer();
-      } else return false; // Game over
+        if (game.updateScore3D) game.updateScore3D();
+      } else {
+        declareWinner(game, 'left');
+        return false; // Game over
+      }
     }
   }
   return true; // Game continues
@@ -265,16 +291,9 @@ export function checkXCollision(game, winScore) {
 
 // ----------------- ath function -----------------
 
-export const updateScore = function (playerLeft, playerRight) {
-  // Only update if the score elements exist
-  const scoreDisplay = document.getElementById('score');
-  if (scoreDisplay && playerLeft && playerRight) {
-    scoreDisplay.textContent = `${playerLeft.getScore()} | ${playerRight.getScore()}`;
-  }
-};
 
 export class Game {
-  constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, gameManager) {
+  constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, gameManager, leftPlayerNickname, rightPlayerNickname) {
     this.gameManager = gameManager;
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
@@ -284,6 +303,9 @@ export class Game {
     this.lastUpdateTime = performance.now();
     this.accumulatedTime = 0;
     this.fixedTimeStep = 1 / 60; // 60 FPS physics update rate
+    this.leftPlayerNickname = leftPlayerNickname;
+    this.rightPlayerNickname = rightPlayerNickname;
+
 
     // Initialisation
     this.setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize);
@@ -328,11 +350,11 @@ export class Game {
   // ----------------- 3D setup -----------------
 
   setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize) {
-    const canvas = document.getElementById('pongCanvas');
-    this.renderer = new THREE.WebGLRenderer({ canvas });
-    this.renderer.setSize(canvas.width, canvas.height);
+    this.canvas = document.getElementById('pongCanvas');
+    this.renderer = new THREE.WebGLRenderer({ canvas : this.canvas });
+    this.renderer.setSize(this.canvas.width, this.canvas.height);
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(100, canvas.width / canvas.height, 5, 100);
+    this.camera = new THREE.PerspectiveCamera(100, this.canvas.width / this.canvas.height, 5, 100);
     this.camera.position.z = 8;
     this.camera.position.y = 0;
     // Check if all elements exist
@@ -360,6 +382,7 @@ export class Game {
     this.ball = new ball(0, 0, 0, 1, 1, ballSpeed, ballSize || 0.5, 'red', this.gameManager);
     this.ball.sceneADD(this.scene);
 
+    this.createScoreDisplay();
     // Lumière ambiante (plus faible, pour adoucir les ombres)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
     this.scene.add(ambientLight);
@@ -389,6 +412,163 @@ export class Game {
     this.scene.add(backgroundLight);
 
     return true;
+  }
+
+
+  createScoreDisplay() {
+    // Create a canvas-based text with dynamic sizing
+    const createTextSprite = (text, color) => {
+        // First create a temporary canvas to measure the text
+        const measureCanvas = document.createElement('canvas');
+        const measureContext = measureCanvas.getContext('2d');
+        
+        // Set the font we'll use for measurement
+        const fontSize = 120;
+        const fontFamily = 'Arial';
+        measureContext.font = `${fontSize}px ${fontFamily}`;
+        
+        // Measure the text
+        const metrics = measureContext.measureText(text);
+        
+        // Calculate width and height needed for the text
+        // width: text width + padding on both sides
+        // height: approximate text height + padding on top and bottom
+        const textWidth = metrics.width;
+        const textHeight = fontSize * 1.2; // Approximate height based on fontSize
+        
+        // Add padding
+        const padding = fontSize * 0.5;
+        const canvasWidth = textWidth + padding * 2;
+        const canvasHeight = textHeight + padding * 2;
+        
+        // Now create the actual canvas with the calculated size
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        // Set dimensions based on our measurements
+        canvas.width = Math.ceil(canvasWidth);
+        canvas.height = Math.ceil(canvasHeight);
+        
+        // Draw background (optional, transparent)
+        context.fillStyle = 'rgba(0,0,0,0)';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw text
+        context.font = `${fontSize}px ${fontFamily}`;
+        context.fillStyle = color;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(text, canvas.width/2, canvas.height/2);
+        
+        // Create texture from canvas
+        const texture = new THREE.Texture(canvas);
+        texture.needsUpdate = true;
+        
+        // Create sprite material and sprite
+        const material = new THREE.SpriteMaterial({ map: texture });
+        const sprite = new THREE.Sprite(material);
+        
+        // Scale sprite based on the aspect ratio of the canvas
+        const aspectRatio = canvas.width / canvas.height;
+        sprite.scale.set(2 * aspectRatio, 2, 1);
+        
+        return sprite;
+    };
+    
+    // Create sprites for scores and player names
+    this.leftScoreSprite = createTextSprite('0', 'green');
+    this.rightScoreSprite = createTextSprite('0', 'blue');
+    
+    // Create player name sprites with potentially longer text
+    this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', 'green');
+    this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', 'blue');
+    
+    // Position the sprites
+    this.leftScoreSprite.position.set(-2, 5, 0);
+    this.rightScoreSprite.position.set(2, 5, 0);
+    this.leftNickSprite.position.set(-7, 5, 0);
+    this.rightNickSprite.position.set(7, 5, 0);
+    
+    // Add sprites to scene
+    this.scene.add(this.leftScoreSprite);
+    this.scene.add(this.rightScoreSprite);
+    this.scene.add(this.leftNickSprite);
+    this.scene.add(this.rightNickSprite);
+  } 
+
+  updateScore3D() {
+    if (this.leftScoreSprite && this.rightScoreSprite) {
+        // Remove existing sprites
+        this.scene.remove(this.leftScoreSprite);
+        this.scene.remove(this.rightScoreSprite);
+        
+        // Create text sprites with dynamic sizing
+        const createTextSprite = (text, color) => {
+            // First create a temporary canvas to measure the text
+            const measureCanvas = document.createElement('canvas');
+            const measureContext = measureCanvas.getContext('2d');
+            
+            // Set the font we'll use for measurement
+            const fontSize = 120;
+            const fontFamily = 'Arial';
+            measureContext.font = `${fontSize}px ${fontFamily}`;
+            
+            // Measure the text
+            const metrics = measureContext.measureText(text);
+            
+            // Calculate width and height needed for the text
+            const textWidth = metrics.width;
+            const textHeight = fontSize * 1.2; // Approximate height
+            
+            // Add padding
+            const padding = fontSize * 0.5;
+            const canvasWidth = textWidth + padding * 2;
+            const canvasHeight = textHeight + padding * 2;
+            
+            // Create the actual canvas with the calculated size
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = Math.ceil(canvasWidth);
+            canvas.height = Math.ceil(canvasHeight);
+            
+            // Draw background (optional, transparent)
+            context.fillStyle = 'rgba(0,0,0,0)';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw text
+            context.font = `${fontSize}px ${fontFamily}`;
+            context.fillStyle = color;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(text, canvas.width/2, canvas.height/2);
+            
+            // Create texture from canvas
+            const texture = new THREE.Texture(canvas);
+            texture.needsUpdate = true;
+            
+            // Create sprite material and sprite
+            const material = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(material);
+            
+            // Scale sprite based on the aspect ratio of the canvas
+            const aspectRatio = canvas.width / canvas.height;
+            sprite.scale.set(2 * aspectRatio, 2, 1);
+            
+            return sprite;
+        };
+        
+        // Create new score sprites with updated scores
+        this.leftScoreSprite = createTextSprite(this.playerLeft.getScore().toString(), 'green');
+        this.rightScoreSprite = createTextSprite(this.playerRight.getScore().toString(), 'blue');
+        
+        // Position the sprites (same positions as before)
+        this.leftScoreSprite.position.set(-2, 5, 0);
+        this.rightScoreSprite.position.set(2, 5, 0);
+        
+        // Add the updated sprites to the scene
+        this.scene.add(this.leftScoreSprite);
+        this.scene.add(this.rightScoreSprite);
+    }
   }
 
   handleKeyDown(e) {
@@ -441,12 +621,12 @@ export class Game {
   endgame() {
     this.isGameRunning = false;
     this.removeEventListeners();
-
+    
     // Nettoyage de la scène
     while (this.scene.children.length > 0) {
-      this.scene.remove(scene.children[0]);
+      this.scene.remove(this.scene.children[0]);
     }
-
+  
     // Nettoyage des ressources
     this.playerLeft.pCube.geometry.dispose();
     this.playerLeft.pCube.material.dispose();
@@ -454,28 +634,52 @@ export class Game {
     this.playerRight.pCube.material.dispose();
     this.ball.bSphere.geometry.dispose();
     this.ball.bSphere.material.dispose();
+  
+    if (this.leftScoreGeometry) this.leftScoreGeometry.dispose();
+    if (this.rightScoreGeometry) this.rightScoreGeometry.dispose();
 
     // Interface utilisateur
     const gameContainer = document.getElementById('game-container');
     gameContainer.style.display = 'none';
-
-    // Message du gagnant
-    const winner =
-      this.playerLeft.getScore() > this.playerRight.getScore()
-        ? this.playerLeft.nickname
-        : this.playerRight.nickname;
-    const winnerMessage = document.createElement('div');
-    winnerMessage.textContent = `${winner} Wins!`;
-    winnerMessage.style.color = 'black';
-    winnerMessage.style.fontSize = '24px';
-    winnerMessage.style.marginBottom = '20px';
-    canvas.insertBefore(winnerMessage, canvas.firstChild);
-
+  
+    // Get player names with fallbacks
+    const leftPlayerName = this.leftPlayerNickname || 'Left Player';
+    const rightPlayerName = this.rightPlayerNickname || 'Right Player';
+    
+    // Determine winner
+    const isLeftWinner = this.playerLeft.getScore() > this.playerRight.getScore();
+    const winnerName = isLeftWinner ? leftPlayerName : rightPlayerName;
+    
+    // Update the end game screen with the details
+    document.getElementById('winner-name').textContent = `${winnerName} Wins!`;
+    document.getElementById('final-score').textContent = 
+      `${leftPlayerName} ${this.playerLeft.getScore()} - ${this.playerRight.getScore()} ${rightPlayerName}`;
+    
+    // Show the end game screen
+    const endGameScreen = document.getElementById('end-game-screen');
+    endGameScreen.style.display = 'flex';
+    
+    // Add event listeners for buttons
+    document.getElementById('play-again-btn').addEventListener('click', () => {
+      endGameScreen.style.display = 'none';
+      window.location.reload();
+    });
+    
+    document.getElementById('main-menu-btn').addEventListener('click', () => {
+      endGameScreen.style.display = 'none';
+      window.location.href = '/';
+    });
+    
+    // Add event listener for close button
+    document.querySelector('.window__close').addEventListener('click', () => {
+      endGameScreen.style.display = 'none';
+      window.location.href = '/';
+    });
+  
     // Nettoyage final
     this.renderer.dispose();
     this.playerLeft.scoreCount = 0;
     this.playerRight.scoreCount = 0;
-    updateScore();
   }
 }
 
@@ -509,7 +713,6 @@ export function animate(game, winScore) {
     if (checkXCollision(game, winScore)) {
       updatePos(game, game.fixedTimeStep);
       game.ball.moveBall(game.playerLeft, game.playerRight, game.fixedTimeStep);
-      updateScore(game.playerLeft, game.playerRight);
     } else {
       game.endgame();
       return;
