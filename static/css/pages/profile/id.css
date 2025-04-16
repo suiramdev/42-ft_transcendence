@@ -66,10 +66,9 @@
   padding: 10px 12px;
   border-radius: 6px;
   font-style: italic;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
-
 
 .profile__edit-btn {
   background-color: #007bff;
@@ -155,47 +154,85 @@
   background-color: #0056b3;
 }
 
-.profile__header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 4px;
-	width: 100%;
-  }
-  
-  .profile__alias {
-	font-size: 18px;
-	font-weight: 600;
-	margin: 0;
-  }
-  
-  #remove_friend {
-    background-color: #ff4444;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    margin-left: 10px;
-  }
-  
-  #remove_friend:hover {
-    background-color: #cc0000;
-  }
+.profile__history {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  .profile__add-friend-btn {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .profile__add-friend-btn:hover {
-    background-color: #45a049;
-  }
+.profile__history-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+  text-align: center;
+}
+
+.profile__history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile__history-item {
+  background-color: #f1f3f5;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #444;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile__history-item span {
+  margin: 0 4px;
+}
+
+.profile__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  width: 100%;
+}
+
+.profile__alias {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+#remove_friend {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: 10px;
+}
+
+#remove_friend:hover {
+  background-color: #cc0000;
+}
+
+.profile__add-friend-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.profile__add-friend-btn:hover {
+  background-color: #45a049;
+}
