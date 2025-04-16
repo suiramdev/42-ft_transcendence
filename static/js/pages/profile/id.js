@@ -1,6 +1,6 @@
 import { Page } from '../../core/Page.js';
 import { getCookie } from '../../utils/cookies.js';
-import {populateFriendsList} from '../../services/user.js'
+import { populateFriendsList } from '../../services/user.js';
 
 export class UserProfilePage extends Page {
   /**
@@ -52,7 +52,29 @@ export class UserProfilePage extends Page {
     document.querySelector('.profile__bio').textContent = this.displayUser.bio;
     document.querySelector('.profile__avatar-image').src =
       this.displayUser.avatar ?? '/static/images/avatars/duck.webp';
-  
+
+    // Calculate win rate
+    const wins = this.displayUser.wins ?? 0;
+    const losses = this.displayUser.losses ?? 0;
+    const totalMatches = wins + losses;
+    const winRate = totalMatches > 0 ? ((wins / totalMatches) * 100).toFixed(2) : 0;
+
+    // Dynamically update stats
+    const statsContainer = document.querySelector('.profile__stats');
+    statsContainer.innerHTML = `
+    <div class="profile__stats-item">
+      <span class="profile__stats-value">${wins}</span>
+      <span class="profile__stats-label">Matchs gagnés</span>
+    </div>
+    <div class="profile__stats-item">
+      <span class="profile__stats-value">${losses}</span>
+      <span class="profile__stats-label">Matchs perdus</span>
+    </div>
+    <div class="profile__stats-item">
+      <span class="profile__stats-value">${winRate}%</span>
+      <span class="profile__stats-label">Win Rate</span>
+    </div>
+  `;
     document.querySelector('#message-btn').addEventListener('click', () => {
       globalThis.router.navigate(`/chat/${this.displayUser.id}`);
     });
@@ -65,7 +87,7 @@ export class UserProfilePage extends Page {
     if (existingAddBtn) {
       existingAddBtn.remove();
     }
-    
+
     if (isFriend) {
       if (removeFriendBtn) {
         removeFriendBtn.style.display = 'block';
@@ -75,8 +97,7 @@ export class UserProfilePage extends Page {
           this._removeFriend();
         });
       }
-    } 
-    else {
+    } else {
       if (removeFriendBtn) {
         removeFriendBtn.style.display = 'none';
       }
@@ -85,7 +106,7 @@ export class UserProfilePage extends Page {
       addFriendBtn.textContent = 'Add Friend';
       addFriendBtn.classList.add('profile__add-friend-btn');
       profileHeader.appendChild(addFriendBtn);
-      
+
       addFriendBtn.addEventListener('click', () => {
         this._addFriend();
       });
@@ -98,24 +119,23 @@ export class UserProfilePage extends Page {
       if (!accessToken) {
         throw new Error('User not logged in');
       }
-  
+
       // Get the current user's friends list
       const response = await fetch('/api/user/friends/', {
         method: 'GET',
-        headers: { Authorization: `Bearer ${accessToken}` }
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to fetch friends data');
       }
-  
+
       // The response is an array of friends, not an object with a friends property
       const friends = await response.json();
-      console.log("Friends list:", friends);
-      
+      console.log('Friends list:', friends);
+
       // Check if the displayed user is in the friends list
-      return Array.isArray(friends) && 
-        friends.some(friend => friend.id === this.displayUser.id);
+      return Array.isArray(friends) && friends.some(friend => friend.id === this.displayUser.id);
     } catch (error) {
       console.error('Error checking friendship status:', error);
       return false;
@@ -131,12 +151,12 @@ export class UserProfilePage extends Page {
       const response = await fetch('/api/user/friend/remove/', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: this.displayUser.nickname
-        })
+          username: this.displayUser.nickname,
+        }),
       });
 
       if (!response.ok) {
@@ -160,23 +180,23 @@ export class UserProfilePage extends Page {
       if (!accessToken) {
         throw new Error('User not logged in');
       }
-  
+
       const response = await fetch('/api/user/friend/', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: this.displayUser.nickname
-        })
+          username: this.displayUser.nickname,
+        }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to add friend');
       }
-  
+
       // Show success message
       alert('Friend added successfully');
       this._renderProfile();
