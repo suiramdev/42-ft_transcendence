@@ -4,7 +4,6 @@ import { ProfilePage } from './pages/profile/index.js';
 import { UserProfilePage } from './pages/profile/id.js';
 import { getUser } from './services/user.js';
 import { DirectMessagePage } from './pages/chat/id.js';
-import { TournamentPage } from './pages/tournament.js';
 import { apiFetch } from './services/token.js';
 import { FakeSignInPage } from './pages/dev/fake-signin.js';
 
@@ -21,7 +20,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   router.registerRoute('/profile', new ProfilePage());
   router.registerRoute('/profile/:id', new UserProfilePage());
   router.registerRoute('/chat/:id', new DirectMessagePage());
-  router.registerRoute('/tournament', new TournamentPage());
   router.registerRoute('/dev/fake-signin', new FakeSignInPage());
 
   globalThis.router = router;
