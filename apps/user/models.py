@@ -11,6 +11,7 @@ class User(AbstractUser):
     wins = models.IntegerField(default=0)
     losses = models.IntegerField(default=0)
     ladder_level = models.IntegerField(default=0)
+    friends = models.ManyToManyField("self", related_name='user_friends', symmetrical=False)
     status = models.CharField(
         max_length=20,
         choices=[
@@ -42,10 +43,10 @@ class User(AbstractUser):
 
     def get_friends(self):
         """Get all friends for the user"""
-        return User.objects.filter(
-            models.Q(friendships_received__from_user=self, friendships_received__status='accepted') |
-            models.Q(friendships_sent__to_user=self, friendships_sent__status='accepted')
-        ).distinct()
+        return self.friends.all()
+
+    def get_nick(self):
+        return self.nickname
 
     def get_achievements(self):
         """Get all achievements for the user"""
@@ -60,7 +61,6 @@ class User(AbstractUser):
         """Get user's game statistics"""
         total_games = self.wins + self.losses
         win_rate = (self.wins / total_games * 100) if total_games > 0 else 0
-
 
         return {
             'wins': self.wins,

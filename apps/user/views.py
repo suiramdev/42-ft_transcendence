@@ -6,18 +6,25 @@ from .serializers import UserReadSerializer, UserUpdateSerializer
 import os
 from django.conf import settings
 from django.core.files.storage import default_storage
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['get', 'patch', 'put', 'post', 'head', 'options']
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (FormParser, JSONParser, MultiPartParser)
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH' or self.request.method == 'PUT':
             return UserUpdateSerializer
         return UserReadSerializer
+
+    @action(detail=False, methods=['get'], url_path='friends')
+    def friends(self, request):
+        """Get the authenticated user's friends"""
+        friends = request.user.get_friends()
+        serializer = self.get_serializer(friends, many=True)
+        return Response(serializer.data)
 
     def update(self, request, *args, **kwargs):
         """Handle PUT requests"""
@@ -50,3 +57,78 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], url_path='friend')
+    def add_friend(self, request):
+        """Add another user as a friend (one-way)"""
+        username = request.data.get('username')
+
+        if not username:
+            return Response(
+                {"error": "Username is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            friend = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if friend.id == request.user.id:
+            return Response(
+                {"error": "You cannot add yourself as a friend"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check if already friends
+        if friend in request.user.friends.all():
+            return Response(
+                {"error": "You are already friends with this user"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Add the friend (one-way)
+        request.user.friends.add(friend)
+
+        return Response(
+            {"message": f"You are now friends with {friend.username}"},
+            status=status.HTTP_201_CREATED
+        )
+
+    @action(detail=False, methods=['post'], url_path='friend/remove')
+    def remove_friend(self, request):
+        """Remove a user from friends"""
+        username = request.data.get('username')
+
+        if not username:
+            return Response(
+                {"error": "Username is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            friend = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Check if actually friends
+        if friend not in request.user.friends.all():
+            return Response(
+                {"error": "This user is not in your friends list"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Remove the friend
+        request.user.friends.remove(friend)
+
+        return Response(
+            {"message": f"{friend.username} has been removed from your friends"},
+            status=status.HTTP_200_OK
+        )
+    
