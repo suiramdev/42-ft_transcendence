@@ -14,6 +14,22 @@
   margin: 0 auto;
 }
 
+.pregame-menu h2 {
+  background: #ece9d8;
+  border: 1px solid #003c74;
+  border-radius: 3px;
+  padding: 10px;
+  margin-bottom: 30px;
+  font-size: 16px;
+  text-align: center;
+  color: #003c74;
+  font-weight: bold;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .pregame-menu h3 {
   background: #ece9d8;
   border: 1px solid #003c74;

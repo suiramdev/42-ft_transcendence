@@ -6,6 +6,7 @@ import { getUser } from './services/user.js';
 import { DirectMessagePage } from './pages/chat/id.js';
 import { apiFetch } from './services/token.js';
 import { FakeSignInPage } from './pages/dev/fake-signin.js';
+import { LocalGamePage } from './pages/local-game.js';
 
 // Initialize the router in globalThis
 // so it can be accessed from anywhere in the code
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   router.registerRoute('/profile/:id', new UserProfilePage());
   router.registerRoute('/chat/:id', new DirectMessagePage());
   router.registerRoute('/dev/fake-signin', new FakeSignInPage());
+  router.registerRoute('/local-game', new LocalGamePage());
 
   globalThis.router = router;
 
