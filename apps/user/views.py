@@ -6,13 +6,13 @@ from .serializers import UserReadSerializer, UserUpdateSerializer
 import os
 from django.conf import settings
 from django.core.files.storage import default_storage
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['get', 'patch', 'put', 'post', 'head', 'options']
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (FormParser, JSONParser, MultiPartParser)
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH' or self.request.method == 'PUT':

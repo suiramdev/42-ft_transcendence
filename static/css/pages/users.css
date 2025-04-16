@@ -36,7 +36,6 @@
 	z-index: 1;
   }
 
-  /* 🟦 Contour bleu rempli pour l'avatar */
   .profile__avatar-border {
 	position: absolute;
 	top: 0;
@@ -51,12 +50,6 @@
 	flex-direction: column;
 	padding: 16px;
 	margin-top: 60px;
-  }
-
-  .profile__alias {
-	font-size: 18px;
-	font-weight: 600;
-	margin: 0 0 4px 0;
   }
 
   .profile__bio {
@@ -103,6 +96,3 @@
 	transition: background 0.2s;
   }
 
-  .profile__message-btn:hover {
-	background-color: #0056b3;
-  }
