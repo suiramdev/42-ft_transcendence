@@ -8,6 +8,8 @@ import { apiFetch } from './services/token.js';
 import { FakeSignInPage } from './pages/dev/fake-signin.js';
 import { LocalGamePage } from './pages/local-game.js';
 import { connectToStatusSocket } from './services/status.js';
+import { initI18n } from './utils/i18n.js';
+import './components/language-selector.js';
 import { TournamentPage } from './pages/tournament.js';
 
 // Initialize the router in globalThis
@@ -15,6 +17,9 @@ import { TournamentPage } from './pages/tournament.js';
 globalThis.router = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Initialize internationalization system
+  initI18n();
+
   const rootElement = document.getElementById('page');
   const router = new Router(rootElement);
 
