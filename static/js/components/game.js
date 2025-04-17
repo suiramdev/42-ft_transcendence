@@ -416,158 +416,95 @@ export class Game {
 
 
   createScoreDisplay() {
-    // Create a canvas-based text with dynamic sizing
-    const createTextSprite = (text, color) => {
-        // First create a temporary canvas to measure the text
-        const measureCanvas = document.createElement('canvas');
-        const measureContext = measureCanvas.getContext('2d');
+  
+      const createTextSprite = (text, color) => {
+  
+          const measureCanvas = document.createElement('canvas');
+          const measureContext = measureCanvas.getContext('2d');
+  
+          const fontSize = 70;
+          const fontFamily = 'Arial';
+          measureContext.font = `${fontSize}px ${fontFamily}`;
+  
+          const metrics = measureContext.measureText(text);
+  
+          const textWidth = metrics.width;
+          const textHeight = fontSize * 1.2;
+  
+          const padding = fontSize * 0.5;
+          const canvasWidth = textWidth + padding * 2;
+          const canvasHeight = textHeight + padding * 2;
+  
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+  
+          canvas.width = Math.ceil(canvasWidth);
+          canvas.height = Math.ceil(canvasHeight);
+  
+          context.fillStyle = 'rgba(0,0,0,0)';
+          context.fillRect(0, 0, canvas.width, canvas.height);
+  
+          context.font = `${fontSize}px ${fontFamily}`;
+          context.fillStyle = color;
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+          context.fillText(text, canvas.width/2, canvas.height/2);
+  
+          const texture = new THREE.Texture(canvas);
+          texture.needsUpdate = true;
+  
+          const material = new THREE.SpriteMaterial({ map: texture });
+          const sprite = new THREE.Sprite(material);
+  
+          const aspectRatio = canvas.width / canvas.height;
+          sprite.scale.set(1.5 * aspectRatio, 1.5, 1);
+          
+          return sprite;
+      };
+  
+      this.leftScoreSprite = createTextSprite('0', 'green');
+      this.rightScoreSprite = createTextSprite('0', 'blue');
+  
+      this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', 'green');
+      this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', 'blue');
+  
+      this.leftScoreSprite.position.set(-2, 7, 0);
+      this.rightScoreSprite.position.set(2, 7, 0);
+      this.leftNickSprite.position.set(-7, 7, 0);
+      this.rightNickSprite.position.set(7, 7, 0);      
+  
+      this.scene.add(this.leftScoreSprite);
+      this.scene.add(this.rightScoreSprite);
+      this.scene.add(this.leftNickSprite);
+      this.scene.add(this.rightNickSprite);
+  }
+  
+
+  updateScore3D() {
+
+    if (this.leftScoreSprite && this.rightScoreSprite) {
+      const updateSprite = (sprite, score, color) => {
         
-        // Set the font we'll use for measurement
-        const fontSize = 120;
-        const fontFamily = 'Arial';
-        measureContext.font = `${fontSize}px ${fontFamily}`;
-        
-        // Measure the text
-        const metrics = measureContext.measureText(text);
-        
-        // Calculate width and height needed for the text
-        // width: text width + padding on both sides
-        // height: approximate text height + padding on top and bottom
-        const textWidth = metrics.width;
-        const textHeight = fontSize * 1.2; // Approximate height based on fontSize
-        
-        // Add padding
-        const padding = fontSize * 0.5;
-        const canvasWidth = textWidth + padding * 2;
-        const canvasHeight = textHeight + padding * 2;
-        
-        // Now create the actual canvas with the calculated size
-        const canvas = document.createElement('canvas');
+        const canvas = sprite.material.map.image;
         const context = canvas.getContext('2d');
-        
-        // Set dimensions based on our measurements
-        canvas.width = Math.ceil(canvasWidth);
-        canvas.height = Math.ceil(canvasHeight);
-        
-        // Draw background (optional, transparent)
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
         context.fillStyle = 'rgba(0,0,0,0)';
         context.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw text
-        context.font = `${fontSize}px ${fontFamily}`;
+
+        const fontSize = 70;
+        context.font = `${fontSize}px Arial`;
         context.fillStyle = color;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        context.fillText(text, canvas.width/2, canvas.height/2);
-        
-        // Create texture from canvas
-        const texture = new THREE.Texture(canvas);
-        texture.needsUpdate = true;
-        
-        // Create sprite material and sprite
-        const material = new THREE.SpriteMaterial({ map: texture });
-        const sprite = new THREE.Sprite(material);
-        
-        // Scale sprite based on the aspect ratio of the canvas
-        const aspectRatio = canvas.width / canvas.height;
-        sprite.scale.set(2 * aspectRatio, 2, 1);
-        
-        return sprite;
-    };
-    
-    // Create sprites for scores and player names
-    this.leftScoreSprite = createTextSprite('0', 'green');
-    this.rightScoreSprite = createTextSprite('0', 'blue');
-    
-    // Create player name sprites with potentially longer text
-    this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', 'green');
-    this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', 'blue');
-    
-    // Position the sprites
-    this.leftScoreSprite.position.set(-2, 5, 0);
-    this.rightScoreSprite.position.set(2, 5, 0);
-    this.leftNickSprite.position.set(-7, 5, 0);
-    this.rightNickSprite.position.set(7, 5, 0);
-    
-    // Add sprites to scene
-    this.scene.add(this.leftScoreSprite);
-    this.scene.add(this.rightScoreSprite);
-    this.scene.add(this.leftNickSprite);
-    this.scene.add(this.rightNickSprite);
-  } 
+        context.fillText(score.toString(), canvas.width/2, canvas.height/2);
 
-  updateScore3D() {
-    if (this.leftScoreSprite && this.rightScoreSprite) {
-        // Remove existing sprites
-        this.scene.remove(this.leftScoreSprite);
-        this.scene.remove(this.rightScoreSprite);
-        
-        // Create text sprites with dynamic sizing
-        const createTextSprite = (text, color) => {
-            // First create a temporary canvas to measure the text
-            const measureCanvas = document.createElement('canvas');
-            const measureContext = measureCanvas.getContext('2d');
-            
-            // Set the font we'll use for measurement
-            const fontSize = 120;
-            const fontFamily = 'Arial';
-            measureContext.font = `${fontSize}px ${fontFamily}`;
-            
-            // Measure the text
-            const metrics = measureContext.measureText(text);
-            
-            // Calculate width and height needed for the text
-            const textWidth = metrics.width;
-            const textHeight = fontSize * 1.2; // Approximate height
-            
-            // Add padding
-            const padding = fontSize * 0.5;
-            const canvasWidth = textWidth + padding * 2;
-            const canvasHeight = textHeight + padding * 2;
-            
-            // Create the actual canvas with the calculated size
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = Math.ceil(canvasWidth);
-            canvas.height = Math.ceil(canvasHeight);
-            
-            // Draw background (optional, transparent)
-            context.fillStyle = 'rgba(0,0,0,0)';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw text
-            context.font = `${fontSize}px ${fontFamily}`;
-            context.fillStyle = color;
-            context.textAlign = 'center';
-            context.textBaseline = 'middle';
-            context.fillText(text, canvas.width/2, canvas.height/2);
-            
-            // Create texture from canvas
-            const texture = new THREE.Texture(canvas);
-            texture.needsUpdate = true;
-            
-            // Create sprite material and sprite
-            const material = new THREE.SpriteMaterial({ map: texture });
-            const sprite = new THREE.Sprite(material);
-            
-            // Scale sprite based on the aspect ratio of the canvas
-            const aspectRatio = canvas.width / canvas.height;
-            sprite.scale.set(2 * aspectRatio, 2, 1);
-            
-            return sprite;
-        };
-        
-        // Create new score sprites with updated scores
-        this.leftScoreSprite = createTextSprite(this.playerLeft.getScore().toString(), 'green');
-        this.rightScoreSprite = createTextSprite(this.playerRight.getScore().toString(), 'blue');
-        
-        // Position the sprites (same positions as before)
-        this.leftScoreSprite.position.set(-2, 5, 0);
-        this.rightScoreSprite.position.set(2, 5, 0);
-        
-        // Add the updated sprites to the scene
-        this.scene.add(this.leftScoreSprite);
-        this.scene.add(this.rightScoreSprite);
+        sprite.material.map.needsUpdate = true;
+      };
+      
+      updateSprite(this.leftScoreSprite, this.playerLeft.getScore(), 'green');
+      updateSprite(this.rightScoreSprite, this.playerRight.getScore(), 'blue');
     }
   }
 
@@ -659,12 +596,6 @@ export class Game {
     const endGameScreen = document.getElementById('end-game-screen');
     endGameScreen.style.display = 'flex';
     
-    // Add event listeners for buttons
-    document.getElementById('play-again-btn').addEventListener('click', () => {
-      endGameScreen.style.display = 'none';
-      window.location.reload();
-    });
-    
     document.getElementById('main-menu-btn').addEventListener('click', () => {
       endGameScreen.style.display = 'none';
       window.location.href = '/';
@@ -673,7 +604,7 @@ export class Game {
     // Add event listener for close button
     document.querySelector('.window__close').addEventListener('click', () => {
       endGameScreen.style.display = 'none';
-      window.location.href = '/';
+      window.location.reload();
     });
   
     // Nettoyage final
