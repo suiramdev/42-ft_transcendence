@@ -1,7 +1,7 @@
 import { getAccessToken, clearTokens } from './token.js';
 import { getCookie } from '../utils/cookies.js';
 
- /* 
+/*
  * Global variable to store the user data
  * so that it can be accessed from anywhere
  *
@@ -45,6 +45,15 @@ export async function getUser() {
 }
 
 /**
+ * Disconnect from the status socket
+ */
+export function disconnectFromStatusSocket() {
+  if (globalThis.statusSocket) {
+    globalThis.statusSocket.close();
+  }
+}
+
+/**
  * Check if the user is logged in
  *
  * @returns {boolean}
@@ -62,11 +71,15 @@ export function signOut() {
 
   // Reset user state
   globalThis.user = null;
+
   document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
   document.dispatchEvent(new CustomEvent('signOut'));
 
   // Redirect to the home page
   globalThis.router.navigate('/');
+
+  // Close the status socket
+  disconnectFromStatusSocket();
 }
 
 /**
@@ -111,7 +124,7 @@ export async function updateUser(data) {
 export function setupAddFriendForm() {
   // Add the HTML form for adding friends
   const userlistHeader = document.querySelector('.userlist__header');
-  
+
   const userlistTitle = userlistHeader.querySelector('.userlist__title');
   if (userlistTitle) {
     userlistTitle.textContent = 'Friends';
@@ -122,9 +135,9 @@ export function setupAddFriendForm() {
     const addFriendButton = document.createElement('button');
     addFriendButton.classList.add('userlist__add-friend-btn');
     addFriendButton.textContent = '+'; // Simple + instead of Font Awesome icon
-    addFriendButton.title = "Add Friend";
+    addFriendButton.title = 'Add Friend';
     userlistHeader.appendChild(addFriendButton);
-    
+
     // Create the form container
     const formContainer = document.createElement('div');
     formContainer.classList.add('userlist__add-friend-form');
@@ -134,10 +147,10 @@ export function setupAddFriendForm() {
       <button type="button" class="userlist__add-friend-submit">Add</button>
       <div class="userlist__add-friend-message"></div>
     `;
-    
+
     // Insert the form after the header
     userlistHeader.parentNode.insertBefore(formContainer, userlistHeader.nextSibling);
-    
+
     // Toggle form visibility when clicking the add friend button
     addFriendButton.addEventListener('click', () => {
       formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
@@ -145,14 +158,14 @@ export function setupAddFriendForm() {
         formContainer.querySelector('.userlist__add-friend-input').focus();
       }
     });
-    
+
     // Handle form submission
     const submitButton = formContainer.querySelector('.userlist__add-friend-submit');
     submitButton.addEventListener('click', handleAddFriend);
-    
+
     // Allow pressing Enter to submit
     const input = formContainer.querySelector('.userlist__add-friend-input');
-    input.addEventListener('keypress', (event) => {
+    input.addEventListener('keypress', event => {
       if (event.key === 'Enter') {
         handleAddFriend();
       }
@@ -164,30 +177,30 @@ async function handleAddFriend() {
   const input = document.querySelector('.userlist__add-friend-input');
   const messageDisplay = document.querySelector('.userlist__add-friend-message');
   const username = input.value.trim();
-  
+
   if (!username) {
     showAddFriendMessage('Please enter a username', 'error');
     return;
   }
-  
+
   try {
     const accessToken = getCookie('access_token');
     if (!accessToken) {
       showAddFriendMessage('You must be logged in', 'error');
       return;
     }
-    
+
     const response = await fetch('/api/user/friend/', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ username }),
     });
-    
+
     const data = await response.json();
-    
+
     if (response.ok) {
       showAddFriendMessage(data.message, 'success');
       input.value = '';
@@ -208,7 +221,7 @@ function showAddFriendMessage(message, type) {
   messageDisplay.className = 'userlist__add-friend-message';
   messageDisplay.classList.add(`userlist__add-friend-message--${type}`);
   messageDisplay.style.display = 'block';
-  
+
   // Hide the message after 3 seconds
   setTimeout(() => {
     messageDisplay.style.display = 'none';
@@ -248,18 +261,11 @@ export async function populateFriendsList() {
   friends.forEach(friend => {
     const userItem = document.createElement('a');
     userItem.classList.add('userlist__item');
+    userItem.setAttribute('data-user-id', friend.id);
     userItem.href = `/profile/${friend.id}`;
-    
-    // Set status icon based on friend's status
-    let statusIcon = 'user-offline.png';
-    if (friend.status === 'online') {
-      statusIcon = 'user-online.png';
-    } else if (friend.status === 'in_game') {
-      statusIcon = 'user-ingame.png';
-    }
-    
+
     userItem.innerHTML = `
-        <img src="/static/images/icons/${statusIcon}" class="userlist__item-icon" />
+        <img src="/static/images/icons/user-${friend.status}.png" class="userlist__item-icon" />
         <span class="userlist__name">${friend.nickname || friend.username}</span>
     `;
 
