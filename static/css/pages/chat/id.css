@@ -203,3 +203,100 @@
   border: 1px solid #fcc;
   text-align: center;
 }
+
+.chat__invite-button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chat__invite-button:hover {
+  background-color: #0056b3;
+}
+
+.chat__join-game-button {
+  display: block;
+  margin-top: 10px;
+  padding: 0.6rem 1.2rem;
+  background-color: #4169e1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.chat__join-game-button:hover {
+  background-color: #324da6;
+}
+
+.chat__message-game-invite {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 8px 20px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(236, 235, 229, 1) 86%,
+    rgba(216, 208, 196, 1) 100%
+  );
+  border: 1px solid #003c74;
+  border-radius: 3px;
+  color: #000;
+  font-weight: normal;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  margin: 5px;
+  text-align: center;
+}
+
+.chat__message-game-invite:hover {
+  box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761,
+    inset 2px -2px #e5a01a;
+}
+
+.chat__message-game-invite:active {
+  box-shadow: none;
+  background: linear-gradient(180deg, rgba(205, 202, 195, 1) 0%, rgba(229, 229, 222, 1) 100%);
+}
+
+.chat__message--sent .chat__message-game-invite {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(236, 235, 229, 1) 86%,
+    rgba(216, 208, 196, 1) 100%
+  );
+  color: #000;
+  border: 1px solid #003c74;
+}
+
+.chat__message--sent .chat__message-game-invite:hover {
+  box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761,
+    inset 2px -2px #e5a01a;
+}
+
+.chat__message--sent .chat__message-game-invite:active {
+  box-shadow: none;
+  background: linear-gradient(180deg, rgba(205, 202, 195, 1) 0%, rgba(229, 229, 222, 1) 100%);
+}
+
+.chat__message-game-invite[disabled] {
+  opacity: 0.6;
+  background: linear-gradient(
+    180deg,
+    rgba(220, 220, 220, 1) 0%,
+    rgba(200, 200, 200, 1) 86%,
+    rgba(180, 180, 180, 1) 100%
+  );
+  border: 1px solid #7b7b7b;
+  color: #666;
+  box-shadow: none;
+  pointer-events: none;
+}

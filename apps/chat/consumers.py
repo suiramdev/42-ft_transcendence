@@ -68,29 +68,36 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
             })
             return
             
+        # Get embeds if they exist
+        embeds = content.get('embeds', [])
+            
         # Save message to database
-        await self.save_message(message)
+        await self.save_message(message, embeds)
         logger.info(f"User: {self.user.id} saved message to database")
         
         # Send message to room group
+        message_data = {
+            'type': 'message',
+            'message': message,
+            'embeds': embeds,
+            'sender_id': self.user.id,
+            'timestamp': str(datetime.datetime.now())
+        }
+            
         await self.channel_layer.group_send(
             self.room_name,
-            {
-                'type': 'message',
-                'message': message,
-                'sender_id': self.user.id,
-                'timestamp': str(datetime.datetime.now())
-            }
+            message_data
         )
 
         logger.info(f"User: {self.user.id} sent message to room {self.room_name}")
 
     @database_sync_to_async
-    def save_message(self, message):
+    def save_message(self, message, embeds=None):
         DirectMessage.objects.create(
             sender=self.user,
             receiver_id=self.other_user_id,
-            content=message
+            content=message,
+            embeds=embeds
         )
 
     @database_sync_to_async
@@ -101,9 +108,12 @@ class DirectMessageConsumer(AsyncJsonWebsocketConsumer):
         ).exists()
 
     async def message(self, event):
-        await self.send_json({
+        message_data = {
             'type': 'message',
             'message': event['message'],
+            'embeds': event['embeds'],
             'sender_id': event['sender_id'],
             'timestamp': event['timestamp']
-        })
+        }
+        
+        await self.send_json(message_data)

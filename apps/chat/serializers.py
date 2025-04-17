@@ -16,5 +16,5 @@ class DirectMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DirectMessage
-        fields = ['id', 'sender', 'receiver', 'receiver_id', 'content', 'timestamp']
+        fields = ['id', 'sender', 'receiver', 'receiver_id', 'content', 'timestamp', 'embeds']
         read_only_fields = ['id', 'timestamp'] 
