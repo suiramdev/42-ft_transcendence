@@ -78,6 +78,7 @@ export class UserProfilePage extends Page {
     document.querySelector('#message-btn').addEventListener('click', () => {
       globalThis.router.navigate(`/chat/${this.displayUser.id}`);
     });
+    await this._loadAndDisplayMatchHistory(this.displayUser.id);
 
     const isFriend = await this._checkFriendshipStatus();
     const removeFriendBtn = document.getElementById('remove_friend');
@@ -110,6 +111,46 @@ export class UserProfilePage extends Page {
       addFriendBtn.addEventListener('click', () => {
         this._addFriend();
       });
+    }
+  }
+
+  async _loadAndDisplayMatchHistory(userId) {
+    const accessToken = getCookie('access_token');
+    const historyList = document.querySelector('.profile__history-list');
+
+    try {
+      const res = await fetch('/api/game', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (!res.ok) throw new Error('Erreur de récupération des matchs');
+
+      const allGames = await res.json();
+      const userGames = allGames.filter(game => game.player1 === userId || game.player2 === userId);
+
+      if (userGames.length === 0) {
+        historyList.innerHTML = `<li class="profile__history-item">Aucun match joué.</li>`;
+        return;
+      }
+
+      for (const game of userGames) {
+        const opponentId = game.player1 === userId ? game.player2 : game.player1;
+        const youWon = game.winner === userId;
+        const resultText = game.winner === null ? 'Match nul' : youWon ? 'Victoire' : 'Défaite';
+        const date = new Date(game.played_at).toLocaleDateString();
+
+        const li = document.createElement('li');
+        li.className = 'profile__history-item';
+        li.innerHTML = `
+          <span>${date}</span>
+          <span>${resultText}</span>
+          <span>${game.player1_score} - ${game.player2_score}</span>
+        `;
+        historyList.appendChild(li);
+      }
+    } catch (err) {
+      console.error(err);
+      historyList.innerHTML = `<li class="profile__history-item">Erreur de chargement.</li>`;
     }
   }
 
