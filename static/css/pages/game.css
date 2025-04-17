@@ -331,7 +331,9 @@
 }
 
 .end-game-window {
-  width: 400px;
+  width: 50%;
+  max-width: 500px;
+  height: auto;
   background-color: #ECE9D8;
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);

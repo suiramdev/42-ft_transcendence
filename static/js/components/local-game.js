@@ -311,133 +311,111 @@ export class Game {
     directionalLight.castShadow = true; // Active les ombres
     this.scene.add(directionalLight);
 
-    // // Lumière ponctuelle (simule une source lumineuse comme une lampe)
-    // const pointLight = new THREE.PointLight(0xffaa33, 1.5, 20);
-    // pointLight.position.set(0, 5, 5);
-    // this.scene.add(pointLight);
+    // Lumière ponctuelle (simule une source lumineuse comme une lampe)
+    const pointLight = new THREE.PointLight(0xffaa33, 1.5, 20);
+    pointLight.position.set(0, 5, 5);
+    this.scene.add(pointLight);
 
-    // // Optionnel : une lumière spot pour un effet dramatique
-    // const spotLight = new THREE.SpotLight(0xff0000, 1);
-    // spotLight.position.set(-5, 10, 5);
-    // spotLight.angle = Math.PI / 6;
-    // spotLight.penumbra = 0.5;
-    // this.scene.add(spotLight);
+    // Optionnel : une lumière spot pour un effet dramatique
+    const spotLight = new THREE.SpotLight(0xff0000, 1);
+    spotLight.position.set(-5, 10, 5);
+    spotLight.angle = Math.PI / 6;
+    spotLight.penumbra = 0.5;
+    this.scene.add(spotLight);
 
-    // // Lumière dédiée au background (douce et large)
-    // const backgroundLight = new THREE.DirectionalLight(0xffffff, 5);
-    // backgroundLight.position.set(0, 5, -5); // Positionnée derrière la scène
-    // backgroundLight.target = cube; // Dirige la lumière vers le cube (background)
-    // this.scene.add(backgroundLight);
+    // Lumière dédiée au background (douce et large)
+    const backgroundLight = new THREE.DirectionalLight(0xffffff, 5);
+    backgroundLight.position.set(0, 5, -5); // Positionnée derrière la scène
+    backgroundLight.target = cube; // Dirige la lumière vers le cube (background)
+    this.scene.add(backgroundLight);
     
     return true;
   }
 
-
   createScoreDisplay() {
-    // Create a canvas-based text with dynamic sizing
+
     const createTextSprite = (text, color) => {
-        // First create a temporary canvas to measure the text
+
         const measureCanvas = document.createElement('canvas');
         const measureContext = measureCanvas.getContext('2d');
-        
-        // Set the font we'll use for measurement
-        const fontSize = 120;
+
+        const fontSize = 70;
         const fontFamily = 'Arial';
         measureContext.font = `${fontSize}px ${fontFamily}`;
-        
-        // Measure the text
+
         const metrics = measureContext.measureText(text);
-        
-        // Calculate width and height needed for the text
-        // width: text width + padding on both sides
-        // height: approximate text height + padding on top and bottom
+
         const textWidth = metrics.width;
-        const textHeight = fontSize * 1.2; // Approximate height based on fontSize
-        
-        // Add padding
+        const textHeight = fontSize * 1.2;
+
         const padding = fontSize * 0.5;
         const canvasWidth = textWidth + padding * 2;
         const canvasHeight = textHeight + padding * 2;
-        
-        // Now create the actual canvas with the calculated size
+
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        
-        // Set dimensions based on our measurements
+
         canvas.width = Math.ceil(canvasWidth);
         canvas.height = Math.ceil(canvasHeight);
-        
-        // Draw background (optional, transparent)
+
         context.fillStyle = 'rgba(0,0,0,0)';
         context.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw text
+
         context.font = `${fontSize}px ${fontFamily}`;
         context.fillStyle = color;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.fillText(text, canvas.width/2, canvas.height/2);
-        
-        // Create texture from canvas
+
         const texture = new THREE.Texture(canvas);
         texture.needsUpdate = true;
-        
-        // Create sprite material and sprite
+
         const material = new THREE.SpriteMaterial({ map: texture });
         const sprite = new THREE.Sprite(material);
-        
-        // Scale sprite based on the aspect ratio of the canvas
+
         const aspectRatio = canvas.width / canvas.height;
-        sprite.scale.set(2 * aspectRatio, 2, 1);
+        sprite.scale.set(1.5 * aspectRatio, 1.5, 1);
         
         return sprite;
     };
-    
-    // Create sprites for scores and player names
+
     this.leftScoreSprite = createTextSprite('0', 'green');
     this.rightScoreSprite = createTextSprite('0', 'blue');
-    
-    // Create player name sprites with potentially longer text
+
     this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', 'green');
     this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', 'blue');
-    
-    // Position the sprites
-    this.leftScoreSprite.position.set(-2, 5, 0);
-    this.rightScoreSprite.position.set(2, 5, 0);
-    this.leftNickSprite.position.set(-7, 5, 0);
-    this.rightNickSprite.position.set(7, 5, 0);
-    
-    // Add sprites to scene
+
+    this.leftScoreSprite.position.set(-2, 7, 0);
+    this.rightScoreSprite.position.set(2, 7, 0);
+    this.leftNickSprite.position.set(-7, 7, 0);
+    this.rightNickSprite.position.set(7, 7, 0);      
+
     this.scene.add(this.leftScoreSprite);
     this.scene.add(this.rightScoreSprite);
     this.scene.add(this.leftNickSprite);
     this.scene.add(this.rightNickSprite);
-  } 
+  }
 
   updateScore3D() {
-    // Instead of recreating textures, just update existing ones
+
     if (this.leftScoreSprite && this.rightScoreSprite) {
       const updateSprite = (sprite, score, color) => {
-        // Get the existing canvas from the texture
+        
         const canvas = sprite.material.map.image;
         const context = canvas.getContext('2d');
-        
-        // Clear canvas
+
         context.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Redraw background
+
         context.fillStyle = 'rgba(0,0,0,0)';
         context.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Redraw text
-        const fontSize = 120;
+
+        const fontSize = 70;
         context.font = `${fontSize}px Arial`;
         context.fillStyle = color;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.fillText(score.toString(), canvas.width/2, canvas.height/2);
-        
-        // Update texture
+
         sprite.material.map.needsUpdate = true;
       };
       
@@ -448,21 +426,24 @@ export class Game {
 
   handleKeyDown(e) {
     if (e.code === 'KeyW') {
-        this.playerLeft.moveUp();
+      this.playerLeft.dy = this.playerLeft.speed;
     } else if (e.code === 'ArrowUp') {
-        this.playerRight.moveUp()
+      this.playerRight.dy = this.playerRight.speed;
     } else if (e.code === 'KeyS') {
-        this.playerLeft.moveDown();
+      this.playerLeft.dy = -this.playerLeft.speed;
     } else if (e.code === 'ArrowDown') {
-        this.playerRight.moveDown();
+      this.playerRight.dy = -this.playerRight.speed;
     }
   }
-
   handleKeyUp(e) {
-    if (e.code === 'KeyW' || e.code === 'KeyS') {
-        this.playerLeft.dy = 0;
-    }else if (e.code === 'ArrowDown' || e.code === 'ArrowUp') {
-        this.playerRight.dy = 0;
+    if (e.code === 'KeyW' && this.playerLeft.dy > 0) {
+      this.playerLeft.dy = 0;
+    } else if (e.code === 'KeyS' && this.playerLeft.dy < 0) {
+      this.playerLeft.dy = 0;
+    } else if (e.code === 'ArrowUp' && this.playerRight.dy > 0) {
+      this.playerRight.dy = 0;
+    } else if (e.code === 'ArrowDown' && this.playerRight.dy < 0) {
+      this.playerRight.dy = 0;
     }
   }
 
@@ -523,7 +504,7 @@ export class Game {
     // Add event listeners for buttons
     document.getElementById('main-menu-btn').addEventListener('click', () => {
       endGameScreen.style.display = 'none';
-      
+      window.location.reload();
     });
     
     // Add event listener for close button
