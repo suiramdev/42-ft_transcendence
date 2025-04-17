@@ -37,6 +37,11 @@ export class DirectMessagePage extends Page {
       .addEventListener('click', this._handleInviteUser.bind(this));
 
     document.querySelector('#chat-username').textContent = this.otherUser.nickname;
+    document.querySelector('#chat-username').href = `/profile/${this.otherUser.id}`;
+
+    if (this.otherUser.avatar) {
+      document.querySelector('#chat-avatar').src = this.otherUser.avatar;
+    }
 
     try {
       await this._loadBlockedStatus();
