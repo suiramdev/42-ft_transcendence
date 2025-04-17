@@ -8,9 +8,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.conf import settings
 import os
 import requests
-import logging
-logger = logging.getLogger(__name__)
-
 
 class FortyTwoAuthView(viewsets.ViewSet):
     """Authentication view for 42"""
@@ -53,10 +50,7 @@ class FortyTwoAuthView(viewsets.ViewSet):
         """Callback from 42 OAuth authorization page"""
         code = request.query_params.get('code')
 
-        logger.info(f"🟡 Callback reçu avec code: {code}") #debug
-
         if not code:
-            logger.error("🔴 Aucun code reçu dans la requête OAuth.")
             return Response(
                 {'error': 'No code provided'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -65,10 +59,8 @@ class FortyTwoAuthView(viewsets.ViewSet):
         try:
             # Get OAuth tokens and user info
             forty_two_access_token = self.get_forty_two_access_token(code)
-            logger.info(f"🟢 Token 42 reçu: {forty_two_access_token}")
 
             forty_two_user = self.get_forty_two_user(forty_two_access_token)
-            logger.info(f"🟢 Utilisateur 42 reçu: {forty_two_user}")
 
             user = User.objects.filter(username=forty_two_user['login']).first()
             if not user:
@@ -80,13 +72,11 @@ class FortyTwoAuthView(viewsets.ViewSet):
                     last_name=forty_two_user['last_name'],
                     nickname=forty_two_user['login'],  # Default nickname to 42 login
                 )
-                logger.info(f"🟢 Nouvel utilisateur créé: {user.username}")
             else:
                 user.email = forty_two_user['email']
                 user.first_name = forty_two_user['first_name']
                 user.last_name = forty_two_user['last_name']
                 user.save()
-                logger.info(f"🟢 Utilisateur mis à jour: {user.username}")
 
 
             # Generate JWT tokens
@@ -115,7 +105,6 @@ class FortyTwoAuthView(viewsets.ViewSet):
             return response
 
         except Exception as e:
-            logger.error(f"🔴 Erreur dans callback: {str(e)}")
             return Response(
                 {'error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
@@ -196,7 +185,6 @@ class AuthView(viewsets.ViewSet):
                 last_name="User",
                 nickname=username,
             )
-            logger.info(f"🟢 Fake user created: {user.username}")
 
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)

@@ -11,7 +11,6 @@ class UserReadSerializer(serializers.ModelSerializer):
             'coalition',
             'wins',
             'losses',
-            'ladder_level',
             'status',
             'bio',
         )

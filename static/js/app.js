@@ -7,6 +7,7 @@ import { DirectMessagePage } from './pages/chat/id.js';
 import { apiFetch } from './services/token.js';
 import { FakeSignInPage } from './pages/dev/fake-signin.js';
 import { LocalGamePage } from './pages/local-game.js';
+import { connectToStatusSocket } from './services/status.js';
 
 // Initialize the router in globalThis
 // so it can be accessed from anywhere in the code
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   globalThis.router = router;
 
   getUser();
+  connectToStatusSocket();
 });
 
 // Store the original fetch function
