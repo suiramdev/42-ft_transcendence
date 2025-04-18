@@ -32,8 +32,16 @@ export class DirectMessagePage extends Page {
     document
       .querySelector('#unblock-button')
       .addEventListener('click', this._handleUnblockUser.bind(this));
+    document
+      .querySelector('#invite-button')
+      .addEventListener('click', this._handleInviteUser.bind(this));
 
     document.querySelector('#chat-username').textContent = this.otherUser.nickname;
+    document.querySelector('#chat-username').href = `/profile/${this.otherUser.id}`;
+
+    if (this.otherUser.avatar) {
+      document.querySelector('#chat-avatar').src = this.otherUser.avatar;
+    }
 
     try {
       await this._loadBlockedStatus();
@@ -147,6 +155,7 @@ export class DirectMessagePage extends Page {
         message: message.content,
         sender_id: message.sender.id,
         timestamp: message.timestamp,
+        embeds: message.embeds,
       });
     });
   }
@@ -178,6 +187,10 @@ export class DirectMessagePage extends Page {
    */
   _setFormError(reason) {
     const formError = document.querySelector('#chat-form-error');
+    if (!formError) {
+      return;
+    }
+
     formError.textContent = reason;
     formError.style.display = 'block';
   }
@@ -188,6 +201,11 @@ export class DirectMessagePage extends Page {
    */
   _clearFormError() {
     const formError = document.querySelector('#chat-form-error');
+    if (!formError) {
+      return;
+    }
+
+    formError.textContent = '';
     formError.style.display = 'none';
   }
 
@@ -238,6 +256,46 @@ export class DirectMessagePage extends Page {
   }
 
   /**
+   * Invite the other user to a 1v1 pong game
+   * @private
+   */
+  async _handleInviteUser() {
+    try {
+      const response = await fetch(`/api/game/`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${getCookie('access_token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw new Error('Failed to invite user to game');
+      const data = await response.json();
+      const gameId = data.game_id;
+
+      // Send game invite message with clickable link
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send(
+          JSON.stringify({
+            message: `I'm inviting you to play Pong!`,
+            embeds: [
+              {
+                type: 'game_invite',
+                url: `/?joinGame=${gameId}`,
+              },
+            ],
+          })
+        );
+      }
+
+      // Navigate to the waiting screen
+      globalThis.router.navigate('/?waitingGame=' + gameId);
+    } catch (error) {
+      console.error('Error inviting user:', error);
+      this._setFormError('Failed to invite user to game, please try again');
+    }
+  }
+
+  /**
    * Add a message to the chat
    * @private
    *
@@ -245,8 +303,14 @@ export class DirectMessagePage extends Page {
    * @param {string} data.message - The message content
    * @param {number} data.sender_id - The id of the sender
    * @param {string} data.timestamp - The timestamp of the message
+   * @param {Array} [data.embeds] - Optional embeds for the message
    */
   _addMessageToChat(data) {
+    const messagesContainer = document.querySelector('#chat-messages');
+    if (!messagesContainer) {
+      return;
+    }
+
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('chat__message');
 
@@ -263,6 +327,27 @@ export class DirectMessagePage extends Page {
     const messageText = document.createElement('div');
     messageText.classList.add('chat__message-text');
     messageText.textContent = data.message;
+    messageContent.appendChild(messageText);
+
+    const embeds = data.embeds ?? [];
+
+    // Process each embed
+    embeds.forEach(embed => {
+      switch (embed.type) {
+        case 'game_invite':
+          if (data.sender_id === globalThis.user.id) {
+            return;
+          }
+          // For game invites or other clickable embeds
+          const gameInvite = document.createElement('a');
+          gameInvite.href = embed.url;
+          gameInvite.classList.add('chat__message-game-invite');
+          gameInvite.textContent = 'Join Game';
+
+          messageContent.appendChild(gameInvite);
+          break;
+      }
+    });
 
     const messageTime = document.createElement('div');
     messageTime.classList.add('chat__message-time');
@@ -277,12 +362,11 @@ export class DirectMessagePage extends Page {
           minute: '2-digit',
           hour12: false,
         });
-
-    messageContent.appendChild(messageText);
     messageContent.appendChild(messageTime);
+
     messageContainer.appendChild(messageContent);
 
-    document.querySelector('#chat-messages').appendChild(messageContainer);
+    messagesContainer.appendChild(messageContainer);
 
     messageContainer.scrollIntoView({ behavior: 'smooth' });
   }
@@ -299,6 +383,7 @@ export class DirectMessagePage extends Page {
    * @param {string} [e.data.message] - The message
    * @param {number} [e.data.sender_id] - The id of the sender
    * @param {string} [e.data.timestamp] - The timestamp of the message
+   * @param {Array} [e.data.embeds] - Optional embeds for the message
    */
   _onReceiveMessage(e) {
     const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
