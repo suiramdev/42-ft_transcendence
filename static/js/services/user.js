@@ -96,29 +96,52 @@ export async function updateUser(data) {
     return;
   }
 
-  try {
-    const formData = new FormData();
-    formData.append('nickname', data.nickname);
-    formData.append('bio', data.bio);
-    if (data.avatar instanceof File) {
-      formData.append('avatar', data.avatar);
+  const formData = new FormData();
+  formData.append('nickname', data.nickname);
+  formData.append('bio', data.bio);
+  if (data.avatar instanceof File) {
+    formData.append('avatar', data.avatar);
+  }
+
+  const response = await fetch('/api/user/me/', {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: formData,
+  });
+
+  const responseData = await response.json();
+
+  if (!response.ok) {
+    if (response.status === 400) {
+      const errorMessages = {};
+
+      for (const [field, errors] of Object.entries(responseData)) {
+        if (Array.isArray(errors)) {
+          errorMessages[field] = errors.join(', ');
+        } else if (typeof errors === 'string') {
+          errorMessages[field] = errors;
+        }
+      }
+
+      return {
+        error:
+          errorMessages.non_field_errors ||
+          errorMessages.nickname ||
+          errorMessages.bio ||
+          errorMessages.avatar ||
+          'Validation error occurred',
+      };
     }
 
-    const response = await fetch('/api/user/me/', {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) throw new Error('Erreur lors de la mise à jour du profil');
-
-    globalThis.user = await response.json();
-    document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
-  } catch (error) {
-    console.error('Erreur lors de la mise à jour du profil:', error);
+    return { error: responseData.detail || 'Failed to update profile' };
   }
+
+  globalThis.user = responseData;
+  document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
+
+  return responseData;
 }
 
 export function setupAddFriendForm() {

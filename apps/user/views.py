@@ -7,6 +7,7 @@ import os
 from django.conf import settings
 from django.core.files.storage import default_storage
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+import re
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -69,6 +70,13 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        # Validate username format
+        if not re.match(r'^[\w.@+-]+$', username):
+            return Response(
+                {"error": "Invalid username format"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
             friend = User.objects.get(username=username)
         except User.DoesNotExist:
@@ -106,6 +114,13 @@ class UserViewSet(viewsets.ModelViewSet):
         if not username:
             return Response(
                 {"error": "Username is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validate username format
+        if not re.match(r'^[\w.@+-]+$', username):
+            return Response(
+                {"error": "Invalid username format"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
