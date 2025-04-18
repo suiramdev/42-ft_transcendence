@@ -163,7 +163,7 @@ export class ball {
         this.direction_y = ballRelativePosition / player_left.getheight(); // Utiliser cette distance pour ajuster la direction verticale
 
         // Send hit event since this player is authoritative
-        if (this.gameManager) {
+        if (this.gameManager.localPlayer === 'left') {
           this.gameManager.sendHitBall(
             { x: this.x, y: this.y },
             { x: this.direction_x, y: this.direction_y },
@@ -190,7 +190,7 @@ export class ball {
         this.direction_y = ballRelativePosition / player_right.getheight();
 
         // Send hit event since this player is authoritative
-        if (this.gameManager) {
+        if (this.gameManager.localPlayer === 'right') {
           this.gameManager.sendHitBall(
             { x: this.x, y: this.y },
             { x: this.direction_x, y: this.direction_y },
@@ -253,11 +253,10 @@ function declareWinner(game, winnerSide) {
       winner: winnerSide,
       scores: {
         left: game.playerLeft.getScore(),
-        right: game.playerRight.getScore()
-      }
+        right: game.playerRight.getScore(),
+      },
     });
   }
-  
 }
 
 export function checkXCollision(game, winScore) {
@@ -291,9 +290,17 @@ export function checkXCollision(game, winScore) {
 
 // ----------------- ath function -----------------
 
-
 export class Game {
-  constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, gameManager, leftPlayerNickname, rightPlayerNickname) {
+  constructor(
+    ballSpeed,
+    paddleSize,
+    paddleSpeed,
+    ballSize,
+    winScore,
+    gameManager,
+    leftPlayerNickname,
+    rightPlayerNickname
+  ) {
     this.gameManager = gameManager;
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
@@ -305,7 +312,6 @@ export class Game {
     this.fixedTimeStep = 1 / 60; // 60 FPS physics update rate
     this.leftPlayerNickname = leftPlayerNickname;
     this.rightPlayerNickname = rightPlayerNickname;
-
 
     // Initialisation
     this.setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize);
@@ -323,7 +329,7 @@ export class Game {
   }
 
   handleHitBall(data) {
-    const { hit_position, direction, paddle_position } = data;
+    const { hit_position, direction, paddle_position, player } = data;
 
     // Update ball position and direction
     this.ball.x = hit_position.x;
@@ -333,10 +339,10 @@ export class Game {
 
     // Update paddle position
     if (paddle_position) {
-      if (this.gameManager.localPlayer === 'left') {
+      if (player === 'right') {
         this.playerRight.y = paddle_position.y;
         this.playerRight.pCube.position.y = paddle_position.y;
-      } else {
+      } else if (player === 'left') {
         this.playerLeft.y = paddle_position.y;
         this.playerLeft.pCube.position.y = paddle_position.y;
       }
@@ -351,7 +357,7 @@ export class Game {
 
   setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize) {
     this.canvas = document.getElementById('pongCanvas');
-    this.renderer = new THREE.WebGLRenderer({ canvas : this.canvas });
+    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
     this.renderer.setSize(this.canvas.width, this.canvas.height);
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(100, this.canvas.width / this.canvas.height, 5, 100);
@@ -414,77 +420,71 @@ export class Game {
     return true;
   }
 
-
   createScoreDisplay() {
-  
-      const createTextSprite = (text, color) => {
-  
-          const measureCanvas = document.createElement('canvas');
-          const measureContext = measureCanvas.getContext('2d');
-  
-          const fontSize = 70;
-          const fontFamily = 'Arial';
-          measureContext.font = `${fontSize}px ${fontFamily}`;
-  
-          const metrics = measureContext.measureText(text);
-  
-          const textWidth = metrics.width;
-          const textHeight = fontSize * 1.2;
-  
-          const padding = fontSize * 0.5;
-          const canvasWidth = textWidth + padding * 2;
-          const canvasHeight = textHeight + padding * 2;
-  
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-  
-          canvas.width = Math.ceil(canvasWidth);
-          canvas.height = Math.ceil(canvasHeight);
-  
-          context.fillStyle = 'rgba(0,0,0,0)';
-          context.fillRect(0, 0, canvas.width, canvas.height);
-  
-          context.font = `${fontSize}px ${fontFamily}`;
-          context.fillStyle = color;
-          context.textAlign = 'center';
-          context.textBaseline = 'middle';
-          context.fillText(text, canvas.width/2, canvas.height/2);
-  
-          const texture = new THREE.Texture(canvas);
-          texture.needsUpdate = true;
-  
-          const material = new THREE.SpriteMaterial({ map: texture });
-          const sprite = new THREE.Sprite(material);
-  
-          const aspectRatio = canvas.width / canvas.height;
-          sprite.scale.set(1.5 * aspectRatio, 1.5, 1);
-          
-          return sprite;
-      };
-  
-      this.leftScoreSprite = createTextSprite('0', 'green');
-      this.rightScoreSprite = createTextSprite('0', 'blue');
-  
-      this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', 'green');
-      this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', 'blue');
-  
-      this.leftScoreSprite.position.set(-2, 7, 0);
-      this.rightScoreSprite.position.set(2, 7, 0);
-      this.leftNickSprite.position.set(-7, 7, 0);
-      this.rightNickSprite.position.set(7, 7, 0);      
-  
-      this.scene.add(this.leftScoreSprite);
-      this.scene.add(this.rightScoreSprite);
-      this.scene.add(this.leftNickSprite);
-      this.scene.add(this.rightNickSprite);
+    const createTextSprite = (text, color) => {
+      const measureCanvas = document.createElement('canvas');
+      const measureContext = measureCanvas.getContext('2d');
+
+      const fontSize = 70;
+      const fontFamily = 'Arial';
+      measureContext.font = `${fontSize}px ${fontFamily}`;
+
+      const metrics = measureContext.measureText(text);
+
+      const textWidth = metrics.width;
+      const textHeight = fontSize * 1.2;
+
+      const padding = fontSize * 0.5;
+      const canvasWidth = textWidth + padding * 2;
+      const canvasHeight = textHeight + padding * 2;
+
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+
+      canvas.width = Math.ceil(canvasWidth);
+      canvas.height = Math.ceil(canvasHeight);
+
+      context.fillStyle = 'rgba(0,0,0,0)';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      context.font = `${fontSize}px ${fontFamily}`;
+      context.fillStyle = color;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+      const texture = new THREE.Texture(canvas);
+      texture.needsUpdate = true;
+
+      const material = new THREE.SpriteMaterial({ map: texture });
+      const sprite = new THREE.Sprite(material);
+
+      const aspectRatio = canvas.width / canvas.height;
+      sprite.scale.set(1.5 * aspectRatio, 1.5, 1);
+
+      return sprite;
+    };
+
+    this.leftScoreSprite = createTextSprite('0', 'green');
+    this.rightScoreSprite = createTextSprite('0', 'blue');
+
+    this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', 'green');
+    this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', 'blue');
+
+    this.leftScoreSprite.position.set(-2, 7, 0);
+    this.rightScoreSprite.position.set(2, 7, 0);
+    this.leftNickSprite.position.set(-7, 7, 0);
+    this.rightNickSprite.position.set(7, 7, 0);
+
+    this.scene.add(this.leftScoreSprite);
+    this.scene.add(this.rightScoreSprite);
+    this.scene.add(this.leftNickSprite);
+    this.scene.add(this.rightNickSprite);
   }
-  
 
   updateScore3D() {
-
     if (this.leftScoreSprite && this.rightScoreSprite) {
       const updateSprite = (sprite, score, color) => {
-        
         const canvas = sprite.material.map.image;
         const context = canvas.getContext('2d');
 
@@ -498,11 +498,11 @@ export class Game {
         context.fillStyle = color;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
-        context.fillText(score.toString(), canvas.width/2, canvas.height/2);
+        context.fillText(score.toString(), canvas.width / 2, canvas.height / 2);
 
         sprite.material.map.needsUpdate = true;
       };
-      
+
       updateSprite(this.leftScoreSprite, this.playerLeft.getScore(), 'green');
       updateSprite(this.rightScoreSprite, this.playerRight.getScore(), 'blue');
     }
@@ -558,12 +558,12 @@ export class Game {
   endgame() {
     this.isGameRunning = false;
     this.removeEventListeners();
-    
+
     // Nettoyage de la scène
     while (this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);
     }
-  
+
     // Nettoyage des ressources
     this.playerLeft.pCube.geometry.dispose();
     this.playerLeft.pCube.material.dispose();
@@ -571,42 +571,43 @@ export class Game {
     this.playerRight.pCube.material.dispose();
     this.ball.bSphere.geometry.dispose();
     this.ball.bSphere.material.dispose();
-  
+
     if (this.leftScoreGeometry) this.leftScoreGeometry.dispose();
     if (this.rightScoreGeometry) this.rightScoreGeometry.dispose();
 
     // Interface utilisateur
     const gameContainer = document.getElementById('game-container');
     gameContainer.style.display = 'none';
-  
+
     // Get player names with fallbacks
     const leftPlayerName = this.leftPlayerNickname || 'Left Player';
     const rightPlayerName = this.rightPlayerNickname || 'Right Player';
-    
+
     // Determine winner
     const isLeftWinner = this.playerLeft.getScore() > this.playerRight.getScore();
     const winnerName = isLeftWinner ? leftPlayerName : rightPlayerName;
-    
+
     // Update the end game screen with the details
     document.getElementById('winner-name').textContent = `${winnerName} Wins!`;
-    document.getElementById('final-score').textContent = 
-      `${leftPlayerName} ${this.playerLeft.getScore()} - ${this.playerRight.getScore()} ${rightPlayerName}`;
-    
+    document.getElementById(
+      'final-score'
+    ).textContent = `${leftPlayerName} ${this.playerLeft.getScore()} - ${this.playerRight.getScore()} ${rightPlayerName}`;
+
     // Show the end game screen
     const endGameScreen = document.getElementById('end-game-screen');
     endGameScreen.style.display = 'flex';
-    
+
     document.getElementById('main-menu-btn').addEventListener('click', () => {
       endGameScreen.style.display = 'none';
       window.location.href = '/';
     });
-    
+
     // Add event listener for close button
     document.querySelector('.window__close').addEventListener('click', () => {
       endGameScreen.style.display = 'none';
       window.location.reload();
     });
-  
+
     // Nettoyage final
     this.renderer.dispose();
     this.playerLeft.scoreCount = 0;

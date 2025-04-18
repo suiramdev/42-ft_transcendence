@@ -86,7 +86,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                         'type': 'hit_ball',
                         'hit_position': data.get('hit_position', ''),
                         'direction': data.get('direction', ''),
-                        'paddle_position': data.get('paddle_position', '')
+                        'paddle_position': data.get('paddle_position', ''),
+                        'player': data.get('player', '')
                     }
                 )
 
@@ -156,7 +157,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             'type': 'hit_ball',
             'hit_position': event['hit_position'],
             'direction': event['direction'],
-            'paddle_position': event['paddle_position']
+            'paddle_position': event['paddle_position'],
+            'player': event['player']
         }))
 
     @database_sync_to_async

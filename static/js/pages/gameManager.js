@@ -173,6 +173,7 @@ export class GameManager {
       hit_position: hitPosition,
       direction: direction,
       paddle_position: paddlePosition,
+      player: this.localPlayer,
     });
   }
 }
