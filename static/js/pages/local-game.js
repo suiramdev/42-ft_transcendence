@@ -18,18 +18,12 @@ export class LocalGamePage extends Page {
   }
 
   onMount() {
-    console.log('Game page mounted');
     const startGame = document.getElementById('start-game');  
  
     setupSliders();
     
     pregame();
     pregameSetup();
-    // Écouter les mises à jour du jeu
-    document.addEventListener('game-update', event => {
-      this.handleGameUpdate(event.detail);
-    });
-
 
     startGame.addEventListener('click', async () => {
       try {
@@ -38,14 +32,20 @@ export class LocalGamePage extends Page {
           paddleSize: document.getElementById('paddle-size'),
           paddleSpeed: document.getElementById('paddle-speed'),
           ballSize: document.getElementById('ball-size'),
-          winScore: document.querySelector('input[name="win-score"]:checked')
+          winScore: document.querySelector('input[name="win-score"]:checked'),
         };
 
-        // Check if all elements exist
+        const player1Name = document.getElementById("player1-name").value.trim();
+        const player2Name = document.getElementById("player2-name").value.trim();
+
         for (const [key, element] of Object.entries(settingsElements)) {
             if (!element) {
                 throw new Error(`Missing ${key} setting element`);
             }
+        }
+
+        if (!player1Name || !player2Name) {
+          throw new Error("Missing player name elements");
         }
 
         this.gameSettings = {
@@ -62,7 +62,7 @@ export class LocalGamePage extends Page {
         document.getElementById('pregame-menu').style.display = 'none'; 
         document.getElementById('game-container').style.display = 'block';       
 
-        this.gameInstance = initGame(this.gameSettings);
+        this.gameInstance = initGame(this.gameSettings, player1Name, player2Name);
         console.log(this.gameInstance);
         animate(this.gameInstance, this.gameSettings.winScore);
 

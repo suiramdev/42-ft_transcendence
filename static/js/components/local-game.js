@@ -588,21 +588,23 @@ export function tournamentAnimate(game, winScore, onGameEndCallback) {
   }
 }
 
-export function initGame(gameSettings) {
+export function initGame(gameSettings, player1Name, player2Name) {
   // Validate parameters
   if (
     gameSettings.ballSpeed === undefined ||
     gameSettings.paddleSize === undefined ||
     gameSettings.paddleSpeed === undefined ||
     gameSettings.ballSize === undefined ||
-    gameSettings.winScore === undefined
+    gameSettings.winScore === undefined ||
+    player1Name === undefined ||
+    player2Name === undefined
   ) {
     console.error('Missing game parameters');
     return null;
   }
 
   // Initialize the game
-  const game = new Game(gameSettings.ballSpeed, gameSettings.paddleSize, gameSettings.paddleSpeed, gameSettings.ballSize, gameSettings.winScore);
+  const game = new Game(gameSettings.ballSpeed, gameSettings.paddleSize, gameSettings.paddleSpeed, gameSettings.ballSize, gameSettings.winScore, player1Name, player2Name);
 
   // Return the game without starting animation yet
   return game;

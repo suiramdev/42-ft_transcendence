@@ -435,3 +435,54 @@
       rgba(229, 229, 222, 1) 100%
     );
   }
+
+  .player-names {
+    background: #ece9d8;
+    border: 1px solid #003c74;
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .player-names-title {
+    color: #003c74;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .player-input-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+  }
+  
+  .player-input {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  .player-input label {
+    font-size: 12px;
+    margin-bottom: 5px;
+    color: #000;
+  }
+  
+  .player-input input {
+    padding: 5px;
+    border: 1px solid #7b9ebd;
+    border-radius: 3px;
+    background-color: white;
+    font-family: 'Arial';
+    font-size: 14px;
+    width: 100%;
+  }
+  
+  .player-input input:focus {
+    border-color: #003c74;
+    outline: none;
+    box-shadow: 0 0 3px rgba(0, 60, 116, 0.5);
+  }
