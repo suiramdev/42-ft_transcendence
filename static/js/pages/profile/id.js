@@ -89,31 +89,32 @@ export class UserProfilePage extends Page {
     if (existingAddBtn) {
       existingAddBtn.remove();
     }
+    if (globalThis.user.id !== this.displayUser.id){
+      if (isFriend) {
+        if (removeFriendBtn) {
+          removeFriendBtn.style.display = 'block';
+          const newRemoveBtn = removeFriendBtn.cloneNode(true);
+          removeFriendBtn.parentNode.replaceChild(newRemoveBtn, removeFriendBtn);
+          newRemoveBtn.addEventListener('click', () => {
+            this._removeFriend();
+          });
+        }
+      } else {
+        if (removeFriendBtn) {
+          removeFriendBtn.style.display = 'none';
+        }
+        const addFriendBtn = document.createElement('button');
+        addFriendBtn.id = 'add_friend';
+        addFriendBtn.textContent = 'Add Friend';
+        addFriendBtn.classList.add('profile__add-friend-btn');
+        profileHeader.appendChild(addFriendBtn);
 
-    if (isFriend) {
-      if (removeFriendBtn) {
-        removeFriendBtn.style.display = 'block';
-        const newRemoveBtn = removeFriendBtn.cloneNode(true);
-        removeFriendBtn.parentNode.replaceChild(newRemoveBtn, removeFriendBtn);
-        newRemoveBtn.addEventListener('click', () => {
-          this._removeFriend();
+        addFriendBtn.addEventListener('click', () => {
+          this._addFriend();
         });
       }
-    } else {
-      if (removeFriendBtn) {
-        removeFriendBtn.style.display = 'none';
-      }
-      const addFriendBtn = document.createElement('button');
-      addFriendBtn.id = 'add_friend';
-      addFriendBtn.textContent = 'Add Friend';
-      addFriendBtn.classList.add('profile__add-friend-btn');
-      profileHeader.appendChild(addFriendBtn);
-
-      addFriendBtn.addEventListener('click', () => {
-        this._addFriend();
-      });
     }
-  }
+  } 
 
   async _loadAndDisplayMatchHistory(userId) {
     const accessToken = getCookie('access_token');
