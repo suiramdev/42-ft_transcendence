@@ -269,7 +269,7 @@ export function checkXCollision(game, winScore) {
         game.playerLeft.resetPlayer();
         if (game.updateScore3D) game.updateScore3D();
       } else {
-        declareWinner(game, 'rigth');
+        declareWinner(game, 'right');
         return false; // Game over
       }
     } else {

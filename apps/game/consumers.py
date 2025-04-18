@@ -2,7 +2,7 @@ import json
 import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async, sync_to_async
-from apps.game.models import Game
+from apps.game.models import Game, GameStatus
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
@@ -17,6 +17,12 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         try:
             self.game = await sync_to_async(Game.objects.get)(id=self.game_id)
+
+            if self.game.game_status != GameStatus.WAITING:
+                logger.error(f"Error: Game {self.game_id} is not waiting for a player")
+                self.close(code=1008, reason="Game is in progress or already completed")
+                return
+
         except Game.DoesNotExist:
             logger.error(f"Error: Game {self.game_id} not found")
             self.close(code=1008, reason="Game not found")
@@ -136,6 +142,12 @@ class GameConsumer(AsyncWebsocketConsumer):
             return game.addPlayerRdy()
         except Game.DoesNotExist:
             return False
+    
+    @database_sync_to_async
+    def set_game_status(self, game_id, status):
+        game = Game.objects.get(id=game_id)
+        game.game_status = status
+        game.save()
 
     @database_sync_to_async
     def delete_game(self):
@@ -143,7 +155,21 @@ class GameConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def get_players_count(self):
-        return Game.objects.filter(id=self.game_id).count()
+        try:
+            game = Game.objects.get(id=self.game_id)
+            player_count = 0
+            
+            if game.player1 is not None:
+                player_count += 1
+            
+            if game.player2 is not None:
+                player_count += 1
+                
+            return player_count
+        except Game.DoesNotExist:
+            logger.error(f"Error: Game {self.game_id} not found when counting players")
+            return 0
+
 
     async def game_settings(self, event):
         await self.send(text_data=json.dumps({
@@ -167,7 +193,10 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'player_left_nickname': event['player_left_nickname'],
                 'player_right_nickname': event['player_right_nickname']
             }))
+
             logger.info(f"Sent game_start message for game: {event['game_id']}")
+
+            await self.set_game_status(event['game_id'], GameStatus.PLAYING)
         except Exception as e:
             logger.error(f"Error sending game_start: {str(e)}")
 
@@ -217,6 +246,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             game.player2_score = scores.get('right', 0)
 
             game.completed_at = timezone.now()
+            game.game_status = GameStatus.COMPLETED
             game.save()
             game.incrementWinner()
             logger.info(f"Game {game_id} completed: Winner: {winner_user.nickname} with scores {scores}")

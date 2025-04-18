@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from apps.game.models import Game
+from apps.game.models import Game, GameStatus
 from rest_framework.permissions import IsAuthenticated
 from apps.user.models import User
 from rest_framework import permissions
@@ -24,7 +24,6 @@ class gameViewset(viewsets.ModelViewSet):
             winner=None,
             player1_score=0,
             player2_score=0,
-            game_type='classic'
         )
 
         return Response({
@@ -49,6 +48,12 @@ class gameViewset(viewsets.ModelViewSet):
         # Find the game
         try:
             game = Game.objects.get(id=game_id)
+
+            if game.game_status != GameStatus.WAITING:
+                return Response({
+                    'error': 'Game is in progress or already completed'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
         except Game.DoesNotExist:
             return Response({
                 'error': 'Game not found'
