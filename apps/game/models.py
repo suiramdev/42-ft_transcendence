@@ -1,6 +1,11 @@
 from django.db import models
 from apps.user.models import User
 
+class GameStatus(models.TextChoices):
+    WAITING = 'waiting'
+    PLAYING = 'playing'
+    COMPLETED = 'completed'
+
 class Game(models.Model):
     """Records games between users"""
     player1 = models.ForeignKey(User, related_name='games_as_player1', on_delete=models.CASCADE)
@@ -11,12 +16,10 @@ class Game(models.Model):
     player2_score = models.IntegerField()
     player_rdy = models.IntegerField(default=0)
     settings = models.JSONField(null=True, blank=True)
-    game_type = models.CharField(
+    game_status = models.CharField(
         max_length=20,
-        choices=[
-            ('classic', 'Classic'),
-            ('custom', 'Custom')
-        ]
+        choices=GameStatus.choices,
+        default=GameStatus.WAITING
     )
 
     def getP1Score(self):

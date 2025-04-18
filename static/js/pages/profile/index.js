@@ -77,11 +77,21 @@ export class ProfilePage extends Page {
 
     saveBtn.addEventListener('click', async () => {
       try {
-        await updateUser({
+        const { error, ...user } = await updateUser({
           nickname: aliasInput.value,
           bio: bioInput.value,
           avatar: avatarSelect.files[0] || globalThis.user.avatar,
         });
+
+        if (error) {
+          alert(error);
+          return;
+        }
+
+        aliasInput.value = user.nickname;
+        bioInput.value = user.bio;
+        avatarSelect.value = '';
+
         document.dispatchEvent(new Event('userStateChange'));
         editForm.classList.add('hidden');
       } catch (error) {
