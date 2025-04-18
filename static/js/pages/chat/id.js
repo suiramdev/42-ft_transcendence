@@ -280,7 +280,7 @@ export class DirectMessagePage extends Page {
             embeds: [
               {
                 type: 'game_invite',
-                url: `/?joinGame=${gameId}`,
+                url: `/game?joinGame=${gameId}`,
               },
             ],
           })
@@ -288,7 +288,7 @@ export class DirectMessagePage extends Page {
       }
 
       // Navigate to the waiting screen
-      globalThis.router.navigate('/?waitingGame=' + gameId);
+      globalThis.router.navigate(`/game?waitingGame=${gameId}`);
     } catch (error) {
       console.error('Error inviting user:', error);
       this._setFormError('Failed to invite user to game, please try again');
