@@ -31,7 +31,7 @@ export class TournamentPage extends Page {
       if (player1 && player2 && player3 && player4) {
         this.tournamentInstance = new Tournament(player1, player2, player3, player4);
         // Continue to match announcement
-        this.startTournament();
+        this.tournamentInstance.startMatch();
       } else {
         alert("All players must have names!");
       }
@@ -43,14 +43,4 @@ export class TournamentPage extends Page {
     });
   }
 
-  startTournament() {
-    // Handle tournament startup
-    console.log("Tournament started with players:", 
-      this.tournamentInstance.player1,
-      this.tournamentInstance.player2,
-      this.tournamentInstance.player3,
-      this.tournamentInstance.player4
-    );
-    this.tournamentInstance.startMatch();
-  }
 }

@@ -62,7 +62,7 @@ export class LocalGamePage extends Page {
         document.getElementById('pregame-menu').style.display = 'none'; 
         document.getElementById('game-container').style.display = 'block';       
 
-        this.gameInstance = initGame(this.gameSettings, player1Name, player2Name);
+        this.gameInstance = initGame(this.gameSettings, player1Name, player2Name, 'green', 'blue');
         console.log(this.gameInstance);
         animate(this.gameInstance, this.gameSettings.winScore);
 

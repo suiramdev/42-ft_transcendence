@@ -6,11 +6,19 @@ export class Tournament {
     this.player2 = player2;
     this.player3 = player3;
     this.player4 = player4;
+    this.player1Color = 'green';
+    this.player2Color = 'blue';
+    this.player3Color = 'purple';
+    this.player4Color = 'yellow';
     this.loser1 = null;
+    this.loser1Color = null;
     this.loser2 = null;
+    this.loser2Color = null;
     this.loser3 = null;
     this.winner1 = null;
+    this.winner1Color = null;
     this.winner2 = null;
+    this.winner2Color = null;
     this.match = 0;
     this.third = null;
     this.scnd = null;
@@ -31,29 +39,47 @@ export class Tournament {
     if (this.endGameScreen.style.display === 'flex') {
       this.endGameScreen.style.display = 'none';
     }
-
+  
     document.getElementById('match-number').textContent = this.match + 1;
-
+  
     this.matchAnnouncement.style.display = 'block';
-
+  
     const matchPlayer1 = document.getElementById('match-player1');
     const matchPlayer2 = document.getElementById('match-player2');
+
+    const leftAvatar = document.querySelector('.player-avatar.left');
+    const rightAvatar = document.querySelector('.player-avatar.right');
 
     if (this.match === 0) {
       matchPlayer1.textContent = this.player1;
       matchPlayer2.textContent = this.player2;
+
+      leftAvatar.style.backgroundColor = this.player1Color;
+      rightAvatar.style.backgroundColor = this.player2Color;
     } else if (this.match === 1) {
       matchPlayer1.textContent = this.player3;
       matchPlayer2.textContent = this.player4;
+
+      leftAvatar.style.backgroundColor = this.player3Color;
+      rightAvatar.style.backgroundColor = this.player4Color;
     } else if (this.match === 2) {
+      matchPlayer1.textContent = this.loser1;
+      matchPlayer2.textContent = this.loser2;
+
+      leftAvatar.style.backgroundColor = this.loser1Color;
+      rightAvatar.style.backgroundColor = this.loser2Color;
+    } else {
       matchPlayer1.textContent = this.winner1;
       matchPlayer2.textContent = this.winner2;
-    }
 
+      leftAvatar.style.backgroundColor = this.winner1Color;
+      rightAvatar.style.backgroundColor = this.winner2Color;
+    }
+  
     const startMatchBtn = document.getElementById('start-match');
     const newStartBtn = startMatchBtn.cloneNode(true);
     startMatchBtn.parentNode.replaceChild(newStartBtn, startMatchBtn);
-
+  
     newStartBtn.addEventListener('click', () => this.startGame());
   }
   
@@ -65,13 +91,13 @@ export class Tournament {
     canvas.height = 1000;
 
     if (this.match === 0) {
-        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.player1, this.player2);
-    } else if (this.match === 1) {
-        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.player3, this.player4);
-    }else if (this.match === 2){
-        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.loser1, this.loser2);
-    } else {
-        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.winner1, this.winner2);
+        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.player1, this.player2, this.player1Color, this.player2Color);
+      } else if (this.match === 1) {
+        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.player3, this.player4, this.player3Color, this.player4Color);
+      }else if (this.match === 2){
+        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.loser1, this.loser2, this.loser1Color, this.loser2Color);
+      } else {
+        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.winner1, this.winner2, this.winner1Color, this.winner2Color);
     }
     this.gameInstance.renderer.setSize(canvas.width, canvas.height);
     this.gameInstance.camera.aspect = canvas.width / canvas.height;
@@ -96,10 +122,14 @@ export class Tournament {
     if (this.match === 0) {
         if (isLeftWinner){
             this.winner1 = this.gameInstance.leftPlayerNickname;
+            this.winner1Color = this.player1Color;
             this.loser1 = this.gameInstance.rightPlayerNickname;
+            this.loser1Color = this.player2Color;
         }else{
             this.winner1 = this.gameInstance.rightPlayerNickname;
+            this.winner1Color = this.player2Color;
             this.loser1 = this.gameInstance.leftPlayerNickname;
+            this.loser1Color = this.player1Color;
         }
         const loserfinalist1 = document.getElementById('bracket-loserfinalist1');
         if (loserfinalist1) loserfinalist1.textContent = this.loser2;
@@ -110,10 +140,14 @@ export class Tournament {
     else if (this.match === 1) {
         if (isLeftWinner){
             this.winner2 = this.gameInstance.leftPlayerNickname;
+            this.winner2Color = this.player3Color;
             this.loser2 = this.gameInstance.rightPlayerNickname;
+            this.loser2Color = this.player4Color;
         }else{
             this.winner2 = this.gameInstance.rightPlayerNickname;
+            this.winner2Color = this.player4Color;
             this.loser2 = this.gameInstance.leftPlayerNickname;
+            this.loser2Color = this.player3Color;
         }
         const loserfinalist2 = document.getElementById('bracket-loserfinalist2');
         if (loserfinalist2) loserfinalist2.textContent = this.loser2;
@@ -151,46 +185,33 @@ export class Tournament {
     }
 
     this.endGameScreen.style.display = 'flex';
-    
-    // Set up the next match button
+
     this.setupNextMatchButton();
   }
 
   setupNextMatchButton() {
-    // Get the next match button
     const nextMatchButton = document.getElementById('next-match');
-    
-    // Remove any existing event listeners
+
     const newNextButton = nextMatchButton.cloneNode(true);
     nextMatchButton.parentNode.replaceChild(newNextButton, nextMatchButton);
-    
-    // Add event listener to go to next match
+
     newNextButton.addEventListener('click', () => {
-      // Hide end game screen
       this.endGameScreen.style.display = 'none';
-      
-      // Advance to next match
       this.match++;
-      
-      // Start the next match
       this.startMatch();
     });
   }
 
   showTournamentResults(champion, runnerUp) {
-    // Hide other screens
     this.gameContainer.style.display = 'none';
     this.endGameScreen.style.display = 'none';
-    
-    // Update winner display
+
     document.getElementById('champion-name').textContent = champion;
     document.getElementById('first-place-name').textContent = champion;
     document.getElementById('second-place-name').textContent = runnerUp;
-    
-    // For third place, we use one of the semifinal losers
+
     document.getElementById('third-place-name').textContent = this.loser3;
-    
-    // Update the results bracket
+
     document.getElementById('result-player1').textContent = this.player1;
     document.getElementById('result-player2').textContent = this.player2;
     document.getElementById('result-player3').textContent = this.player3;
@@ -199,8 +220,7 @@ export class Tournament {
     document.getElementById('result-loserfinalist2').textContent = this.loser2;
     document.getElementById('result-finalist1').textContent = this.winner1;
     document.getElementById('result-finalist2').textContent = this.winner2;
-    
-    // Mark the champion in the bracket
+
     if (champion === this.winner1) {
       document.getElementById('result-finalist1').classList.add('winner');
       document.getElementById('result-finalist2').classList.remove('winner');
@@ -208,24 +228,19 @@ export class Tournament {
       document.getElementById('result-finalist2').classList.add('winner');
       document.getElementById('result-finalist1').classList.remove('winner');
     }
-    
-    // Show results screen
+
     this.resultsScreen.style.display = 'block';
-    
-    // Add event listeners for results buttons
     this.setupResultsButtons();
   }
   
   setupResultsButtons() {
-    // New tournament button
     const newTournamentBtn = document.getElementById('new-tournament');
     newTournamentBtn.addEventListener('click', () => {
       this.resultsScreen.style.display = 'none';
       document.getElementById('player-registration').style.display = 'block';
       this.resetTournament();
     });
-    
-    // Main menu button
+
     const mainMenuBtn = document.getElementById('main-menu');
     mainMenuBtn.addEventListener('click', () => {
       this.resultsScreen.style.display = 'none';
@@ -241,18 +256,15 @@ export class Tournament {
     this.loser2 = null;
     this.match = 0;
     this.champion = null;
-    
-    // Reset bracket display
+
     document.getElementById('bracket-finalist1').textContent = 'Winner 1';
     document.getElementById('bracket-finalist2').textContent = 'Winner 2';
-    
-    // Clear player inputs
+
     document.getElementById('player1').value = '';
     document.getElementById('player2').value = '';
     document.getElementById('player3').value = '';
     document.getElementById('player4').value = '';
-    
-    // Reset bracket players
+
     document.getElementById('bracket-player1').textContent = 'Player 1';
     document.getElementById('bracket-player2').textContent = 'Player 2';
     document.getElementById('bracket-player3').textContent = 'Player 3';
