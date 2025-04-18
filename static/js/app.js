@@ -11,6 +11,7 @@ import { connectToStatusSocket } from './services/status.js';
 import { translatePage } from './utils/i18n.js';
 import './components/language-selector.js';
 import { TournamentPage } from './pages/tournament.js';
+import { WelcomePage } from './pages/welcome.js'
 
 // Initialize the router in globalThis
 // so it can be accessed from anywhere in the code
@@ -21,7 +22,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const router = new Router(rootElement);
 
   // Register the routes
-  router.registerRoute('/', new GamePage());
+  router.registerRoute('/', new WelcomePage());
+  router.registerRoute('/game', new GamePage());
   router.registerRoute('/profile', new ProfilePage());
   router.registerRoute('/profile/:id', new UserProfilePage());
   router.registerRoute('/chat/:id', new DirectMessagePage());

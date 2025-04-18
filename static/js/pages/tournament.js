@@ -26,11 +26,9 @@ export class TournamentPage extends Page {
       const player2 = document.getElementById('player2').value.trim();
       const player3 = document.getElementById('player3').value.trim();
       const player4 = document.getElementById('player4').value.trim();
-      
-      // Simple validation
+
       if (player1 && player2 && player3 && player4) {
         this.tournamentInstance = new Tournament(player1, player2, player3, player4);
-        // Continue to match announcement
         this.tournamentInstance.startMatch();
       } else {
         alert("All players must have names!");
