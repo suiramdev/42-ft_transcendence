@@ -251,13 +251,13 @@ function checkXCollision(game, winScore) {
 
 
 export class Game {
-  constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, gameManager) {
+  constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, leftPlayerNickname, rightPlayerNickname, leftPlayerColor, rightPlayerColor) {
     this.isGameRunning = true;
     this.winScore = winScore;
-    this.leftPlayerNickname = 'leftPlayerNickname';
-    this.rightPlayerNickname = 'rightPlayerNickname';
-
-
+    this.leftPlayerNickname = leftPlayerNickname;
+    this.rightPlayerNickname = rightPlayerNickname;
+    this.leftPlayerColor = leftPlayerColor;
+    this.rightPlayerColor = rightPlayerColor;
     // Initialisation
     this.setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize);
     this.addEventListeners();
@@ -266,7 +266,7 @@ export class Game {
   // ----------------- 3D setup -----------------
 
   setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize) {
-    this.canvas = document.getElementById('pongCanvas');
+    this.canvas = document.getElementById('pongCanvas'); 
     this.renderer = new THREE.WebGLRenderer({ canvas : this.canvas });
     this.renderer.setSize(this.canvas.width, this.canvas.height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -275,58 +275,50 @@ export class Game {
     this.camera = new THREE.PerspectiveCamera(100, this.canvas.width / this.canvas.height, 5, 100);
     this.camera.position.z = 8;
     this.camera.position.y = 0;
-    // Check if all elements exist
 
     const geometry = new THREE.BoxGeometry(50, 25, 0);
 
-    // Charger la texture
-    // const textureLoader = new THREE.TextureLoader();
-    // const texture = textureLoader.load('/static/Windows.jpg');
-
-    // Appliquer la texture au matériau
     const material = new THREE.MeshPhongMaterial({ color: 'black' });
     const cube = new THREE.Mesh(geometry, material);
     cube.position.z = -2;
     this.scene.add(cube);
-    // Initialize game objects
-    this.playerLeft = new Player(-10, 0, 0, paddleSize, paddleSpeed, 'green');
+
+    this.playerLeft = new Player(-10, 0, 0, paddleSize, paddleSpeed, this.leftPlayerColor);
     this.playerLeft.sceneADD(this.scene);
 
-    this.playerRight = new Player(10, 0, 0, paddleSize, paddleSpeed, 'blue');
+    this.playerRight = new Player(10, 0, 0, paddleSize, paddleSpeed, this.rightPlayerColor);
     this.playerRight.sceneADD(this.scene);
 
-    console.log('ball speed : ', ballSpeed);
-    console.log('ball size : ', ballSize);
     this.ball = new ball(0, 0, 0, 1, 1, ballSpeed, ballSize || 0.5, 'red', this.gameManager);
     this.ball.sceneADD(this.scene);
 
     this.createScoreDisplay();
-    // Lumière ambiante (plus faible, pour adoucir les ombres)
+    //plus faible, pour adoucir les ombres
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
     this.scene.add(ambientLight);
 
-    // Lumière directionnelle (simule une lumière venant du dessus)
+    //simule une lumière venant du dessus
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(5, 10, 10); // Position au-dessus et sur le côté
     directionalLight.castShadow = true; // Active les ombres
     this.scene.add(directionalLight);
 
-    // Lumière ponctuelle (simule une source lumineuse comme une lampe)
+    // une source lumineuse comme une lampe
     const pointLight = new THREE.PointLight(0xffaa33, 1.5, 20);
     pointLight.position.set(0, 5, 5);
     this.scene.add(pointLight);
 
-    // Optionnel : une lumière spot pour un effet dramatique
+    //une lumière spot pour un effet dramatique
     const spotLight = new THREE.SpotLight(0xff0000, 1);
     spotLight.position.set(-5, 10, 5);
     spotLight.angle = Math.PI / 6;
     spotLight.penumbra = 0.5;
     this.scene.add(spotLight);
 
-    // Lumière dédiée au background (douce et large)
+    //background : douce et large
     const backgroundLight = new THREE.DirectionalLight(0xffffff, 5);
-    backgroundLight.position.set(0, 5, -5); // Positionnée derrière la scène
-    backgroundLight.target = cube; // Dirige la lumière vers le cube (background)
+    backgroundLight.position.set(0, 5, -5);
+    backgroundLight.target = cube;
     this.scene.add(backgroundLight);
     
     return true;
@@ -379,11 +371,11 @@ export class Game {
         return sprite;
     };
 
-    this.leftScoreSprite = createTextSprite('0', 'green');
-    this.rightScoreSprite = createTextSprite('0', 'blue');
+    this.leftScoreSprite = createTextSprite('0', this.leftPlayerColor);
+    this.rightScoreSprite = createTextSprite('0', this.rightPlayerColor);
 
-    this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', 'green');
-    this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', 'blue');
+    this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', this.leftPlayerColor);
+    this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', this.rightPlayerColor);
 
     this.leftScoreSprite.position.set(-2, 7, 0);
     this.rightScoreSprite.position.set(2, 7, 0);
@@ -419,8 +411,8 @@ export class Game {
         sprite.material.map.needsUpdate = true;
       };
       
-      updateSprite(this.leftScoreSprite, this.playerLeft.getScore(), 'green');
-      updateSprite(this.rightScoreSprite, this.playerRight.getScore(), 'blue');
+      updateSprite(this.leftScoreSprite, this.playerLeft.getScore(), this.leftPlayerColor);
+      updateSprite(this.rightScoreSprite, this.playerRight.getScore(), this.rightPlayerColor);
     }
   }
 
@@ -463,13 +455,11 @@ export class Game {
   endgame() {
     this.isGameRunning = false;
     this.removeEventListeners();
-    
-    // Nettoyage de la scène
+
     while (this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);
     }
-  
-    // Nettoyage des ressources
+
     this.playerLeft.pCube.geometry.dispose();
     this.playerLeft.pCube.material.dispose();
     this.playerRight.pCube.geometry.dispose();
@@ -480,43 +470,56 @@ export class Game {
     if (this.leftScoreGeometry) this.leftScoreGeometry.dispose();
     if (this.rightScoreGeometry) this.rightScoreGeometry.dispose();
 
-    // Interface utilisateur
     const gameContainer = document.getElementById('game-container');
     gameContainer.style.display = 'none';
-  
-    // Get player names with fallbacks
+
     const leftPlayerName = this.leftPlayerNickname || 'Left Player';
     const rightPlayerName = this.rightPlayerNickname || 'Right Player';
-    
-    // Determine winner
+
     const isLeftWinner = this.playerLeft.getScore() > this.playerRight.getScore();
     const winnerName = isLeftWinner ? leftPlayerName : rightPlayerName;
-    
-    // Update the end game screen with the details
+
     document.getElementById('winner-name').textContent = `${winnerName} Wins!`;
     document.getElementById('final-score').textContent = 
       `${leftPlayerName} ${this.playerLeft.getScore()} - ${this.playerRight.getScore()} ${rightPlayerName}`;
-    
-    // Show the end game screen
+
     const endGameScreen = document.getElementById('end-game-screen');
     endGameScreen.style.display = 'flex';
-    
-    // Add event listeners for buttons
+
     document.getElementById('main-menu-btn').addEventListener('click', () => {
       endGameScreen.style.display = 'none';
       window.location.reload();
     });
-    
-    // Add event listener for close button
+
     document.querySelector('.window__close').addEventListener('click', () => {
       endGameScreen.style.display = 'none';
       window.location.reload();
     });
-  
-    // Nettoyage final
+
     this.renderer.dispose();
     this.playerLeft.scoreCount = 0;
     this.playerRight.scoreCount = 0;
+  }
+
+  clean3D (){
+    this.isGameRunning = false;
+    this.removeEventListeners();
+
+    while (this.scene.children.length > 0) {
+      this.scene.remove(this.scene.children[0]);
+    }
+
+    this.playerLeft.pCube.geometry.dispose();
+    this.playerLeft.pCube.material.dispose();
+    this.playerRight.pCube.geometry.dispose();
+    this.playerRight.pCube.material.dispose();
+    this.ball.bSphere.geometry.dispose();
+    this.ball.bSphere.material.dispose();
+
+    if (this.leftScoreGeometry) this.leftScoreGeometry.dispose();
+    if (this.rightScoreGeometry) this.rightScoreGeometry.dispose();
+
+    this.renderer.dispose();
   }
 }
 
@@ -538,40 +541,56 @@ export function animate(game, winScore) {
   
   requestAnimationFrame(() => animate(game, winScore));
 
-  // Update physics at fixed time steps
     if (checkXCollision(game, winScore)) {
-        // console.log(game.renderer);
-        updatePos(game);
-        game.ball.moveBall(game.playerLeft, game.playerRight, game.fixedTimeStep);
-        game.renderer.render(game.scene, game.camera);
+      updatePos(game);
+      game.ball.moveBall(game.playerLeft, game.playerRight, game.fixedTimeStep);
+      game.renderer.render(game.scene, game.camera);
     } else {
-        game.endgame();
-        return;
+      game.endgame();
+      return;
     }
 }
 
-export function initGame(gameSettings) {
-  // Validate parameters
+
+export function tournamentAnimate(game, winScore, onGameEndCallback) {
+  if (!game || !game.isGameRunning) return;
+  
+  requestAnimationFrame(() => tournamentAnimate(game, winScore, onGameEndCallback));
+
+  if (checkXCollision(game, winScore)) {
+    updatePos(game);
+    game.ball.moveBall(game.playerLeft, game.playerRight, game.fixedTimeStep);
+    game.renderer.render(game.scene, game.camera);
+  } else {
+    game.isGameRunning = false;
+    game.clean3D();
+
+    if (onGameEndCallback && typeof onGameEndCallback === 'function') {
+      onGameEndCallback();
+    }
+  }
+}
+
+export function initGame(gameSettings, player1Name, player2Name, player1Color, player2Color) {
   if (
     gameSettings.ballSpeed === undefined ||
     gameSettings.paddleSize === undefined ||
     gameSettings.paddleSpeed === undefined ||
     gameSettings.ballSize === undefined ||
-    gameSettings.winScore === undefined
+    gameSettings.winScore === undefined ||
+    player1Name === undefined ||
+    player2Name === undefined
   ) {
     console.error('Missing game parameters');
     return null;
   }
 
-  // Initialize the game
-  const game = new Game(gameSettings.ballSpeed, gameSettings.paddleSize, gameSettings.paddleSpeed, gameSettings.ballSize, gameSettings.winScore);
+  const game = new Game(gameSettings.ballSpeed, gameSettings.paddleSize, gameSettings.paddleSpeed, gameSettings.ballSize, gameSettings.winScore, player1Name, player2Name, player1Color, player2Color);
 
-  // Return the game without starting animation yet
   return game;
 }
 
 export function setupSliders() {
-  // Ball speed slider
   const ballSpeedSlider = document.getElementById('ball-speed');
   const ballSpeedValue = document.getElementById('ball-speed-value');
   if (ballSpeedSlider && ballSpeedValue) {
@@ -580,7 +599,6 @@ export function setupSliders() {
     });
   }
 
-  // Paddle size slider
   const paddleSizeSlider = document.getElementById('paddle-size');
   const paddleSizeValue = document.getElementById('paddle-size-value');
   if (paddleSizeSlider && paddleSizeValue) {
@@ -589,7 +607,6 @@ export function setupSliders() {
     });
   }
 
-  // Paddle speed slider
   const paddleSpeedSlider = document.getElementById('paddle-speed');
   const paddleSpeedValue = document.getElementById('paddle-speed-value');
   if (paddleSpeedSlider && paddleSpeedValue) {
@@ -598,7 +615,6 @@ export function setupSliders() {
     });
   }
 
-  // Win score slider
   const winScoreSlider = document.getElementById('win-score');
   const winScoreValue = document.getElementById('win-score-value');
   if (winScoreSlider && winScoreValue) {
