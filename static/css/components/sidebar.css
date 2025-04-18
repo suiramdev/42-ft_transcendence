@@ -8,21 +8,24 @@
   }
   
   .userlist__add-friend-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    line-height: 18px;
+    padding: 0;
     background-color: #007bff;
     color: white;
     border: none;
-    width: 30px;
-    height: 30px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s;
+    margin-left: 8px;
   }
   
   .userlist__add-friend-btn:hover {
-    background-color: #0069d9;
+    background-color: #0056b3;
   }
   
   .userlist__add-friend-form {

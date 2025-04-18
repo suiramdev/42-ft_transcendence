@@ -87,24 +87,24 @@ export class Tournament {
     this.matchAnnouncement.style.display = 'none';
     this.gameContainer.style.display = 'block';
     const canvas = document.getElementById('pongCanvas');
-    canvas.width = 1400;
-    canvas.height = 1000;
+    canvas.width = 1200;
+    canvas.height = 800;
 
     if (this.match === 0) {
-        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.player1, this.player2, this.player1Color, this.player2Color);
-      } else if (this.match === 1) {
-        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.player3, this.player4, this.player3Color, this.player4Color);
-      }else if (this.match === 2){
-        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.loser1, this.loser2, this.loser1Color, this.loser2Color);
-      } else {
-        this.gameInstance = new Game(0.1, 3, 0.3, 0.5, 1, this.winner1, this.winner2, this.winner1Color, this.winner2Color);
+      this.gameInstance = new Game(0.2, 3, 0.3, 0.5, 3, this.player1, this.player2, this.player1Color, this.player2Color);
+    } else if (this.match === 1) {
+      this.gameInstance = new Game(0.2, 3, 0.3, 0.5, 3, this.player3, this.player4, this.player3Color, this.player4Color);
+    }else if (this.match === 2){
+      this.gameInstance = new Game(0.2, 3, 0.3, 0.5, 3, this.loser1, this.loser2, this.loser1Color, this.loser2Color);
+    } else {
+      this.gameInstance = new Game(0.2, 3, 0.3, 0.5, 3, this.winner1, this.winner2, this.winner1Color, this.winner2Color);
     }
     this.gameInstance.renderer.setSize(canvas.width, canvas.height);
     this.gameInstance.camera.aspect = canvas.width / canvas.height;
     this.gameInstance.camera.updateProjectionMatrix();
 
     this.gameInstance.isGameRunning = true;
-    tournamentAnimate(this.gameInstance, 1, () => {
+    tournamentAnimate(this.gameInstance, 3, () => {
         this.endGame();
       });
   }
