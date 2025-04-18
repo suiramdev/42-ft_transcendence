@@ -187,6 +187,10 @@ export class DirectMessagePage extends Page {
    */
   _setFormError(reason) {
     const formError = document.querySelector('#chat-form-error');
+    if (!formError) {
+      return;
+    }
+
     formError.textContent = reason;
     formError.style.display = 'block';
   }
@@ -197,6 +201,11 @@ export class DirectMessagePage extends Page {
    */
   _clearFormError() {
     const formError = document.querySelector('#chat-form-error');
+    if (!formError) {
+      return;
+    }
+
+    formError.textContent = '';
     formError.style.display = 'none';
   }
 
@@ -297,6 +306,11 @@ export class DirectMessagePage extends Page {
    * @param {Array} [data.embeds] - Optional embeds for the message
    */
   _addMessageToChat(data) {
+    const messagesContainer = document.querySelector('#chat-messages');
+    if (!messagesContainer) {
+      return;
+    }
+
     const messageContainer = document.createElement('div');
     messageContainer.classList.add('chat__message');
 
@@ -321,13 +335,13 @@ export class DirectMessagePage extends Page {
     embeds.forEach(embed => {
       switch (embed.type) {
         case 'game_invite':
+          if (data.sender_id === globalThis.user.id) {
+            return;
+          }
           // For game invites or other clickable embeds
           const gameInvite = document.createElement('a');
           gameInvite.href = embed.url;
           gameInvite.classList.add('chat__message-game-invite');
-          if (data.sender_id === globalThis.user.id) {
-            gameInvite.setAttribute('disabled', 'disabled');
-          }
           gameInvite.textContent = 'Join Game';
 
           messageContent.appendChild(gameInvite);
@@ -352,7 +366,7 @@ export class DirectMessagePage extends Page {
 
     messageContainer.appendChild(messageContent);
 
-    document.querySelector('#chat-messages').appendChild(messageContainer);
+    messagesContainer.appendChild(messageContainer);
 
     messageContainer.scrollIntoView({ behavior: 'smooth' });
   }
