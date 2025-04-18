@@ -1,6 +1,7 @@
 import { Page } from '../../core/Page.js';
 import { getCookie } from '../../utils/cookies.js';
 import { populateFriendsList } from '../../services/user.js';
+import { t } from '../../utils/i18n.js';
 
 export class UserProfilePage extends Page {
   /**
@@ -136,7 +137,12 @@ export class UserProfilePage extends Page {
       for (const game of userGames) {
         const opponentId = game.player1 === userId ? game.player2 : game.player1;
         const youWon = game.winner === userId;
-        const resultText = game.winner === null ? 'Match nul' : youWon ? 'Victoire' : 'Défaite';
+        const resultText =
+          game.winner === null
+            ? t('profile.history.draw')
+            : youWon
+            ? t('profile.history.victory')
+            : t('profile.history.defeat');
         const date = new Date(game.played_at).toLocaleDateString();
 
         const li = document.createElement('li');

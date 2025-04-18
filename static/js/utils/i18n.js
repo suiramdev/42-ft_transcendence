@@ -1,118 +1,380 @@
-/**
- * i18n.js - Internationalization utilities for the application
- * Vanilla JavaScript implementation of multi-language support
- */
-
-// Default language
 const DEFAULT_LANGUAGE = 'en';
 
-// Available languages
-const AVAILABLE_LANGUAGES = ['en', 'fr', 'es'];
+export const AVAILABLE_LANGUAGES = ['en', 'fr', 'es', 'ru'];
 
-// Store translations for each language
-const translations = {
+const TRANSLATIONS = {
   en: {
-    // Navigation
-    'nav.game': 'Game',
-    'nav.multiplayer': 'Multiplayer',
+    'nav.game': '🏓 Game',
+    'nav.multiplayer': '🏓🏓 Multiplayer',
+    'nav.tournament': '🏆 Tournament',
     'nav.profile': 'My Profile',
     'nav.signIn': 'Sign In',
     'nav.signOut': 'Sign Out',
-
-    // User list
-    'users.title': 'Users',
-
-    // Common UI elements
+    'friends.title': 'Friends',
     'ui.window.title': 'ft_transcendence',
-
-    // Game related
-    'game.title': 'Pong Game',
-    'game.start': 'Start Game',
-    'game.pause': 'Pause',
-    'game.resume': 'Resume',
-    'game.restart': 'Restart',
-
-    // Profile related
+    'game.multiplayer.title': 'Multiplayer',
+    'game.multiplayer.settings.title': 'Game Settings',
+    'game.multiplayer.settings.win-score': 'Win Score',
+    'game.multiplayer.start': 'Start Game',
+    'game.multiplayer.join': 'Join Game',
+    'game.multiplayer.waiting.created': 'Game created successfully!',
+    'game.multiplayer.waiting.share': 'Share this Game ID with your opponent:',
+    'game.multiplayer.waiting.status': 'Waiting for player to join...',
+    'game.multiplayer.end.title': 'Game Over',
+    'game.multiplayer.end.winner': 'Player Wins!',
+    'game.multiplayer.end.main-menu': 'Main Menu',
+    'game.local.title': 'Local Player',
+    'game.local.settings.title': 'Game Settings',
+    'game.local.settings.win-score': 'Win Score',
+    'game.local.settings.player-names': 'Player Names',
+    'game.local.settings.player-1': 'Left Player (W/S)',
+    'game.local.settings.player-2': 'Right Player (↑/↓)',
+    'game.local.start': 'Start Game',
+    'game.local.end.title': 'Game Over',
+    'game.local.end.winner': 'Player Wins!',
+    'game.local.end.main-menu': 'Main Menu',
     'profile.title': 'Profile',
     'profile.stats': 'Statistics',
     'profile.history': 'Match History',
-
-    // Language names (for the selector)
+    'profile.history.draw': 'Draw',
+    'profile.history.victory': 'Victory',
+    'profile.history.defeat': 'Defeat',
+    'chat.invite': 'Invite to Game',
+    'chat.block': 'Block User',
+    'chat.unblock': 'Unblock User',
+    'chat.message': 'Type a message...',
+    'chat.send': 'Send',
     'language.en': 'English',
     'language.fr': 'Français',
     'language.es': 'Español',
+    'language.ru': 'Русский',
+    'tournament.title': 'Tournament',
+    'tournament.game.title': 'Pong Tournament',
+    'tournament.game.description': 'Play a 4-player tournament locally with your friends',
+    'tournament.create': 'Create Tournament',
+    'tournament.back': 'Back to Menu',
+    'tournament.player.registration': 'Player Registration',
+    'tournament.player.player1': 'Player 1',
+    'tournament.player.player2': 'Player 2',
+    'tournament.player.player3': 'Player 3',
+    'tournament.player.player4': 'Player 4',
+    'tournament.bracket.title': 'Tournament Bracket',
+    'tournament.bracket.player1': 'Player 1',
+    'tournament.bracket.player2': 'Player 2',
+    'tournament.bracket.player3': 'Player 3',
+    'tournament.bracket.player4': 'Player 4',
+    'tournament.bracket.finalist1': 'Winner 1',
+    'tournament.bracket.finalist2': 'Winner 2',
+    'tournament.bracket.loserfinalist1': 'Loser 1',
+    'tournament.bracket.loserfinalist2': 'Loser 2',
+    'tournament.start': 'Start Tournament',
+    'tournament.match.announcement': 'Next Match',
+    'tournament.match.player1': 'Player 1',
+    'tournament.match.player2': 'Player 2',
+    'tournament.match.start': 'Start Match',
+    'tournament.end.game': 'Game Over',
+    'tournament.end.winner': 'Player Wins!',
+    'tournament.end.next': 'Next Game',
+    'tournament.results.title': 'Tournament Results',
+    'tournament.results.champion': 'Tournament Champion',
+    'tournament.results.champion-name': 'Player Name',
+    'tournament.results.final': 'Final Results',
+    'tournament.results.player1': 'Player 1',
+    'tournament.results.player2': 'Player 2',
+    'tournament.results.player3': 'Player 3',
+    'tournament.results.player4': 'Player 4',
+    'tournament.results.finalist1': 'Winner 1',
+    'tournament.results.finalist2': 'Winner 2',
+    'tournament.results.loserfinalist1': 'Loser 1',
+    'tournament.results.loserfinalist2': 'Loser 2',
+    'tournament.results.second-place': 'Runner Up',
+    'tournament.results.semi-finalist': 'Semi-Finalist',
+    'tournament.results.new': 'New Tournament',
+    'tournament.results.main-menu': 'Main Menu',
   },
   fr: {
-    // Navigation
-    'nav.game': 'Jeu',
-    'nav.multiplayer': 'Multijoueur',
+    'nav.game': '🏓 Jeu',
+    'nav.multiplayer': '🏓🏓 Multijoueur',
+    'nav.tournament': '🏆 Tournoi',
     'nav.profile': 'Mon Profil',
     'nav.signIn': 'Se Connecter',
     'nav.signOut': 'Se Déconnecter',
-
-    // User list
-    'users.title': 'Utilisateurs',
-
-    // Common UI elements
+    'friends.title': 'Amis',
     'ui.window.title': 'ft_transcendence',
-
-    // Game related
-    'game.title': 'Jeu de Pong',
-    'game.start': 'Démarrer',
-    'game.pause': 'Pause',
-    'game.resume': 'Reprendre',
-    'game.restart': 'Recommencer',
-
-    // Profile related
+    'game.multiplayer.title': 'Multijoueur',
+    'game.multiplayer.settings.title': 'Paramètres du Jeu',
+    'game.multiplayer.settings.win-score': 'Score de Victoire',
+    'game.multiplayer.start': 'Démarrer le Jeu',
+    'game.multiplayer.join': 'Rejoindre le Jeu',
+    'game.multiplayer.waiting.created': 'Partie créée avec succès !',
+    'game.multiplayer.waiting.share': 'Partagez ce numéro de partie avec votre adversaire :',
+    'game.multiplayer.waiting.status': "En attente de l'adversaire...",
+    'game.multiplayer.end.title': 'Fin de Partie',
+    'game.multiplayer.end.winner': 'Le Joueur Gagne !',
+    'game.multiplayer.end.main-menu': 'Menu Principal',
+    'game.local.title': 'Joueur Local',
+    'game.local.settings.title': 'Paramètres du Jeu',
+    'game.local.settings.win-score': 'Score de Victoire',
+    'game.local.settings.player-names': 'Noms des Joueurs',
+    'game.local.settings.player-1': 'Joueur Gauche (W/S)',
+    'game.local.settings.player-2': 'Joueur Droite (↑/↓)',
+    'game.local.start': 'Démarrer le Jeu',
+    'game.local.end.title': 'Fin de Partie',
+    'game.local.end.winner': 'Le Joueur Gagne !',
+    'game.local.end.main-menu': 'Menu Principal',
     'profile.title': 'Profil',
     'profile.stats': 'Statistiques',
     'profile.history': 'Historique des matchs',
-
-    // Language names (for the selector)
+    'profile.history.draw': 'Match Nul',
+    'profile.history.victory': 'Victoire',
+    'profile.history.defeat': 'Défaite',
+    'chat.invite': 'Inviter à un match',
+    'chat.block': "Bloquer l'utilisateur",
+    'chat.unblock': "Débloquer l'utilisateur",
+    'chat.message': 'Écrivez un message...',
+    'chat.send': 'Envoyer',
     'language.en': 'English',
     'language.fr': 'Français',
     'language.es': 'Español',
+    'language.ru': 'Русский',
+    'tournament.title': 'Tournoi',
+    'tournament.game.title': 'Tournoi de Pong',
+    'tournament.game.description': 'Jouez à un tournoi local à 4 joueurs avec vos amis',
+    'tournament.create': 'Créer un Tournoi',
+    'tournament.back': 'Retour au Menu',
+    'tournament.player.registration': 'Inscription des Joueurs',
+    'tournament.player.player1': 'Joueur 1',
+    'tournament.player.player2': 'Joueur 2',
+    'tournament.player.player3': 'Joueur 3',
+    'tournament.player.player4': 'Joueur 4',
+    'tournament.bracket.title': 'Arbre du Tournoi',
+    'tournament.bracket.player1': 'Joueur 1',
+    'tournament.bracket.player2': 'Joueur 2',
+    'tournament.bracket.player3': 'Joueur 3',
+    'tournament.bracket.player4': 'Joueur 4',
+    'tournament.bracket.finalist1': 'Vainqueur 1',
+    'tournament.bracket.finalist2': 'Vainqueur 2',
+    'tournament.bracket.loserfinalist1': 'Perdant 1',
+    'tournament.bracket.loserfinalist2': 'Perdant 2',
+    'tournament.start': 'Démarrer le Tournoi',
+    'tournament.match.announcement': 'Prochain Match',
+    'tournament.match.player1': 'Joueur 1',
+    'tournament.match.player2': 'Joueur 2',
+    'tournament.match.start': 'Démarrer le Match',
+    'tournament.end.game': 'Fin de Partie',
+    'tournament.end.winner': 'Le Joueur Gagne !',
+    'tournament.end.next': 'Match Suivant',
+    'tournament.results.title': 'Résultats du Tournoi',
+    'tournament.results.champion': 'Champion du Tournoi',
+    'tournament.results.champion-name': 'Nom du Joueur',
+    'tournament.results.final': 'Résultats Finaux',
+    'tournament.results.player1': 'Joueur 1',
+    'tournament.results.player2': 'Joueur 2',
+    'tournament.results.player3': 'Joueur 3',
+    'tournament.results.player4': 'Joueur 4',
+    'tournament.results.finalist1': 'Vainqueur 1',
+    'tournament.results.finalist2': 'Vainqueur 2',
+    'tournament.results.loserfinalist1': 'Perdant 1',
+    'tournament.results.loserfinalist2': 'Perdant 2',
+    'tournament.results.second-place': 'Deuxième Place',
+    'tournament.results.semi-finalist': 'Demi-Finaliste',
+    'tournament.results.new': 'Nouveau Tournoi',
+    'tournament.results.main-menu': 'Menu Principal',
   },
   es: {
-    // Navigation
-    'nav.game': 'Juego',
-    'nav.multiplayer': 'Multijugador',
+    'nav.game': '🏓 Juego',
+    'nav.multiplayer': '🏓🏓 Multijugador',
+    'nav.tournament': '🏆 Torneo',
     'nav.profile': 'Mi Perfil',
     'nav.signIn': 'Iniciar Sesión',
     'nav.signOut': 'Cerrar Sesión',
-
-    // User list
-    'users.title': 'Usuarios',
-
-    // Common UI elements
+    'friends.title': 'Amigos',
     'ui.window.title': 'ft_transcendence',
-
-    // Game related
-    'game.title': 'Juego de Pong',
-    'game.start': 'Comenzar Juego',
-    'game.pause': 'Pausar',
-    'game.resume': 'Continuar',
-    'game.restart': 'Reiniciar',
-
-    // Profile related
+    'game.multiplayer.title': 'Multijugador',
+    'game.multiplayer.settings.title': 'Configuración del Juego',
+    'game.multiplayer.settings.win-score': 'Puntuación de Victoria',
+    'game.multiplayer.start': 'Iniciar Juego',
+    'game.multiplayer.join': 'Unirse al Juego',
+    'game.multiplayer.waiting.created': 'Partida creada con éxito!',
+    'game.multiplayer.waiting.share': 'Comparte este ID de partida con tu oponente:',
+    'game.multiplayer.waiting.status': 'Esperando al oponente...',
+    'game.multiplayer.end.title': 'Fin de Partida',
+    'game.multiplayer.end.winner': '¡El Jugador Gana!',
+    'game.multiplayer.end.main-menu': 'Menú Principal',
+    'game.local.title': 'Jugador Local',
+    'game.local.settings.title': 'Configuración del Juego',
+    'game.local.settings.win-score': 'Puntuación de Victoria',
+    'game.local.settings.player-names': 'Nombres de los Jugadores',
+    'game.local.settings.player-1': 'Jugador Izquierdo (W/S)',
+    'game.local.settings.player-2': 'Jugador Derecho (↑/↓)',
+    'game.local.start': 'Iniciar Juego',
+    'game.local.end.title': 'Fin de Partida',
+    'game.local.end.winner': '¡El Jugador Gana!',
+    'game.local.end.main-menu': 'Menú Principal',
     'profile.title': 'Perfil',
     'profile.stats': 'Estadísticas',
     'profile.history': 'Historial de Partidas',
-
-    // Language names (for the selector)
-    'language.en': 'English',
-    'language.fr': 'Français',
+    'profile.history.draw': 'Empate',
+    'profile.history.victory': 'Victoria',
+    'profile.history.defeat': 'Derrota',
+    'chat.invite': 'Invitar a un partido',
+    'chat.block': 'Bloquear al usuario',
+    'chat.unblock': 'Desbloquear al usuario',
+    'chat.message': 'Escribe un mensaje...',
+    'chat.send': 'Enviar',
+    'language.en': 'Inglés',
+    'language.fr': 'Francés',
     'language.es': 'Español',
+    'language.ru': 'Русский',
+    'tournament.title': 'Torneo',
+    'tournament.game.title': 'Torneo de Pong',
+    'tournament.game.description': 'Juega un torneo local de 4 jugadores con tus amigos',
+    'tournament.create': 'Crear Torneo',
+    'tournament.back': 'Volver al Menú',
+    'tournament.player.registration': 'Registro de Jugadores',
+    'tournament.player.player1': 'Jugador 1',
+    'tournament.player.player2': 'Jugador 2',
+    'tournament.player.player3': 'Jugador 3',
+    'tournament.player.player4': 'Jugador 4',
+    'tournament.bracket.title': 'Árbol del Torneo',
+    'tournament.bracket.player1': 'Jugador 1',
+    'tournament.bracket.player2': 'Jugador 2',
+    'tournament.bracket.player3': 'Jugador 3',
+    'tournament.bracket.player4': 'Jugador 4',
+    'tournament.bracket.finalist1': 'Ganador 1',
+    'tournament.bracket.finalist2': 'Ganador 2',
+    'tournament.bracket.loserfinalist1': 'Perdedor 1',
+    'tournament.bracket.loserfinalist2': 'Perdedor 2',
+    'tournament.start': 'Iniciar Torneo',
+    'tournament.match.announcement': 'Próximo Partido',
+    'tournament.match.player1': 'Jugador 1',
+    'tournament.match.player2': 'Jugador 2',
+    'tournament.match.start': 'Iniciar Partido',
+    'tournament.end.game': 'Fin del Juego',
+    'tournament.end.winner': '¡El Jugador Gana!',
+    'tournament.end.next': 'Siguiente Partido',
+    'tournament.results.title': 'Resultados del Torneo',
+    'tournament.results.champion': 'Campeón del Torneo',
+    'tournament.results.champion-name': 'Nombre del Jugador',
+    'tournament.results.final': 'Resultados Finales',
+    'tournament.results.player1': 'Jugador 1',
+    'tournament.results.player2': 'Jugador 2',
+    'tournament.results.player3': 'Jugador 3',
+    'tournament.results.player4': 'Jugador 4',
+    'tournament.results.finalist1': 'Ganador 1',
+    'tournament.results.finalist2': 'Ganador 2',
+    'tournament.results.loserfinalist1': 'Perdedor 1',
+    'tournament.results.loserfinalist2': 'Perdedor 2',
+    'tournament.results.second-place': 'Segundo Lugar',
+    'tournament.results.semi-finalist': 'Semifinalista',
+    'tournament.results.new': 'Nuevo Torneo',
+    'tournament.results.main-menu': 'Menú Principal',
+  },
+  ru: {
+    'nav.game': '🏓 Игра',
+    'nav.multiplayer': '🏓🏓 Мультиплеер',
+    'nav.tournament': '🏆 Турнир',
+    'nav.profile': 'Мой Профиль',
+    'nav.signIn': 'Войти',
+    'nav.signOut': 'Выйти',
+    'friends.title': 'Друзья',
+    'ui.window.title': 'ft_transcendence',
+    'game.multiplayer.title': 'Мультиплеер',
+    'game.multiplayer.settings.title': 'Настройки игры',
+    'game.multiplayer.settings.win-score': 'Счет победы',
+    'game.multiplayer.start': 'Начать игру',
+    'game.multiplayer.join': 'Присоединиться к игре',
+    'game.multiplayer.waiting.created': 'Игра создана успешно!',
+    'game.multiplayer.waiting.share': 'Поделитесь этим ID игры с вашим противником:',
+    'game.multiplayer.waiting.status': 'Ожидание противника...',
+    'game.multiplayer.end.title': 'Конец игры',
+    'game.multiplayer.end.winner': 'Игрок победил!',
+    'game.multiplayer.end.main-menu': 'Главное меню',
+    'game.local.title': 'Локальный игрок',
+    'game.local.settings.title': 'Настройки игры',
+    'game.local.settings.win-score': 'Счет победы',
+    'game.local.settings.player-names': 'Имена игроков',
+    'game.local.settings.player-1': 'Левый игрок (W/S)',
+    'game.local.settings.player-2': 'Правый игрок (↑/↓)',
+    'game.local.start': 'Начать игру',
+    'game.local.end.title': 'Конец игры',
+    'game.local.end.winner': 'Игрок победил!',
+    'game.local.end.main-menu': 'Главное меню',
+    'profile.title': 'Профиль',
+    'profile.stats': 'Статистика',
+    'profile.history': 'История игр',
+    'profile.history.draw': 'Ничья',
+    'profile.history.victory': 'Победа',
+    'profile.history.defeat': 'Поражение',
+    'chat.invite': 'Пригласить на игру',
+    'chat.block': 'Блокировать пользователя',
+    'chat.unblock': 'Разблокировать пользователя',
+    'chat.message': 'Напишите сообщение...',
+    'chat.send': 'Отправить',
+    'language.en': 'Английский',
+    'language.fr': 'Французский',
+    'language.es': 'Испанский',
+    'language.ru': 'Русский',
+    'tournament.title': 'Турнир',
+    'tournament.game.title': 'Турнир по Понгу',
+    'tournament.game.description': 'Сыграйте в локальный турнир на 4 игрока с друзьями',
+    'tournament.create': 'Создать Турнир',
+    'tournament.back': 'Вернуться в Меню',
+    'tournament.player.registration': 'Регистрация Игроков',
+    'tournament.player.player1': 'Игрок 1',
+    'tournament.player.player2': 'Игрок 2',
+    'tournament.player.player3': 'Игрок 3',
+    'tournament.player.player4': 'Игрок 4',
+    'tournament.bracket.title': 'Сетка Турнира',
+    'tournament.bracket.player1': 'Игрок 1',
+    'tournament.bracket.player2': 'Игрок 2',
+    'tournament.bracket.player3': 'Игрок 3',
+    'tournament.bracket.player4': 'Игрок 4',
+    'tournament.bracket.finalist1': 'Победитель 1',
+    'tournament.bracket.finalist2': 'Победитель 2',
+    'tournament.bracket.loserfinalist1': 'Проигравший 1',
+    'tournament.bracket.loserfinalist2': 'Проигравший 2',
+    'tournament.start': 'Начать Турнир',
+    'tournament.match.announcement': 'Следующий Матч',
+    'tournament.match.player1': 'Игрок 1',
+    'tournament.match.player2': 'Игрок 2',
+    'tournament.match.start': 'Начать Матч',
+    'tournament.end.game': 'Конец Игры',
+    'tournament.end.winner': 'Игрок Победил!',
+    'tournament.end.next': 'Следующий Матч',
+    'tournament.results.title': 'Результаты Турнира',
+    'tournament.results.champion': 'Чемпион Турнира',
+    'tournament.results.champion-name': 'Имя Игрока',
+    'tournament.results.final': 'Финальные Результаты',
+    'tournament.results.player1': 'Игрок 1',
+    'tournament.results.player2': 'Игрок 2',
+    'tournament.results.player3': 'Игрок 3',
+    'tournament.results.player4': 'Игрок 4',
+    'tournament.results.finalist1': 'Победитель 1',
+    'tournament.results.finalist2': 'Победитель 2',
+    'tournament.results.loserfinalist1': 'Проигравший 1',
+    'tournament.results.loserfinalist2': 'Проигравший 2',
+    'tournament.results.second-place': 'Второе Место',
+    'tournament.results.semi-finalist': 'Полуфиналист',
+    'tournament.results.new': 'Новый Турнир',
+    'tournament.results.main-menu': 'Главное Меню',
   },
 };
 
-// Get current language from localStorage or use default
-const getCurrentLanguage = () => {
-  return localStorage.getItem('language') || DEFAULT_LANGUAGE;
-};
+/**
+ * Get the current language from localStorage or use the default language
+ * @returns {string} The current language
+ */
+export function getCurrentLanguage() {
+  return localStorage.getItem('language') ?? DEFAULT_LANGUAGE;
+}
 
-// Set current language and save to localStorage
-const setLanguage = lang => {
+/**
+ * Set the current language and save to localStorage
+ * @param {string} lang - The language to set
+ * @returns {boolean} True if the language was set, false otherwise
+ */
+export function setLanguage(lang) {
   if (AVAILABLE_LANGUAGES.includes(lang)) {
     localStorage.setItem('language', lang);
     document.documentElement.lang = lang;
@@ -122,16 +384,26 @@ const setLanguage = lang => {
     return true;
   }
   return false;
-};
+}
 
-// Get translation for a key
-const t = key => {
+/**
+ * Get a translation for a key
+ * @param {string} key - The key to get the translation for
+ * @returns {string} The translation for the key
+ */
+export function t(key) {
   const lang = getCurrentLanguage();
-  return translations[lang]?.[key] || translations[DEFAULT_LANGUAGE][key] || key;
-};
+  return TRANSLATIONS[lang]?.[key] ?? TRANSLATIONS[DEFAULT_LANGUAGE][key] ?? key;
+}
 
-// Translate the page content
-const translatePage = () => {
+/**
+ * Translate the page content
+ * @returns {void}
+ */
+export function translatePage() {
+  const currentLang = getCurrentLanguage();
+  document.documentElement.lang = currentLang;
+
   // Translate elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(element => {
     const key = element.getAttribute('data-i18n');
@@ -143,19 +415,4 @@ const translatePage = () => {
     const key = element.getAttribute('data-i18n-placeholder');
     element.placeholder = t(key);
   });
-
-  // Translate elements with data-i18n-title attribute (for tooltips)
-  document.querySelectorAll('[data-i18n-title]').forEach(element => {
-    const key = element.getAttribute('data-i18n-title');
-    element.title = t(key);
-  });
-};
-
-// Initialize language settings
-const initI18n = () => {
-  const currentLang = getCurrentLanguage();
-  document.documentElement.lang = currentLang;
-  translatePage();
-};
-
-export { AVAILABLE_LANGUAGES, getCurrentLanguage, setLanguage, t, translatePage, initI18n };
+}
