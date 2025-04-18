@@ -144,6 +144,8 @@ export class Router {
       const notFoundPage = new NotFoundPage();
       await notFoundPage.mount(this.rootElement);
     }
+
+    document.dispatchEvent(new Event('routeChange'));
   }
 
   /**

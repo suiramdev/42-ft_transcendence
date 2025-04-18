@@ -1,8 +1,11 @@
 import json
+import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
+from channels.db import database_sync_to_async, sync_to_async
 from apps.game.models import Game
 from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 
 
 class GameConsumer(AsyncWebsocketConsumer):
@@ -10,26 +13,41 @@ class GameConsumer(AsyncWebsocketConsumer):
         self.game_id = self.scope['url_route']['kwargs']['game_id']
         self.game_group_name = f'game_{self.game_id}'
 
+        await self.accept()
+
+        try:
+            self.game = await sync_to_async(Game.objects.get)(id=self.game_id)
+        except Game.DoesNotExist:
+            logger.error(f"Error: Game {self.game_id} not found")
+            self.close(code=1008, reason="Game not found")
+            return
+
         await self.channel_layer.group_add(
             self.game_group_name,
             self.channel_name
         )
 
-        await self.accept()
-
-        print(f"WebSocket connected for game: {self.game_id}")
+        logger.info(f"WebSocket connected for game: {self.game_id}")
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            self.game_group_name,
-            self.channel_name
-        )
-        print(f"WebSocket disconnected for game: {self.game_id}, code: {close_code}")
+        players_count = await self.get_players_count()
+
+        if players_count == 1:
+            await self.delete_game()
+
+            await self.channel_layer.group_discard(
+                self.game_group_name,
+                self.channel_name
+            )
+
+            logger.info(f"Game {self.game_id} deleted because no players")
+
+        logger.info(f"WebSocket disconnected for game: {self.game_id}, code: {close_code}")
 
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
-            print(f"Received message: {data}")
+            logger.info(f"Received message: {data}")
             
             message_type = data.get('type', '')
             
@@ -104,7 +122,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'message': 'Invalid JSON format'
             }))
         except Exception as e:
-            print(f"Error processing message: {str(e)}")
+            logger.error(f"Error processing message: {str(e)}")
             await self.send(text_data=json.dumps({
                 'type': 'error',
                 'message': str(e)
@@ -118,6 +136,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             return game.addPlayerRdy()
         except Game.DoesNotExist:
             return False
+
+    @database_sync_to_async
+    def delete_game(self):
+        Game.objects.filter(id=self.game_id).delete()
+    
+    @database_sync_to_async
+    def get_players_count(self):
+        return Game.objects.filter(id=self.game_id).count()
 
     async def game_settings(self, event):
         await self.send(text_data=json.dumps({
@@ -141,9 +167,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'player_left_nickname': event['player_left_nickname'],
                 'player_right_nickname': event['player_right_nickname']
             }))
-            print(f"Sent game_start message for game: {event['game_id']}")
+            logger.info(f"Sent game_start message for game: {event['game_id']}")
         except Exception as e:
-            print(f"Error sending game_start: {str(e)}")
+            logger.error(f"Error sending game_start: {str(e)}")
 
     async def player_move(self, event):
         await self.send(text_data=json.dumps({
@@ -193,11 +219,11 @@ class GameConsumer(AsyncWebsocketConsumer):
             game.completed_at = timezone.now()
             game.save()
             game.incrementWinner()
-            print(f"Game {game_id} completed: Winner: {winner_user.nickname} with scores {scores}")
+            logger.info(f"Game {game_id} completed: Winner: {winner_user.nickname} with scores {scores}")
 
         except Game.DoesNotExist:
-            print(f"Error: Game {game_id} not found")
+            logger.error(f"Error: Game {game_id} not found")
             return False
         except Exception as e:
-            print(f"Error saving game winner: {str(e)}")
+            logger.error(f"Error saving game winner: {str(e)}")
             return False

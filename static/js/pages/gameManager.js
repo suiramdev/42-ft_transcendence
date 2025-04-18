@@ -6,6 +6,12 @@ export class GameManager {
     this.gameId = null;
     this.localPlayer = null; // 'left' ou 'right'
     this.readyState = false;
+
+    document.addEventListener('routeChange', () => {
+      if (this.gameSocket && this.gameSocket.readyState === WebSocket.OPEN) {
+        this.gameSocket.close();
+      }
+    });
   }
 
   async joinGame(gameId) {
