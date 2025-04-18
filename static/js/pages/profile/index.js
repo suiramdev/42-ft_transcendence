@@ -16,12 +16,24 @@ export class ProfilePage extends Page {
     return true;
   }
 
-  // Ajout de la gestion de l'édition du profil
   onMount() {
     this.setupEditProfile();
     this.renderProfilePicture();
     this.renderAlias();
-    this.renderBio(); // Ajout de l'affichage de la bio
+    this.renderBio();
+
+    // Gestionnaire pour le bouton "Voir mes stats"
+    const viewStatsBtn = document.getElementById('view-stats-btn');
+    if (viewStatsBtn) {
+      viewStatsBtn.addEventListener('click', () => {
+        if (globalThis.user && globalThis.user.id) {
+          globalThis.router.navigate(`/profile/${globalThis.user.id}`);
+        } else {
+          console.error('Utilisateur non connecté ou ID manquant.');
+          alert('Impossible de rediriger : utilisateur non connecté.');
+        }
+      });
+    }
 
     document.addEventListener('userStateChange', () => {
       this.renderProfilePicture();
@@ -29,7 +41,6 @@ export class ProfilePage extends Page {
       this.renderBio();
     });
   }
-
   renderProfilePicture() {
     const profilePicture = document.querySelector('.profile__avatar-image');
     if (profilePicture && globalThis.user) {
