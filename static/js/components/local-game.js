@@ -251,12 +251,11 @@ function checkXCollision(game, winScore) {
 
 
 export class Game {
-  constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, gameManager) {
+  constructor(ballSpeed, paddleSize, paddleSpeed, ballSize, winScore, leftPlayerNickname, rightPlayerNickname) {
     this.isGameRunning = true;
     this.winScore = winScore;
-    this.leftPlayerNickname = 'leftPlayerNickname';
-    this.rightPlayerNickname = 'rightPlayerNickname';
-
+    this.leftPlayerNickname = leftPlayerNickname;
+    this.rightPlayerNickname = rightPlayerNickname;
 
     // Initialisation
     this.setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize);
@@ -266,7 +265,7 @@ export class Game {
   // ----------------- 3D setup -----------------
 
   setup3D(ballSpeed, paddleSize, paddleSpeed, ballSize) {
-    this.canvas = document.getElementById('pongCanvas');
+    this.canvas = document.getElementById('pongCanvas'); 
     this.renderer = new THREE.WebGLRenderer({ canvas : this.canvas });
     this.renderer.setSize(this.canvas.width, this.canvas.height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -295,8 +294,6 @@ export class Game {
     this.playerRight = new Player(10, 0, 0, paddleSize, paddleSpeed, 'blue');
     this.playerRight.sceneADD(this.scene);
 
-    console.log('ball speed : ', ballSpeed);
-    console.log('ball size : ', ballSize);
     this.ball = new ball(0, 0, 0, 1, 1, ballSpeed, ballSize || 0.5, 'red', this.gameManager);
     this.ball.sceneADD(this.scene);
 
@@ -518,6 +515,27 @@ export class Game {
     this.playerLeft.scoreCount = 0;
     this.playerRight.scoreCount = 0;
   }
+
+  clean3D (){
+    this.isGameRunning = false;
+    this.removeEventListeners();
+
+    while (this.scene.children.length > 0) {
+      this.scene.remove(this.scene.children[0]);
+    }
+
+    this.playerLeft.pCube.geometry.dispose();
+    this.playerLeft.pCube.material.dispose();
+    this.playerRight.pCube.geometry.dispose();
+    this.playerRight.pCube.material.dispose();
+    this.ball.bSphere.geometry.dispose();
+    this.ball.bSphere.material.dispose();
+
+    if (this.leftScoreGeometry) this.leftScoreGeometry.dispose();
+    if (this.rightScoreGeometry) this.rightScoreGeometry.dispose();
+
+    this.renderer.dispose();
+  }
 }
 
 // ----------------- Pregame function -----------------
@@ -538,16 +556,36 @@ export function animate(game, winScore) {
   
   requestAnimationFrame(() => animate(game, winScore));
 
-  // Update physics at fixed time steps
     if (checkXCollision(game, winScore)) {
-        // console.log(game.renderer);
-        updatePos(game);
-        game.ball.moveBall(game.playerLeft, game.playerRight, game.fixedTimeStep);
-        game.renderer.render(game.scene, game.camera);
+      updatePos(game);
+      game.ball.moveBall(game.playerLeft, game.playerRight, game.fixedTimeStep);
+      game.renderer.render(game.scene, game.camera);
     } else {
-        game.endgame();
-        return;
+      game.endgame();
+      return;
     }
+}
+
+
+export function tournamentAnimate(game, winScore, onGameEndCallback) {
+  if (!game || !game.isGameRunning) return;
+  
+  requestAnimationFrame(() => tournamentAnimate(game, winScore, onGameEndCallback));
+
+  if (checkXCollision(game, winScore)) {
+    updatePos(game);
+    game.ball.moveBall(game.playerLeft, game.playerRight, game.fixedTimeStep);
+    game.renderer.render(game.scene, game.camera);
+  } else {
+    // Game is over
+    game.isGameRunning = false;
+    game.clean3D();
+    
+    // Call the callback to notify the tournament
+    if (onGameEndCallback && typeof onGameEndCallback === 'function') {
+      onGameEndCallback();
+    }
+  }
 }
 
 export function initGame(gameSettings) {
