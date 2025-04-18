@@ -90,7 +90,7 @@ export class ProfilePage extends Page {
 
         aliasInput.value = user.nickname;
         bioInput.value = user.bio;
-        avatarSelect.value = user.avatar;
+        avatarSelect.value = '';
 
         document.dispatchEvent(new Event('userStateChange'));
         editForm.classList.add('hidden');
