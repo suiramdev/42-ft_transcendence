@@ -1,3 +1,5 @@
+import { translatePage } from '../utils/i18n.js';
+
 /**
  * Base class for all pages
  * @class
@@ -84,6 +86,7 @@ export class Page {
 
       this._render(container);
       await this.onMount(params);
+      translatePage();
       return true;
     } catch (error) {
       console.error('Error mounting page:', error);

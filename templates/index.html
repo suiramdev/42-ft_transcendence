@@ -19,6 +19,7 @@
     <script type="module" src="/static/js/app.js"></script>
 
     <link rel="stylesheet" href="/static/css/components/userlist.css" />
+    <link rel="stylesheet" href="/static/css/components/language-selector.css" />
 
     <link rel="stylesheet" href="/static/css/components/sidebar.css" />
     <script type="module" src="/static/js/components/sidebar.js"></script>
@@ -30,7 +31,7 @@
     <div class="desktop">
       <div class="window">
         <div class="window__titlebar">
-          <div class="window__title">ft_transcendence</div>
+          <div class="window__title" data-i18n="ui.window.title">ft_transcendence</div>
           <div class="window__controls">
             <button class="window__button" aria-label="Minimize"></button>
             <button class="window__button" aria-label="Maximize"></button>
@@ -42,27 +43,27 @@
             <div class="navbar__group">
               <a class="navbar__item" href="/local-game">
                 <!-- <img src="/static/images/icons/pifmgr.dll_14_26.png" alt="Game" class="navbar__item-icon" /> -->
-                <span class="navbar__text">🏓 Game</span>
+                <span class="navbar__text" data-i18n="nav.game">Game</span>
               </a>
               <a class="navbar__item" href="/">
                 <!-- <img src="/static/images/icons/pifmgr.dll_14_26.png" alt="Game" class="navbar__item-icon" /> -->
-                <span class="navbar__text">🏓🏓 Multiplayer</span>
+                <span class="navbar__text" data-i18n="nav.multiplayer">Multiplayer</span>
               </a>
               <a class="navbar__item" href="/tournament">
                 <!-- <img src="/static/images/icons/pifmgr.dll_14_26.png" alt="Game" class="navbar__item-icon" /> -->
-                <span class="navbar__text">🏆 Tournament</span>
+                <span class="navbar__text" data-i18n="nav.tournament">Tournament</span>
               </a>
             </div>
             <div class="navbar__group">
               <a class="navbar__item" href="/profile" id="profile-link" style="display: none">
                 <img src="/static/images/icons/msmsgs.exe_14_1-6.png" alt="Profile" class="navbar__item-icon" />
-                <span class="navbar__text">My Profile</span>
+                <span class="navbar__text" data-i18n="nav.profile">My Profile</span>
               </a>
               <button class="navbar__item" id="sign-out" style="display: none">
-                <span class="navbar__text">Sign Out</span>
+                <span class="navbar__text" data-i18n="nav.signOut">Sign Out</span>
               </button>
               <button class="navbar__item" id="sign-in">
-                <span class="navbar__text">Sign In</span>
+                <span class="navbar__text" data-i18n="nav.signIn">Sign In</span>
               </button>
             </div>
           </nav>
@@ -70,7 +71,7 @@
             <aside class="layout__sidebar">
               <div class="userlist">
                 <div class="userlist__header">
-                  <span class="userlist__title">Users</span>
+                  <span class="userlist__title" data-i18n="friends.title">Friends</span>
                 </div>
                 <div class="userlist__content"></div>
               </div>

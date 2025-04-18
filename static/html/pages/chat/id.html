@@ -9,18 +9,22 @@
         <div class="chat__status" id="chat-status"></div>
       </div>
       <div class="chat__actions">
-        <button class="chat__invite-button" id="invite-button">Invite to Game</button>
-        <button class="chat__block-button" id="block-button" style="display: none">Block User</button>
-        <button class="chat__unblock-button" id="unblock-button" style="display: none">Unblock User</button>
+        <button class="chat__invite-button" id="invite-button" data-i18n="chat.invite">Invite to Game</button>
+        <button class="chat__block-button" id="block-button" style="display: none" data-i18n="chat.block">
+          Block User
+        </button>
+        <button class="chat__unblock-button" id="unblock-button" style="display: none" data-i18n="chat.unblock">
+          Unblock User
+        </button>
       </div>
     </div>
     <div class="chat__messages" id="chat-messages"></div>
   </div>
   <form class="chat__form" id="chat-form">
     <div class="chat__form-container">
-      <textarea class="chat__input" name="message" placeholder="Type a message..."></textarea>
+      <textarea class="chat__input" name="message" placeholder="Type a message..." data-i18n="chat.message"></textarea>
       <div class="chat__actions">
-        <button class="chat__send-button">Send</button>
+        <button class="chat__send-button" data-i18n="chat.send">Send</button>
       </div>
     </div>
     <span class="chat__form-error" id="chat-form-error"></span>

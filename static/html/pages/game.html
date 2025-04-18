@@ -1,7 +1,7 @@
 <section class="game">
   <div id="pregame-menu" class="pregame-menu">
-    <h2>Multiplayer</h2>
-    <h3>Game Settings</h3>
+    <h2 data-i18n="game.multiplayer.title">Multiplayer</h2>
+    <h3 data-i18n="game.multiplayer.settings.title">Game Settings</h3>
     <div class="slider-item">
       <div class="slider-container">
         <div class="slider-content">
@@ -14,7 +14,7 @@
       </div>
       <div class="slider-container">
         <div class="slider-content">
-          <canvas id="paddle-size-canva" ></canvas>
+          <canvas id="paddle-size-canva"></canvas>
           <div class="slider-input-wrapper">
             <input type="range" id="paddle-size" min="2" max="7" step="0.5" value="3" />
             <span id="paddle-size-value">2.5</span>
@@ -42,33 +42,33 @@
     </div>
     <div class="button-container">
       <div class="score-selector">
-        <div class="score-selector-title">Win Score</div>
+        <div class="score-selector-title" data-i18n="game.multiplayer.settings.win-score">Win Score</div>
         <div class="radio-group">
           <label class="xp-radio">
-            <input type="radio" name="win-score" value="3" checked>
+            <input type="radio" name="win-score" value="3" checked />
             <span class="radio-custom"></span>
             3 Goals
           </label>
           <label class="xp-radio">
-            <input type="radio" name="win-score" value="5">
+            <input type="radio" name="win-score" value="5" />
             <span class="radio-custom"></span>
             5 Goals
           </label>
           <label class="xp-radio">
-            <input type="radio" name="win-score" value="7">
+            <input type="radio" name="win-score" value="7" />
             <span class="radio-custom"></span>
             7 Goals
           </label>
         </div>
       </div>
-      <button id="start-game">Start Game</button>
+      <button id="start-game" data-i18n="game.multiplayer.start">Start Game</button>
       <div class="join-game-container">
-        <button id="join-game">Join Game</button>
+        <button id="join-game" data-i18n="game.multiplayer.join">Join Game</button>
         <input type="text" id="game-id-input" placeholder="Enter Game ID" class="game-input" />
       </div>
     </div>
   </div>
-  <div id="waiting-screen" style="display: none;">
+  <div id="waiting-screen" style="display: none">
     <div class="window waiting-window">
       <div class="window__titlebar">
         <div class="window__title">Waiting for Player 2</div>
@@ -78,13 +78,13 @@
       </div>
       <div class="window__content waiting-content">
         <div class="waiting-message">
-          <p>Game created successfully!</p>
-          <p>Share this Game ID with your opponent:</p>
+          <p data-i18n="game.multiplayer.waiting.created">Game created successfully!</p>
+          <p data-i18n="game.multiplayer.waiting.share">Share this Game ID with your opponent:</p>
           <div class="game-id-display" id="waiting-game-id"></div>
           <div class="waiting-animation">
             <div class="loading-bar"></div>
           </div>
-          <p class="waiting-status">Waiting for player to join...</p>
+          <p class="waiting-status" data-i18n="game.multiplayer.waiting.status">Waiting for player to join...</p>
         </div>
       </div>
     </div>
@@ -92,20 +92,20 @@
   <div id="game-container" style="display: none">
     <canvas id="pongCanvas" width="1200" height="800"></canvas>
   </div>
-  <div id="end-game-screen" style="display: none;">
+  <div id="end-game-screen" style="display: none">
     <div class="window end-game-window">
       <div class="window__titlebar">
-        <div class="window__title">Game Over</div>
+        <div class="window__title" data-i18n="game.multiplayer.end.title">Game Over</div>
         <div class="window__controls">
           <button class="window__button window__close" aria-label="Close"></button>
         </div>
       </div>
       <div class="window__content end-game-content">
         <div class="winner-trophy">🏆</div>
-        <h1 id="winner-name">Player Wins!</h1>
+        <h1 id="winner-name" data-i18n="game.multiplayer.end.winner">Player Wins!</h1>
         <div class="final-score" id="final-score">0 - 0</div>
         <div class="end-game-buttons">
-          <button id="main-menu-btn" class="xp-button">Main Menu</button>
+          <button id="main-menu-btn" class="xp-button" data-i18n="game.multiplayer.end.main-menu">Main Menu</button>
         </div>
       </div>
     </div>

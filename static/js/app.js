@@ -8,6 +8,8 @@ import { apiFetch } from './services/token.js';
 import { FakeSignInPage } from './pages/dev/fake-signin.js';
 import { LocalGamePage } from './pages/local-game.js';
 import { connectToStatusSocket } from './services/status.js';
+import { translatePage } from './utils/i18n.js';
+import './components/language-selector.js';
 import { TournamentPage } from './pages/tournament.js';
 
 // Initialize the router in globalThis
@@ -31,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   getUser();
   connectToStatusSocket();
+  translatePage();
 });
 
 // Store the original fetch function
