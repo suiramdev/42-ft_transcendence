@@ -23,7 +23,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('nickname', 'avatar', 'bio')
+        fields = (
+            'id',
+            'nickname',
+            'avatar',
+            'coalition',
+            'wins',
+            'losses',
+            'status',
+            'bio',
+        )
+        read_only_fields = ('id', 'coalition', 'wins', 'losses', 'status')
 
     def validate_nickname(self, value):
         """Validate nickname format and uniqueness"""

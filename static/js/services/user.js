@@ -80,6 +80,9 @@ export function signOut() {
 
   // Close the status socket
   disconnectFromStatusSocket();
+
+  // Refresh the friends list
+  populateFriendsList();
 }
 
 /**
@@ -138,7 +141,10 @@ export async function updateUser(data) {
     return { error: responseData.detail || 'Failed to update profile' };
   }
 
+  console.log('1. globalThis.user', globalThis.user);
+  console.log('1. responseData', responseData);
   globalThis.user = responseData;
+  console.log('2. globalThis.user', globalThis.user);
   document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
 
   return responseData;
@@ -252,6 +258,11 @@ function showAddFriendMessage(message, type) {
 }
 
 export async function populateFriendsList() {
+  const userListContainer = document.querySelector('.userlist__content');
+  if (userListContainer) {
+    userListContainer.innerHTML = ''; // Clear the list before filling it
+  }
+
   const accessToken = getCookie('access_token');
   if (!accessToken) {
     return;
@@ -268,30 +279,32 @@ export async function populateFriendsList() {
   if (!response.ok) throw new Error('Failed to retrieve friends list');
 
   const friends = await response.json();
-  const userListContainer = document.querySelector('.userlist__content');
-  userListContainer.innerHTML = ''; // Clear the list before filling it
 
-  // If the user has no friends, display a message
-  if (friends.length === 0) {
-    const emptyMessage = document.createElement('div');
-    emptyMessage.classList.add('userlist__empty');
-    emptyMessage.textContent = 'No friends yet';
-    userListContainer.appendChild(emptyMessage);
-    return;
-  }
+  if (userListContainer) {
+    userListContainer.innerHTML = ''; // Clear the list before filling it
 
-  // Create a list item for each friend
-  friends.forEach(friend => {
-    const userItem = document.createElement('a');
-    userItem.classList.add('userlist__item');
-    userItem.setAttribute('data-user-id', friend.id);
-    userItem.href = `/profile/${friend.id}`;
+    // If the user has no friends, display a message
+    if (friends.length === 0) {
+      const emptyMessage = document.createElement('div');
+      emptyMessage.classList.add('userlist__empty');
+      emptyMessage.textContent = 'No friends yet';
+      userListContainer.appendChild(emptyMessage);
+      return;
+    }
 
-    userItem.innerHTML = `
+    // Create a list item for each friend
+    friends.forEach(friend => {
+      const userItem = document.createElement('a');
+      userItem.classList.add('userlist__item');
+      userItem.setAttribute('data-user-id', friend.id);
+      userItem.href = `/profile/${friend.id}`;
+
+      userItem.innerHTML = `
         <img src="/static/images/icons/user-${friend.status}.png" class="userlist__item-icon" />
         <span class="userlist__name">${friend.nickname || friend.username}</span>
     `;
 
-    userListContainer.appendChild(userItem);
-  });
+      userListContainer.appendChild(userItem);
+    });
+  }
 }
