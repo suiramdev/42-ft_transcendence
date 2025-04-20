@@ -63,12 +63,6 @@ export class LocalGamePage extends Page {
 
         this.gameInstance = initGame(this.gameSettings, player1Name, player2Name, 'green', 'blue');
 
-        document.addEventListener('routeChange', () => {
-          if (this.gameInstance?.isGameRunning) {
-            this.gameInstance.isGameRunning = false;
-          }
-        });
-
         animate(this.gameInstance, this.gameSettings.winScore);
       } catch (error) {
         console.error('Failed to start game:', error);

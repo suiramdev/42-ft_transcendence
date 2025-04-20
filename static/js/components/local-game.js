@@ -563,7 +563,7 @@ export function pregame() {
 }
 
 export function animate(game, winScore) {
-  if (!game) return;
+  if (!game || !game.isGameRunning) return;
 
   requestAnimationFrame(() => animate(game, winScore));
 
@@ -622,6 +622,12 @@ export function initGame(gameSettings, player1Name, player2Name, player1Color, p
     player1Color,
     player2Color
   );
+
+  document.addEventListener('routeChange', () => {
+    if (game?.isGameRunning) {
+      game.isGameRunning = false;
+    }
+  });
 
   return game;
 }

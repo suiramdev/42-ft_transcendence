@@ -1,4 +1,4 @@
-import { Game, tournamentAnimate} from './local-game.js';
+import { Game, tournamentAnimate } from './local-game.js';
 
 export class Tournament {
   constructor(player1, player2, player3, player4) {
@@ -39,11 +39,11 @@ export class Tournament {
     if (this.endGameScreen.style.display === 'flex') {
       this.endGameScreen.style.display = 'none';
     }
-  
+
     document.getElementById('match-number').textContent = this.match + 1;
-  
+
     this.matchAnnouncement.style.display = 'block';
-  
+
     const matchPlayer1 = document.getElementById('match-player1');
     const matchPlayer2 = document.getElementById('match-player2');
 
@@ -75,14 +75,14 @@ export class Tournament {
       leftAvatar.style.backgroundColor = this.winner1Color;
       rightAvatar.style.backgroundColor = this.winner2Color;
     }
-  
+
     const startMatchBtn = document.getElementById('start-match');
     const newStartBtn = startMatchBtn.cloneNode(true);
     startMatchBtn.parentNode.replaceChild(newStartBtn, startMatchBtn);
-  
+
     newStartBtn.addEventListener('click', () => this.startGame());
   }
-  
+
   startGame() {
     this.matchAnnouncement.style.display = 'none';
     this.gameContainer.style.display = 'block';
@@ -91,13 +91,53 @@ export class Tournament {
     canvas.height = 800;
 
     if (this.match === 0) {
-      this.gameInstance = new Game(0.2, 3, 0.3, 0.5, 3, this.player1, this.player2, this.player1Color, this.player2Color);
+      this.gameInstance = new Game(
+        0.2,
+        3,
+        0.3,
+        0.5,
+        3,
+        this.player1,
+        this.player2,
+        this.player1Color,
+        this.player2Color
+      );
     } else if (this.match === 1) {
-      this.gameInstance = new Game(0.2, 3, 0.3, 0.5, 3, this.player3, this.player4, this.player3Color, this.player4Color);
-    }else if (this.match === 2){
-      this.gameInstance = new Game(0.2, 3, 0.3, 0.5, 3, this.loser1, this.loser2, this.loser1Color, this.loser2Color);
+      this.gameInstance = new Game(
+        0.2,
+        3,
+        0.3,
+        0.5,
+        3,
+        this.player3,
+        this.player4,
+        this.player3Color,
+        this.player4Color
+      );
+    } else if (this.match === 2) {
+      this.gameInstance = new Game(
+        0.2,
+        3,
+        0.3,
+        0.5,
+        3,
+        this.loser1,
+        this.loser2,
+        this.loser1Color,
+        this.loser2Color
+      );
     } else {
-      this.gameInstance = new Game(0.2, 3, 0.3, 0.5, 3, this.winner1, this.winner2, this.winner1Color, this.winner2Color);
+      this.gameInstance = new Game(
+        0.2,
+        3,
+        0.3,
+        0.5,
+        3,
+        this.winner1,
+        this.winner2,
+        this.winner1Color,
+        this.winner2Color
+      );
     }
     this.gameInstance.renderer.setSize(canvas.width, canvas.height);
     this.gameInstance.camera.aspect = canvas.width / canvas.height;
@@ -105,8 +145,8 @@ export class Tournament {
 
     this.gameInstance.isGameRunning = true;
     tournamentAnimate(this.gameInstance, 3, () => {
-        this.endGame();
-      });
+      this.endGame();
+    });
   }
 
   endGame() {
@@ -116,68 +156,63 @@ export class Tournament {
     const rightScore = this.gameInstance.playerRight.getScore();
 
     const isLeftWinner = leftScore > rightScore;
-    
+
     const winnerNameElement = document.getElementById('winner-name');
 
     if (this.match === 0) {
-        if (isLeftWinner){
-            this.winner1 = this.gameInstance.leftPlayerNickname;
-            this.winner1Color = this.player1Color;
-            this.loser1 = this.gameInstance.rightPlayerNickname;
-            this.loser1Color = this.player2Color;
-        }else{
-            this.winner1 = this.gameInstance.rightPlayerNickname;
-            this.winner1Color = this.player2Color;
-            this.loser1 = this.gameInstance.leftPlayerNickname;
-            this.loser1Color = this.player1Color;
-        }
-        const loserfinalist1 = document.getElementById('bracket-loserfinalist1');
-        if (loserfinalist1) loserfinalist1.textContent = this.loser2;
-        const finalist1 = document.getElementById('bracket-finalist1');
-        if (finalist1) finalist1.textContent = this.winner1;
-        winnerNameElement.textContent = `${this.winner1} Wins!`;
-    } 
-    else if (this.match === 1) {
-        if (isLeftWinner){
-            this.winner2 = this.gameInstance.leftPlayerNickname;
-            this.winner2Color = this.player3Color;
-            this.loser2 = this.gameInstance.rightPlayerNickname;
-            this.loser2Color = this.player4Color;
-        }else{
-            this.winner2 = this.gameInstance.rightPlayerNickname;
-            this.winner2Color = this.player4Color;
-            this.loser2 = this.gameInstance.leftPlayerNickname;
-            this.loser2Color = this.player3Color;
-        }
-        const loserfinalist2 = document.getElementById('bracket-loserfinalist2');
-        if (loserfinalist2) loserfinalist2.textContent = this.loser2;
-        const finalist2 = document.getElementById('bracket-finalist2');
-        if (finalist2) finalist2.textContent = this.winner2;
-        winnerNameElement.textContent = `${this.winner1} Wins!`;
-    }
-    else if (this.match === 2){
-        if (isLeftWinner){
-            this.third = this.gameInstance.leftPlayerNickname;
-            this.loser3 = this.gameInstance.rightPlayerNickname;
-        }else{
-            this.third = this.gameInstance.rightPlayerNickname;
-            this.loser3 = this.gameInstance.leftPlayerNickname;
-        }
+      if (isLeftWinner) {
+        this.winner1 = this.gameInstance.leftPlayerNickname;
+        this.winner1Color = this.player1Color;
+        this.loser1 = this.gameInstance.rightPlayerNickname;
+        this.loser1Color = this.player2Color;
+      } else {
+        this.winner1 = this.gameInstance.rightPlayerNickname;
+        this.winner1Color = this.player2Color;
+        this.loser1 = this.gameInstance.leftPlayerNickname;
+        this.loser1Color = this.player1Color;
+      }
+      const loserfinalist1 = document.getElementById('bracket-loserfinalist1');
+      if (loserfinalist1) loserfinalist1.textContent = this.loser2;
+      const finalist1 = document.getElementById('bracket-finalist1');
+      if (finalist1) finalist1.textContent = this.winner1;
+      winnerNameElement.textContent = `${this.winner1} Wins!`;
+    } else if (this.match === 1) {
+      if (isLeftWinner) {
+        this.winner2 = this.gameInstance.leftPlayerNickname;
+        this.winner2Color = this.player3Color;
+        this.loser2 = this.gameInstance.rightPlayerNickname;
+        this.loser2Color = this.player4Color;
+      } else {
+        this.winner2 = this.gameInstance.rightPlayerNickname;
+        this.winner2Color = this.player4Color;
+        this.loser2 = this.gameInstance.leftPlayerNickname;
+        this.loser2Color = this.player3Color;
+      }
+      const loserfinalist2 = document.getElementById('bracket-loserfinalist2');
+      if (loserfinalist2) loserfinalist2.textContent = this.loser2;
+      const finalist2 = document.getElementById('bracket-finalist2');
+      if (finalist2) finalist2.textContent = this.winner2;
+      winnerNameElement.textContent = `${this.winner1} Wins!`;
+    } else if (this.match === 2) {
+      if (isLeftWinner) {
+        this.third = this.gameInstance.leftPlayerNickname;
+        this.loser3 = this.gameInstance.rightPlayerNickname;
+      } else {
+        this.third = this.gameInstance.rightPlayerNickname;
+        this.loser3 = this.gameInstance.leftPlayerNickname;
+      }
+    } else if (this.match === 3) {
+      if (isLeftWinner) {
+        this.champion = this.winner1;
+        this.scnd = this.winner2;
+      } else {
+        this.champion = this.winner2;
+        this.scnd = this.winner1;
+      }
 
+      this.showTournamentResults(this.champion, this.scnd);
+      return;
     }
-    else if (this.match === 3) {
-        if (isLeftWinner){
-            this.champion = this.winner1;
-            this.scnd = this.winner2;      
-        }else {
-            this.champion = this.winner2;
-            this.scnd = this.winner1;
-        }
-
-        this.showTournamentResults(this.champion, this.scnd);
-        return;
-    }
-    
 
     const finalScoreElement = document.getElementById('final-score');
     if (finalScoreElement) {
@@ -191,6 +226,7 @@ export class Tournament {
 
   setupNextMatchButton() {
     const nextMatchButton = document.getElementById('next-match');
+    if (!nextMatchButton) return;
 
     const newNextButton = nextMatchButton.cloneNode(true);
     nextMatchButton.parentNode.replaceChild(newNextButton, nextMatchButton);
@@ -232,7 +268,7 @@ export class Tournament {
     this.resultsScreen.style.display = 'block';
     this.setupResultsButtons();
   }
-  
+
   setupResultsButtons() {
     const newTournamentBtn = document.getElementById('new-tournament');
     newTournamentBtn.addEventListener('click', () => {
@@ -248,7 +284,7 @@ export class Tournament {
       this.resetTournament();
     });
   }
-  
+
   resetTournament() {
     this.winner1 = null;
     this.winner2 = null;
