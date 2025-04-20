@@ -51,14 +51,16 @@ export class GamePage extends Page {
       this.handleGameUpdate(event.detail);
     });
 
+    const urlParams = new URLSearchParams(window.location.search);
+
     // Check if we need to join a game directly (from chat)
-    if (this.joinGameId !== null && this.joinGameId !== undefined) {
-      this._joinGame(this.joinGameId);
+    if (urlParams.has('joinGame')) {
+      this._joinGame(urlParams.get('joinGame'));
     }
 
     // Check if we need to show waiting screen (after creating a game from chat)
-    if (this.waitingGameId !== null && this.waitingGameId !== undefined) {
-      const gameId = await this.gameManager.createGame(this.waitingGameId);
+    if (urlParams.has('waitingGame')) {
+      const gameId = await this.gameManager.createGame(urlParams.get('waitingGame'));
       this.gameId = gameId;
       this._setupWaitingScreen(this.gameId);
     }
