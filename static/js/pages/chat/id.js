@@ -315,8 +315,6 @@ export class DirectMessagePage extends Page {
     messageContainer.classList.add('chat__message');
 
     // If the message is sent by the user, add the sent class
-    console.log('data.sender_id', data.sender_id);
-    console.log('globalThis.user.id', globalThis.user.id);
     if (data.sender_id === globalThis.user.id) {
       messageContainer.classList.add('chat__message--sent');
     } else {

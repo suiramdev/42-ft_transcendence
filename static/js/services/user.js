@@ -141,10 +141,7 @@ export async function updateUser(data) {
     return { error: responseData.detail || 'Failed to update profile' };
   }
 
-  console.log('1. globalThis.user', globalThis.user);
-  console.log('1. responseData', responseData);
   globalThis.user = responseData;
-  console.log('2. globalThis.user', globalThis.user);
   document.dispatchEvent(new CustomEvent('userStateChange', { detail: globalThis.user }));
 
   return responseData;

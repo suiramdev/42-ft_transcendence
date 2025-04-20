@@ -583,7 +583,6 @@ export function tournamentAnimate(game, winScore, onGameEndCallback) {
   requestAnimationFrame(() => tournamentAnimate(game, winScore, onGameEndCallback));
 
   if (checkXCollision(game, winScore)) {
-    console.log(winScore);
     updatePos(game);
     game.ball.moveBall(game.playerLeft, game.playerRight, game.fixedTimeStep);
     game.renderer.render(game.scene, game.camera);
