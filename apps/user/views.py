@@ -78,7 +78,7 @@ class UserViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            friend = User.objects.get(username=username)
+            friend = User.objects.get(nickname=username)
         except User.DoesNotExist:
             return Response(
                 {"error": "User not found"},
