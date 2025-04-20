@@ -66,6 +66,9 @@ export class Page {
     container.innerHTML = this.template;
 
     container.appendChild(document.createElement('style')).textContent = this.style;
+
+    // Apply translations to the newly rendered content
+    translatePage();
   }
 
   /**

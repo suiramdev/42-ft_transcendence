@@ -23,7 +23,7 @@
         </defs>
       </svg>
     </div>
-    <button class="profile__view-stats-btn" id="view-stats-btn">Voir mes stats</button>
+    <button class="profile__view-stats-btn" id="view-stats-btn" data-i18n="profile.view-stats">Voir mes stats</button>
   </div>
   <div class="profile__content">
 
@@ -31,26 +31,32 @@
 
     </div>
     <p class="profile__bio"></p>
-    <button class="profile__edit-btn">Modifier le profil</button>
+    <button class="profile__edit-btn" data-i18n="profile.edit">Modifier le profil</button>
 
     <div class="profile__edit-form hidden">
-      <label>
-        Pseudo :
-        <input type="text" class="profile__edit-alias" />
-      </label>
+      <div class="profile__edit-form-row">
+        <label for="profile-alias" data-i18n="profile.edit.alias">
+          Pseudo :
+        </label>
+          <input type="text" id="profile-alias" class="profile__edit-alias" />
+      </div>
 
-      <label>
-        Bio :
-        <textarea class="profile__edit-bio"></textarea>
-      </label>
+      <div class="profile__edit-form-row">
+        <label for="profile-bio" data-i18n="profile.edit.bio">
+          Bio :
+        </label>
+        <textarea id="profile-bio" class="profile__edit-bio"></textarea>
+      </div>
 
-      <label>
-        Avatar :
-        <input type="file" class="profile__edit-avatar" accept="image/*" />
-      </label>
+      <div class="profile__edit-form-row">
+        <label for="profile-avatar" data-i18n="profile.edit.avatar">
+          Avatar :
+        </label>
+        <input type="file" id="profile-avatar" class="profile__edit-avatar" accept="image/*" />
+      </div>
 
-      <button class="profile__save-btn">Sauvegarder</button>
-      <button class="profile__cancel-btn">Annuler</button>
+      <button class="profile__save-btn" data-i18n="profile.edit.save">Sauvegarder</button>
+      <button class="profile__cancel-btn" data-i18n="profile.edit.cancel">Annuler</button>
     </div>
   </div>
 </section>

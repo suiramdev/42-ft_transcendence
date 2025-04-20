@@ -64,14 +64,20 @@
       <button id="start-game" data-i18n="game.multiplayer.start">Start Game</button>
       <div class="join-game-container">
         <button id="join-game" data-i18n="game.multiplayer.join">Join Game</button>
-        <input type="text" id="game-id-input" placeholder="Enter Game ID" class="game-input" />
+        <input
+          type="text"
+          id="game-id-input"
+          placeholder="Enter Game ID"
+          data-i18n-placeholder="game.multiplayer.join.placeholder"
+          class="game-input"
+        />
       </div>
     </div>
   </div>
   <div id="waiting-screen" style="display: none">
     <div class="window waiting-window">
       <div class="window__titlebar">
-        <div class="window__title">Waiting for Player 2</div>
+        <div class="window__title" data-i18n="game.multiplayer.waiting.title">Waiting for Player 2</div>
         <div class="window__controls">
           <button class="window__button" aria-label="Close"></button>
         </div>

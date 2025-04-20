@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { t } from '../utils/i18n.js';
 // ----------------- Player Class -----------------
 
 export class Player {
@@ -468,8 +469,14 @@ export class Game {
     this.leftScoreSprite = createTextSprite('0', 'green');
     this.rightScoreSprite = createTextSprite('0', 'blue');
 
-    this.leftNickSprite = createTextSprite(this.leftPlayerNickname || 'Player 1', 'green');
-    this.rightNickSprite = createTextSprite(this.rightPlayerNickname || 'Player 2', 'blue');
+    this.leftNickSprite = createTextSprite(
+      this.leftPlayerNickname || t('game.player.left'),
+      'green'
+    );
+    this.rightNickSprite = createTextSprite(
+      this.rightPlayerNickname || t('game.player.right'),
+      'blue'
+    );
 
     this.leftScoreSprite.position.set(-2, 7, 0);
     this.rightScoreSprite.position.set(2, 7, 0);

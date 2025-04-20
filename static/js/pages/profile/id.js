@@ -65,15 +65,15 @@ export class UserProfilePage extends Page {
     statsContainer.innerHTML = `
     <div class="profile__stats-item">
       <span class="profile__stats-value">${wins}</span>
-      <span class="profile__stats-label">Matchs gagnés</span>
+      <span class="profile__stats-label" data-i18n="profile.stats.wins">Matchs gagnés</span>
     </div>
     <div class="profile__stats-item">
       <span class="profile__stats-value">${losses}</span>
-      <span class="profile__stats-label">Matchs perdus</span>
+      <span class="profile__stats-label" data-i18n="profile.stats.losses">Matchs perdus</span>
     </div>
     <div class="profile__stats-item">
       <span class="profile__stats-value">${winRate}%</span>
-      <span class="profile__stats-label">Win Rate</span>
+      <span class="profile__stats-label" data-i18n="profile.stats.win-rate">Win Rate</span>
     </div>
   `;
     document.querySelector('#message-btn').addEventListener('click', () => {
@@ -89,7 +89,7 @@ export class UserProfilePage extends Page {
     if (existingAddBtn) {
       existingAddBtn.remove();
     }
-    if (globalThis.user.id !== this.displayUser.id){
+    if (globalThis.user.id !== this.displayUser.id) {
       if (isFriend) {
         if (removeFriendBtn) {
           removeFriendBtn.style.display = 'block';
@@ -114,7 +114,7 @@ export class UserProfilePage extends Page {
         });
       }
     }
-  } 
+  }
 
   async _loadAndDisplayMatchHistory(userId) {
     const accessToken = getCookie('access_token');
