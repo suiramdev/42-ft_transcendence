@@ -716,6 +716,13 @@ export function startGameLoop(game, winScore) {
 
   // Start the animation loop
   animate(game, winScore);
+
+  // Close the game when the route changes (when the page is closed)
+  document.addEventListener('routeChange', () => {
+    if (game?.isGameRunning) {
+      game.isGameRunning = false;
+    }
+  });
 }
 
 export function setupSliders() {
