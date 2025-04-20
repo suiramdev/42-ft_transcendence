@@ -37,7 +37,7 @@ export class GamePage extends Page {
     return true;
   }
 
-  onMount() {
+  async onMount() {
     console.log('Game page mounted');
     const startGame = document.getElementById('start-game');
     const joinGameButton = document.getElementById('join-game');
@@ -52,17 +52,15 @@ export class GamePage extends Page {
     });
 
     // Check if we need to join a game directly (from chat)
-    if (this.joinGameId) {
-      const gameIDInput = document.getElementById('game-id-input');
-      if (gameIDInput) {
-        gameIDInput.value = this.joinGameId;
-        this._joinGame(this.joinGameId);
-      }
+    if (this.joinGameId !== null && this.joinGameId !== undefined) {
+      this._joinGame(this.joinGameId);
     }
 
     // Check if we need to show waiting screen (after creating a game from chat)
-    if (this.waitingGameId) {
-      this._setupWaitingScreen(this.waitingGameId);
+    if (this.waitingGameId !== null && this.waitingGameId !== undefined) {
+      const gameId = await this.gameManager.createGame(this.waitingGameId);
+      this.gameId = gameId;
+      this._setupWaitingScreen(this.gameId);
     }
 
     joinGameButton.addEventListener('click', async e => {
@@ -108,8 +106,8 @@ export class GamePage extends Page {
         };
 
         // Create the game
-        const gameData = await this.gameManager.createGame();
-        this.gameId = gameData.game_id;
+        const gameId = await this.gameManager.createGame();
+        this.gameId = gameId;
 
         this._setupWaitingScreen(this.gameId);
       } catch (error) {
