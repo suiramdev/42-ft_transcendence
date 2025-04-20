@@ -59,8 +59,14 @@ export class GameManager {
     }
   }
 
-  async createGame() {
-    try {
+  /**
+   * Create a new game
+   * @param {string} [gameId] - The game ID to use, if null a new game will be created
+   * @returns {string} - The game ID
+   */
+  async createGame(gameId = null) {
+    this.gameId = gameId;
+    if (gameId === null || gameId === undefined) {
       const response = await fetch('/api/game/', {
         method: 'POST',
         headers: {
@@ -68,24 +74,20 @@ export class GameManager {
           'Content-Type': 'application/json',
         },
       });
-      console.log(response);
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create game');
       }
 
-      const gameData = await response.json();
-      console.log('Game created:', gameData);
-
-      this.gameId = gameData.game_id;
-      this.localPlayer = 'left';
-      await this.initializeGameSocket(gameData.game_id);
-
-      return gameData;
-    } catch (error) {
-      console.error('Error creating game:', error);
-      throw error;
+      const data = await response.json();
+      this.gameId = data.game_id;
     }
+
+    this.localPlayer = 'left';
+    await this.initializeGameSocket(this.gameId);
+
+    return this.gameId;
   }
 
   async initializeGameSocket(gameId) {

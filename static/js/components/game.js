@@ -577,7 +577,9 @@ export class Game {
 
     // Interface utilisateur
     const gameContainer = document.getElementById('game-container');
-    gameContainer.style.display = 'none';
+    if (gameContainer) {
+      gameContainer.style.display = 'none';
+    }
 
     // Get player names with fallbacks
     const leftPlayerName = this.leftPlayerNickname || 'Left Player';
@@ -588,23 +590,33 @@ export class Game {
     const winnerName = isLeftWinner ? leftPlayerName : rightPlayerName;
 
     // Update the end game screen with the details
-    document.getElementById('winner-name').textContent = `${winnerName} Wins!`;
-    document.getElementById(
-      'final-score'
-    ).textContent = `${leftPlayerName} ${this.playerLeft.getScore()} - ${this.playerRight.getScore()} ${rightPlayerName}`;
+    const winnerNameElement = document.getElementById('winner-name');
+    if (winnerNameElement) {
+      winnerNameElement.textContent = `${winnerName} Wins!`;
+    }
+    const finalScoreElement = document.getElementById('final-score');
+    if (finalScoreElement) {
+      finalScoreElement.textContent = `${leftPlayerName} ${this.playerLeft.getScore()} - ${this.playerRight.getScore()} ${rightPlayerName}`;
+    }
 
     // Show the end game screen
     const endGameScreen = document.getElementById('end-game-screen');
-    endGameScreen.style.display = 'flex';
+    if (endGameScreen) {
+      endGameScreen.style.display = 'flex';
+    }
 
     document.getElementById('main-menu-btn').addEventListener('click', () => {
-      endGameScreen.style.display = 'none';
+      if (endGameScreen) {
+        endGameScreen.style.display = 'none';
+      }
       window.location.href = '/';
     });
 
     // Add event listener for close button
     document.querySelector('.window__close').addEventListener('click', () => {
-      endGameScreen.style.display = 'none';
+      if (endGameScreen) {
+        endGameScreen.style.display = 'none';
+      }
       window.location.reload();
     });
 

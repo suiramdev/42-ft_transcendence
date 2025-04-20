@@ -30,6 +30,7 @@ export class Router {
       this._handleRoute();
     });
     window.addEventListener('popstate', async () => {
+      document.dispatchEvent(new Event('routeChange'));
       // Handle route changes when the user navigates back/forward
       this._handleRoute();
     });
@@ -144,8 +145,6 @@ export class Router {
       const notFoundPage = new NotFoundPage();
       await notFoundPage.mount(this.rootElement);
     }
-
-    document.dispatchEvent(new Event('routeChange'));
   }
 
   /**
@@ -157,6 +156,8 @@ export class Router {
     console.log(`(${this.constructor.name}) Navigating from ${previousRoute} to ${route}`);
     history.pushState({}, '', route);
     this._handleRoute();
+
+    document.dispatchEvent(new Event('routeChange'));
   }
 
   /**
@@ -164,6 +165,8 @@ export class Router {
    */
   back() {
     history.back();
+
+    document.dispatchEvent(new Event('routeChange'));
   }
 
   /**
