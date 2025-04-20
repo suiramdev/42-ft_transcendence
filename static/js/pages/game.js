@@ -12,7 +12,7 @@ export class GamePage extends Page {
     this.waitingForPlayer = false;
     // Default game settings
     this.gameSettings = {
-      ballSpeed: 0.1,
+      ballSpeed: 0.2,
       paddleSize: 3,
       paddleSpeed: 0.3,
       ballSize: 0.5,
