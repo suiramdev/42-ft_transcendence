@@ -222,6 +222,7 @@ function animate(animations) {
 }
 
 export function pregameSetup() {
+  isAnimating = true;
   const animations = {
     ball: new Pregame(document.getElementById('ball-speed-canva'), 'ball'),
     paddleSize: new Pregame(document.getElementById('paddle-size-canva'), 'paddleSize'),

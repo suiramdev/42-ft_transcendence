@@ -44,7 +44,7 @@ export class GamePage extends Page {
 
     setupSliders();
 
-    pregame();
+    // pregame();
     pregameSetup();
     // Écouter les mises à jour du jeu
     document.addEventListener('game-update', event => {
