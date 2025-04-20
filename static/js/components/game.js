@@ -163,6 +163,13 @@ export class ball {
         const ballRelativePosition = this.y - paddleCenter; // Calculer la distance entre la balle et le centre du paddle
         this.direction_y = ballRelativePosition / player_left.getheight(); // Utiliser cette distance pour ajuster la direction verticale
 
+        // Normalize the direction vector to maintain consistent speed
+        const magnitude = Math.sqrt(
+          this.direction_x * this.direction_x + this.direction_y * this.direction_y
+        );
+        this.direction_x /= magnitude;
+        this.direction_y /= magnitude;
+
         // Send hit event since this player is authoritative
         if (this.gameManager.localPlayer === 'left') {
           this.gameManager.sendHitBall(
@@ -189,6 +196,13 @@ export class ball {
         const paddleCenter = player_right.gety();
         const ballRelativePosition = this.y - paddleCenter;
         this.direction_y = ballRelativePosition / player_right.getheight();
+
+        // Normalize the direction vector to maintain consistent speed
+        const magnitude = Math.sqrt(
+          this.direction_x * this.direction_x + this.direction_y * this.direction_y
+        );
+        this.direction_x /= magnitude;
+        this.direction_y /= magnitude;
 
         // Send hit event since this player is authoritative
         if (this.gameManager.localPlayer === 'right') {
