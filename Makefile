@@ -74,6 +74,11 @@ prod:
 	@echo "Starting production environment (all containers)..."
 	@$(DOCKER_COMPOSE_PROD) up -d
 
+restart:
+	@echo "Restarting production environment..."
+	@$(DOCKER_COMPOSE_PROD) down
+	@$(DOCKER_COMPOSE_PROD) up -d
+
 services:
 	@echo "Starting essential services (PostgreSQL and Redis)..."
 	@$(DOCKER_COMPOSE_DEV) up -d
