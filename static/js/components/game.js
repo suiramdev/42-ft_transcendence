@@ -630,7 +630,7 @@ export class Game {
       if (endGameScreen) {
         endGameScreen.style.display = 'none';
       }
-      window.location.href = '/';
+      globalThis.router.navigate('/');
     });
 
     // Add event listener for close button
@@ -638,7 +638,7 @@ export class Game {
       if (endGameScreen) {
         endGameScreen.style.display = 'none';
       }
-      window.location.reload();
+      globalThis.router.navigate('/');
     });
 
     // Nettoyage final

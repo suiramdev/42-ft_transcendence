@@ -514,12 +514,12 @@ export class Game {
 
     document.getElementById('main-menu-btn').addEventListener('click', () => {
       endGameScreen.style.display = 'none';
-      window.location.reload();
+      globalThis.router.navigate('/');
     });
 
     document.querySelector('.window__close').addEventListener('click', () => {
       endGameScreen.style.display = 'none';
-      window.location.reload();
+      globalThis.router.navigate('/');
     });
 
     this.renderer.dispose();
